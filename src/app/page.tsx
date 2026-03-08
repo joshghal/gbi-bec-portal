@@ -5,7 +5,6 @@ import { Send, Church, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { ChatMessage } from '@/components/chat-message';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 
@@ -13,7 +12,7 @@ const WELCOME_MESSAGE: ChatMessageType = {
   id: 'welcome',
   role: 'assistant',
   content:
-    'Halo! Saya asisten virtual **GBI BEC Sukawarna**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
+    'Halo! Saya asisten virtual **GBI Baranangsiang Evening Church**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
   suggestedQuestions: [
     'Kapan jadwal ibadah GBI BEC?',
     'Apa saja syarat baptisan air?',
