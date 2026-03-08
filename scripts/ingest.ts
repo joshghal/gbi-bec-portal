@@ -50,7 +50,7 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'kontak-pernikahan',
-    content: 'Untuk pemberkatan pernikahan, silahkan menghubungi Call Centre Unit Pernikahan di nomor HP 0896-7929-9098.',
+    content: 'Untuk pemberkatan pernikahan, silahkan menghubungi Call Centre Unit Pernikahan di WhatsApp 0896-7929-9098 (https://wa.me/6289679299098).',
     metadata: { category: 'pernikahan', source: 'kegiatan-gbi-bec', type: 'kontak' },
   },
   {

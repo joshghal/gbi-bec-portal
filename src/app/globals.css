@@ -49,7 +49,7 @@
 
 :root {
   /* BEC Brand: Navy #1B365D, Gold #C8922A */
-  --background: oklch(0.988 0.002 248);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.208 0.040 266);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.208 0.040 266);
@@ -57,9 +57,9 @@
   --popover-foreground: oklch(0.208 0.040 266);
   --primary: oklch(0.333 0.077 258);
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.958 0.004 271);
+  --secondary: oklch(0.920 0.016 257);
   --secondary-foreground: oklch(0.333 0.077 258);
-  --muted: oklch(0.958 0.004 271);
+  --muted: oklch(0.920 0.016 257);
   --muted-foreground: oklch(0.554 0.041 257);
   --accent: oklch(0.695 0.131 79);
   --accent-foreground: oklch(0.208 0.040 266);

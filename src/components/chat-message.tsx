@@ -48,8 +48,17 @@ export function ChatMessage({ message, onSuggestionClick, onRetry }: ChatMessage
           {isUser ? (
             <p>{message.content}</p>
           ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-2 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:my-2 [&_li]:my-0.5 [&_p]:my-1.5 [&_a]:text-primary [&_a]:underline dark:[&_a]:text-blue-300">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  a: ({ href, children }) => (
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {children}
+                    </a>
+                  ),
+                }}
+              >
                 {message.content}
               </ReactMarkdown>
             </div>
@@ -57,7 +66,7 @@ export function ChatMessage({ message, onSuggestionClick, onRetry }: ChatMessage
         </div>
 
         {/* Timestamp */}
-        <span className={`text-[10px] text-muted-foreground ${isUser ? 'text-right' : ''}`}>
+        <span className={`text-[10px] text-muted-foreground ${isUser ? 'text-right' : ''}`} suppressHydrationWarning>
           {formatTime(message.timestamp)}
         </span>
 
@@ -95,7 +104,7 @@ export function ChatMessage({ message, onSuggestionClick, onRetry }: ChatMessage
             {message.suggestedQuestions.map((q, i) => (
               <button
                 key={i}
-                className="cursor-pointer rounded-full border border-primary/20 bg-primary/5 text-sm py-1.5 px-3.5 text-foreground hover:bg-primary/10 hover:border-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="cursor-pointer rounded-full border border-primary/30 bg-secondary text-sm py-1.5 px-3.5 text-foreground hover:bg-primary/15 hover:border-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 onClick={() => onSuggestionClick?.(q)}
               >
                 {q}
