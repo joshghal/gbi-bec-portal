@@ -55,7 +55,7 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'kontak-callcentre',
-    content: 'Jika ada pertanyaan lainnya, silahkan hubungi Call Centre GBI BEC di nomor HP 0878-2342-0950.',
+    content: 'Jika ada pertanyaan lainnya, silahkan hubungi Call Centre GBI BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950).',
     metadata: { category: 'kontak', source: 'kegiatan-gbi-bec', type: 'kontak' },
   },
   {

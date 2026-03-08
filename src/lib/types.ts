@@ -5,6 +5,7 @@ export interface ChatMessage {
   suggestedQuestions?: string[];
   sources?: string[];
   timestamp: number;
+  isError?: boolean;
 }
 
 export interface ChatRequest {

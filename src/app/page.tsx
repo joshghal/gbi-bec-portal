@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Church, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from '@/components/chat-message';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
@@ -26,7 +26,7 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -34,7 +34,7 @@ export default function Home() {
     }
   }, [messages]);
 
-  const sendMessage = async (text: string) => {
+  const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
     const userMessage: ChatMessageType = {
@@ -80,19 +80,36 @@ export default function Home() {
         id: `error-${Date.now()}`,
         role: 'assistant',
         content:
-          'Maaf, terjadi kesalahan. Silahkan coba lagi atau hubungi Call Centre GBI BEC di **0878-2342-0950**.',
+          'Maaf, terjadi kesalahan. Silahkan coba lagi atau hubungi Call Centre GBI BEC di [WhatsApp 0878-2342-0950](https://wa.me/6287823420950).',
         timestamp: Date.now(),
+        isError: true,
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
     }
-  };
+  }, [isLoading, messages]);
+
+  const handleRetry = useCallback(() => {
+    const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
+    if (lastUserMessage) {
+      // Remove the error message before retrying
+      setMessages(prev => prev.filter(m => !m.isError));
+      sendMessage(lastUserMessage.content);
+    }
+  }, [messages, sendMessage]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sendMessage(input);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(input);
+    }
   };
 
   return (
@@ -118,6 +135,7 @@ export default function Home() {
               key={message.id}
               message={message}
               onSuggestionClick={sendMessage}
+              onRetry={message.isError ? handleRetry : undefined}
             />
           ))}
           {isLoading && (
@@ -133,17 +151,18 @@ export default function Home() {
       <div className="border-t bg-card p-4 shrink-0">
         <form
           onSubmit={handleSubmit}
-          className="max-w-2xl mx-auto flex gap-2"
+          className="max-w-2xl mx-auto flex gap-2 items-end"
         >
-          <Input
+          <Textarea
             ref={inputRef}
             value={input}
             onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Ketik pertanyaan Anda..."
             disabled={isLoading}
-            className="flex-1"
+            className="flex-1 min-h-10 max-h-32 resize-none field-sizing-content"
           />
-          <Button type="submit" disabled={isLoading || !input.trim()}>
+          <Button type="submit" disabled={isLoading || !input.trim()} className="shrink-0">
             <Send className="w-4 h-4" />
           </Button>
         </form>
