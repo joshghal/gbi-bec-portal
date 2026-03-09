@@ -8,6 +8,14 @@ import { NextRequest, NextResponse } from 'next/server';
 function getAdminApp(): App {
   if (getApps().length > 0) return getApps()[0];
 
+  // Vercel: base64-encoded service account
+  const base64 = process.env.GOOGLE_SERVICE_ACCOUNT_BASE64;
+  if (base64) {
+    const serviceAccount = JSON.parse(Buffer.from(base64, 'base64').toString());
+    return initializeApp({ credential: cert(serviceAccount) });
+  }
+
+  // Local: file-based service account
   const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
   if (credPath) {
     const fullPath = resolve(credPath);
@@ -15,7 +23,7 @@ function getAdminApp(): App {
     return initializeApp({ credential: cert(serviceAccount) });
   }
 
-  // Fallback: Vercel / GCP hosted environments with default credentials
+  // Fallback: GCP hosted environments with default credentials
   return initializeApp({ projectId: 'baranangsiang-evening-chur' });
 }
 
