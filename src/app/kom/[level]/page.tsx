@@ -23,28 +23,28 @@ const THEME: Record<string, { gradient: string; label: string; badge: string; ac
     label: 'text-green-300/80',
     badge: 'bg-green-500/20 text-green-200 border-green-400/30',
     accent: 'text-green-200/70',
-    glass: '/glass-one.png',
+    glass: '/glass-one.webp',
   },
   '200': {
     gradient: 'from-blue-950 to-slate-900',
     label: 'text-blue-300/80',
     badge: 'bg-blue-500/20 text-blue-200 border-blue-400/30',
     accent: 'text-blue-200/70',
-    glass: '/glass-second.png',
+    glass: '/glass-second.webp',
   },
   '300': {
     gradient: 'from-red-950 to-slate-900',
     label: 'text-red-300/80',
     badge: 'bg-red-500/20 text-red-200 border-red-400/30',
     accent: 'text-red-200/70',
-    glass: '/glass-third.png',
+    glass: '/glass-third.webp',
   },
   '400': {
     gradient: 'from-gray-900 to-gray-800',
     label: 'text-gray-400',
     badge: 'bg-gray-600/30 text-gray-300 border-gray-500/30',
     accent: 'text-gray-400',
-    glass: '/glass-fourth.png',
+    glass: '/glass-fourth.webp',
   },
 };
 

@@ -15,10 +15,10 @@ function formatPhone(raw: string): string {
 }
 
 const GLASS_MAP: Record<string, string> = {
-  kom: '/glass-one.png',
-  baptism: '/glass-second.png',
-  'child-dedication': '/glass-third.png',
-  prayer: '/glass-fourth.png',
+  kom: '/glass-one.webp',
+  baptism: '/glass-second.webp',
+  'child-dedication': '/glass-third.webp',
+  prayer: '/glass-fourth.webp',
 };
 
 interface FormTraditionalProps {
@@ -90,7 +90,7 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
   ] as const;
 
   const currentStatusIndex = STATUS_STEPS.findIndex(s => s.key === submission.status);
-  const glassImage = GLASS_MAP[submission.type] || '/glass-one.png';
+  const glassImage = GLASS_MAP[submission.type] || '/glass-one.webp';
   const name = submission.data.namaLengkap || submission.data.namaAnak || '';
 
   return (

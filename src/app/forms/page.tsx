@@ -12,12 +12,12 @@ import {
 import { FORM_CONFIGS } from '@/lib/form-config';
 
 const glassImageMap: Record<string, string> = {
-  kom: '/glass-one.png',
-  baptism: '/glass-second.png',
-  'child-dedication': '/glass-third.png',
-  prayer: '/glass-fourth.png',
+  kom: '/glass-one.webp',
+  baptism: '/glass-second.webp',
+  'child-dedication': '/glass-third.webp',
+  prayer: '/glass-fourth.webp',
 };
-const getGlassImage = (type: string) => glassImageMap[type] || '/glass-one.png';
+const getGlassImage = (type: string) => glassImageMap[type] || '/glass-one.webp';
 
 export default function FormsPage() {
   return (

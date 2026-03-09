@@ -11,12 +11,12 @@ import { FormSummary } from '@/components/form-summary';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 
 const formGlassMap: Record<string, string> = {
-  kom: '/glass-one.png',
-  baptism: '/glass-second.png',
-  'child-dedication': '/glass-third.png',
-  prayer: '/glass-fourth.png',
+  kom: '/glass-one.webp',
+  baptism: '/glass-second.webp',
+  'child-dedication': '/glass-third.webp',
+  prayer: '/glass-fourth.webp',
 };
-const getFormGlass = (type: string) => formGlassMap[type] || '/glass-one.png';
+const getFormGlass = (type: string) => formGlassMap[type] || '/glass-one.webp';
 
 interface ChatMessageProps {
   message: ChatMessageType;

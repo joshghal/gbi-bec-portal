@@ -37,7 +37,7 @@ export default function KomPage() {
               {/* Glass accent — bottom right decorative */}
               <div className="absolute -bottom-6 -right-6 w-48 h-48 md:w-64 md:h-64 opacity-30">
                 <Image
-                  src="/glass-one.png"
+                  src="/glass-one.webp"
                   alt=""
                   fill
                   className="object-contain"
@@ -67,7 +67,7 @@ export default function KomPage() {
             <Card className="relative overflow-hidden h-full min-h-[160px] md:min-h-0 bg-gradient-to-br from-blue-950 to-slate-900 hover:shadow-lg hover:scale-[1.01] transition-all cursor-pointer border-0">
               <div className="absolute -bottom-4 -right-4 w-28 h-28 opacity-25">
                 <Image
-                  src="/glass-second.png"
+                  src="/glass-second.webp"
                   alt=""
                   fill
                   className="object-contain"
@@ -93,7 +93,7 @@ export default function KomPage() {
             <Card className="relative overflow-hidden h-full min-h-[160px] md:min-h-0 bg-gradient-to-br from-red-950 to-slate-900 hover:shadow-lg hover:scale-[1.01] transition-all cursor-pointer border-0">
               <div className="absolute -bottom-4 -right-4 w-28 h-28 opacity-25">
                 <Image
-                  src="/glass-third.png"
+                  src="/glass-third.webp"
                   alt=""
                   fill
                   className="object-contain"
@@ -119,7 +119,7 @@ export default function KomPage() {
             <Card className="relative overflow-hidden bg-gradient-to-r from-gray-900 to-gray-800 hover:shadow-lg hover:scale-[1.005] transition-all cursor-pointer border-0">
               <div className="absolute -right-3 -top-3 w-28 h-28 opacity-20">
                 <Image
-                  src="/glass-fourth.png"
+                  src="/glass-fourth.webp"
                   alt=""
                   fill
                   className="object-contain"
