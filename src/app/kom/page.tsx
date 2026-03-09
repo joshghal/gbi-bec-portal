@@ -1,48 +1,9 @@
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Download, Lock } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
-const KOM_LEVELS = [
-  {
-    level: 100,
-    title: 'Pencari Tuhan',
-    subtitle: 'The Seeker',
-    sessions: 27,
-    description: 'Dasar-dasar kekristenan, pertumbuhan iman, mengenal Allah, dan kehidupan yang memberi dampak.',
-    hasPdf: true,
-    color: 'bg-blue-500',
-  },
-  {
-    level: 200,
-    title: 'Pelayan Tuhan',
-    subtitle: 'The Servant',
-    sessions: 23,
-    description: 'Karakter pelayan, pengetahuan Alkitab, kehidupan Kristen, dan pengenalan pelayanan.',
-    hasPdf: true,
-    color: 'bg-green-500',
-  },
-  {
-    level: 300,
-    title: 'Prajurit Tuhan',
-    subtitle: 'The Soldier',
-    sessions: 16,
-    description: 'Karakter prajurit, doa & penyembahan, karakteristik pelayanan, dan Kerajaan Allah.',
-    hasPdf: false,
-    color: 'bg-orange-500',
-  },
-  {
-    level: 400,
-    title: 'Penilik Tuhan',
-    subtitle: 'The Steward',
-    sessions: 16,
-    description: 'Authentic, Broken Hearted, Courageous, Destiny Driven — refleksi mendalam pemuridan.',
-    hasPdf: false,
-    color: 'bg-purple-500',
-  },
-];
 
 export default function KomPage() {
   return (
@@ -68,55 +29,139 @@ export default function KomPage() {
           </p>
         </div>
 
-        <div className="grid gap-4">
-          {KOM_LEVELS.map((kom) => (
-            <Link key={kom.level} href={`/kom/${kom.level}`}>
-              <Card className="hover:border-primary/50 hover:shadow-md transition-all cursor-pointer">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-lg ${kom.color} text-white flex items-center justify-center font-bold text-lg`}>
-                        {kom.level}
-                      </div>
-                      <div>
-                        <CardTitle className="text-base">{kom.title}</CardTitle>
-                        <CardDescription className="text-xs italic">{kom.subtitle}</CardDescription>
-                      </div>
-                    </div>
-                    <Badge variant="secondary">{kom.sessions} sesi</Badge>
+        {/* Bento Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 md:grid-rows-[1fr_1fr_auto] gap-3">
+          {/* KOM 100 — Hero card */}
+          <Link href="/kom/100" className="col-span-2 md:row-span-2">
+            <Card className="relative overflow-hidden h-full min-h-[260px] md:min-h-[340px] bg-gradient-to-br from-green-950 to-slate-900 hover:shadow-lg hover:scale-[1.01] transition-all cursor-pointer border-0">
+              {/* Glass accent — bottom right decorative */}
+              <div className="absolute -bottom-6 -right-6 w-48 h-48 md:w-64 md:h-64 opacity-30">
+                <Image
+                  src="/glass-one.png"
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              {/* Content */}
+              <div className="relative z-10 flex flex-col justify-between h-full p-5">
+                <div className="flex items-start justify-between">
+                  <p className="text-xs font-semibold text-green-300/80 uppercase tracking-widest">KOM 100</p>
+                  <Badge className="bg-green-500/20 text-green-200 border-green-400/30 hover:bg-green-500/20">
+                    27 sesi
+                  </Badge>
+                </div>
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-white mb-1">Pencari Tuhan</h2>
+                  <p className="text-sm text-green-200/70 italic mb-3">The Seeker</p>
+                  <p className="text-sm text-green-100/60 leading-relaxed max-w-sm">
+                    Dasar-dasar kekristenan, pertumbuhan iman, mengenal Allah, dan kehidupan yang memberi dampak.
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          {/* KOM 200 — Right top (desktop), left col (mobile) */}
+          <Link href="/kom/200">
+            <Card className="relative overflow-hidden h-full min-h-[160px] md:min-h-0 bg-gradient-to-br from-blue-950 to-slate-900 hover:shadow-lg hover:scale-[1.01] transition-all cursor-pointer border-0">
+              <div className="absolute -bottom-4 -right-4 w-28 h-28 opacity-25">
+                <Image
+                  src="/glass-second.png"
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div className="relative z-10 flex flex-col justify-between h-full p-4">
+                <div className="flex items-start justify-between">
+                  <p className="text-xs font-semibold text-blue-300/80 uppercase tracking-widest">KOM 200</p>
+                  <Badge className="bg-blue-500/20 text-blue-200 border-blue-400/30 hover:bg-blue-500/20 text-[10px]">
+                    23 sesi
+                  </Badge>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Pelayan Tuhan</h2>
+                  <p className="text-xs text-blue-200/70 italic">The Servant</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          {/* KOM 300 — Right bottom (desktop), right col (mobile) */}
+          <Link href="/kom/300">
+            <Card className="relative overflow-hidden h-full min-h-[160px] md:min-h-0 bg-gradient-to-br from-red-950 to-slate-900 hover:shadow-lg hover:scale-[1.01] transition-all cursor-pointer border-0">
+              <div className="absolute -bottom-4 -right-4 w-28 h-28 opacity-25">
+                <Image
+                  src="/glass-third.png"
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div className="relative z-10 flex flex-col justify-between h-full p-4">
+                <div className="flex items-start justify-between">
+                  <p className="text-xs font-semibold text-red-300/80 uppercase tracking-widest">KOM 300</p>
+                  <Badge className="bg-red-500/20 text-red-200 border-red-400/30 hover:bg-red-500/20 text-[10px]">
+                    16 sesi
+                  </Badge>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Prajurit Tuhan</h2>
+                  <p className="text-xs text-red-200/70 italic">The Soldier</p>
+                </div>
+              </div>
+            </Card>
+          </Link>
+
+          {/* KOM 400 — Full width compact strip */}
+          <Link href="/kom/400" className="col-span-2 md:col-span-3">
+            <Card className="relative overflow-hidden bg-gradient-to-r from-gray-900 to-gray-800 hover:shadow-lg hover:scale-[1.005] transition-all cursor-pointer border-0">
+              <div className="absolute -right-3 -top-3 w-28 h-28 opacity-20">
+                <Image
+                  src="/glass-fourth.png"
+                  alt=""
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <div className="relative z-10 flex items-center justify-between px-5 py-4">
+                <div className="flex items-center gap-4">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest">KOM 400</p>
+                  <div>
+                    <h2 className="text-base font-bold text-white">Penilik Tuhan</h2>
+                    <p className="text-xs text-gray-400 italic">The Steward</p>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">{kom.description}</p>
-                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    {kom.hasPdf ? (
-                      <>
-                        <BookOpen className="w-3.5 h-3.5" />
-                        <span>Buku materi tersedia</span>
-                        <Download className="w-3.5 h-3.5 ml-auto" />
-                      </>
-                    ) : (
-                      <>
-                        <Lock className="w-3.5 h-3.5" />
-                        <span>Daftar materi & silabus</span>
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                </div>
+                <Badge className="bg-gray-600/30 text-gray-300 border-gray-500/30 hover:bg-gray-600/30">
+                  16 sesi
+                </Badge>
+              </div>
+            </Card>
+          </Link>
         </div>
 
-        <Card>
-          <CardContent className="pt-6 space-y-3 text-sm">
-            <p className="font-medium">Informasi Penting</p>
-            <ul className="space-y-2 text-muted-foreground">
-              <li>KOM bersifat <strong>berjenjang</strong> — harus lulus level sebelumnya untuk lanjut.</li>
-              <li>Sertifikat KOM 100 diperlukan untuk <strong>surat baptis</strong> dan <strong>pendaftaran pernikahan</strong>.</li>
-              <li>Kelulusan: kehadiran minimum, tugas/worksheet, dan ujian akhir.</li>
-              <li>Sertifikat berlaku <strong>nasional</strong> di seluruh GBI Indonesia.</li>
-            </ul>
+        <Card className="bg-[#fdf6ec] border-[#f0e0c4]">
+          <CardContent className="text-sm">
+            <p className="font-semibold text-[#7a5c2e] mb-4">Informasi Penting</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-[#f7eddc] rounded-lg px-3 py-2">
+                <p className="text-xs font-semibold text-[#7a5c2e] mb-0.5">Berjenjang</p>
+                <p className="text-xs text-[#8b7355]">Harus lulus level sebelumnya untuk lanjut</p>
+              </div>
+              <div className="bg-[#f7eddc] rounded-lg px-3 py-2">
+                <p className="text-xs font-semibold text-[#7a5c2e] mb-0.5">Sertifikat KOM 100</p>
+                <p className="text-xs text-[#8b7355]">Diperlukan untuk surat baptis & pendaftaran pernikahan</p>
+              </div>
+              <div className="bg-[#f7eddc] rounded-lg px-3 py-2">
+                <p className="text-xs font-semibold text-[#7a5c2e] mb-0.5">Kelulusan</p>
+                <p className="text-xs text-[#8b7355]">Kehadiran minimum, tugas/worksheet, dan ujian akhir</p>
+              </div>
+              <div className="bg-[#f7eddc] rounded-lg px-3 py-2">
+                <p className="text-xs font-semibold text-[#7a5c2e] mb-0.5">Berlaku Nasional</p>
+                <p className="text-xs text-[#8b7355]">Sertifikat berlaku di seluruh GBI Indonesia</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </main>

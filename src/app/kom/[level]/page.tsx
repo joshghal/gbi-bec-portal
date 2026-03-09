@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Download, BookOpen, Clock, GraduationCap } from 'lucide-react';
+import { ArrowLeft, Download, Clock } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface KomData {
@@ -11,11 +12,41 @@ interface KomData {
   subtitle: string;
   sessions: number;
   year: number;
-  color: string;
   pdfFile: string | null;
   series: { code: string; name: string; count: number; topics: string[] }[];
   jadwal?: string;
 }
+
+const THEME: Record<string, { gradient: string; label: string; badge: string; accent: string; glass: string }> = {
+  '100': {
+    gradient: 'from-green-950 to-slate-900',
+    label: 'text-green-300/80',
+    badge: 'bg-green-500/20 text-green-200 border-green-400/30',
+    accent: 'text-green-200/70',
+    glass: '/glass-one.png',
+  },
+  '200': {
+    gradient: 'from-blue-950 to-slate-900',
+    label: 'text-blue-300/80',
+    badge: 'bg-blue-500/20 text-blue-200 border-blue-400/30',
+    accent: 'text-blue-200/70',
+    glass: '/glass-second.png',
+  },
+  '300': {
+    gradient: 'from-red-950 to-slate-900',
+    label: 'text-red-300/80',
+    badge: 'bg-red-500/20 text-red-200 border-red-400/30',
+    accent: 'text-red-200/70',
+    glass: '/glass-third.png',
+  },
+  '400': {
+    gradient: 'from-gray-900 to-gray-800',
+    label: 'text-gray-400',
+    badge: 'bg-gray-600/30 text-gray-300 border-gray-500/30',
+    accent: 'text-gray-400',
+    glass: '/glass-fourth.png',
+  },
+};
 
 const KOM_DATA: Record<string, KomData> = {
   '100': {
@@ -24,7 +55,6 @@ const KOM_DATA: Record<string, KomData> = {
     subtitle: 'The Seeker',
     sessions: 27,
     year: 2005,
-    color: 'bg-blue-500',
     pdfFile: '/kom/KOM-100-Pencari-Tuhan.pdf',
     jadwal: 'Online setiap hari Kamis pukul 18:30 WIB',
     series: [
@@ -60,7 +90,6 @@ const KOM_DATA: Record<string, KomData> = {
     subtitle: 'The Servant',
     sessions: 23,
     year: 2005,
-    color: 'bg-green-500',
     pdfFile: '/kom/KOM-200-Pelayan-Tuhan.pdf',
     jadwal: 'Online setiap hari Kamis pukul 18:30 WIB',
     series: [
@@ -96,7 +125,6 @@ const KOM_DATA: Record<string, KomData> = {
     subtitle: 'The Soldier',
     sessions: 16,
     year: 2008,
-    color: 'bg-orange-500',
     pdfFile: null,
     jadwal: 'Online setiap hari Rabu pukul 18:30 WIB',
     series: [
@@ -132,7 +160,6 @@ const KOM_DATA: Record<string, KomData> = {
     subtitle: 'The Steward',
     sessions: 16,
     year: 2015,
-    color: 'bg-purple-500',
     pdfFile: null,
     series: [
       {
@@ -170,105 +197,106 @@ export function generateStaticParams() {
 export default async function KomLevelPage({ params }: { params: Promise<{ level: string }> }) {
   const { level } = await params;
   const kom = KOM_DATA[level];
+  const theme = THEME[level];
 
-  if (!kom) notFound();
+  if (!kom || !theme) notFound();
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card px-4 py-3 flex items-center gap-3">
-        <Link href="/kom">
-          <Button variant="ghost" size="icon" className="shrink-0">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div className={`w-10 h-10 rounded-lg ${kom.color} text-white flex items-center justify-center font-bold text-sm`}>
-          {kom.level}
+      {/* Hero banner */}
+      <div className={`relative overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
+        {/* Glass accent */}
+        <div className="absolute -bottom-10 -right-10 w-72 h-72 md:w-96 md:h-96 opacity-25">
+          <Image src={theme.glass} alt="" fill className="object-contain" />
         </div>
-        <div className="flex-1">
-          <h1 className="font-semibold text-lg leading-tight">KOM {kom.level}</h1>
-          <p className="text-xs text-muted-foreground">{kom.title} — {kom.subtitle}</p>
-        </div>
-        {kom.pdfFile && (
-          <a href={kom.pdfFile} download>
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <Download className="w-4 h-4" />
-              PDF
+
+        {/* Back button */}
+        <div className="relative z-10 px-4 pt-3">
+          <Link href="/kom">
+            <Button variant="ghost" size="icon" className="text-white/70 hover:text-white hover:bg-white/10">
+              <ArrowLeft className="w-5 h-5" />
             </Button>
-          </a>
+          </Link>
+        </div>
+
+        {/* Hero content */}
+        <div className="relative z-10 px-5 pb-5 pt-2">
+          <p className={`text-xs font-semibold uppercase tracking-widest mb-1 ${theme.label}`}>KOM {kom.level}</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white">{kom.title}</h1>
+          <p className={`text-sm italic ${theme.accent}`}>{kom.subtitle}</p>
+
+          {/* Stat chips */}
+          <div className="flex flex-wrap gap-2 mt-4">
+            <Badge className={`${theme.badge} hover:${theme.badge}`}>
+              {kom.sessions} sesi
+            </Badge>
+            <Badge className={`${theme.badge} hover:${theme.badge}`}>
+              Sejak {kom.year}
+            </Badge>
+            {kom.jadwal && (
+              <Badge className={`${theme.badge} hover:${theme.badge}`}>
+                <Clock className="w-3 h-3 mr-1" />
+                {kom.jadwal}
+              </Badge>
+            )}
+          </div>
+        </div>
+
+        {/* PDF download bar */}
+        {kom.pdfFile && (
+          <div className="relative z-10 px-5 pb-4">
+            <a href={kom.pdfFile} download>
+              <Button variant="secondary" size="sm" className="gap-1.5 bg-white/10 text-white hover:bg-white/20 border-0">
+                <Download className="w-4 h-4" />
+                Download Buku Materi (PDF)
+              </Button>
+            </a>
+          </div>
         )}
-      </header>
+      </div>
 
       <main className="max-w-2xl mx-auto p-4 space-y-4">
-        {/* Quick stats */}
-        <div className="flex gap-3">
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <BookOpen className="w-4 h-4" />
-            <span>{kom.sessions} sesi</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <GraduationCap className="w-4 h-4" />
-            <span>Diluncurkan {kom.year}</span>
-          </div>
-          {kom.jadwal && (
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <Clock className="w-4 h-4" />
-              <span>{kom.jadwal}</span>
-            </div>
-          )}
-        </div>
-
-        {/* PDF Viewer */}
-        {kom.pdfFile && (
-          <Card>
-            <CardContent className="p-0 overflow-hidden rounded-lg">
-              <iframe
-                src={kom.pdfFile}
-                className="w-full h-[70vh] border-0"
-                title={`KOM ${kom.level} - ${kom.title}`}
-              />
-            </CardContent>
-          </Card>
-        )}
-
         {/* Curriculum */}
         <div className="space-y-3">
           <h2 className="font-semibold">Daftar Materi</h2>
           {kom.series.map((s) => (
             <Card key={s.code}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm font-medium">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium">
                     <span className="text-muted-foreground mr-1.5">{s.code}</span>
                     {s.name}
-                  </CardTitle>
-                  <Badge variant="outline" className="text-xs">{s.count} sesi</Badge>
+                  </p>
+                  <Badge variant="outline" className="text-xs shrink-0">{s.count} sesi</Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <ol className="space-y-1">
+                <div className="flex flex-wrap gap-1.5">
                   {s.topics.map((topic, i) => (
-                    <li key={i} className="text-sm text-muted-foreground flex gap-2">
-                      <span className="text-xs text-muted-foreground/60 w-5 shrink-0 text-right">{i + 1}.</span>
+                    <span
+                      key={i}
+                      className="text-xs bg-muted px-2 py-1 rounded-md text-muted-foreground"
+                    >
                       {topic}
-                    </li>
+                    </span>
                   ))}
-                </ol>
+                </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
         {/* Prasyarat */}
-        <Card>
-          <CardContent className="pt-6 text-sm text-muted-foreground">
+        <Card className="bg-[#fdf6ec] border-[#f0e0c4]">
+          <CardContent className="pt-4 pb-4 text-sm text-[#8b7355]">
             {kom.level === 100 ? (
-              <p>KOM 100 dapat diikuti oleh <strong>semua jemaat</strong> tanpa prasyarat.</p>
+              <p>KOM 100 dapat diikuti oleh <strong className="text-[#7a5c2e]">semua jemaat</strong> tanpa prasyarat.</p>
             ) : (
               <p>
                 Prasyarat: harus lulus{' '}
-                {Array.from({ length: (kom.level - 100) / 100 }, (_, i) => `KOM ${(i + 1) * 100}`)
-                  .join(', ')
-                  .replace(/, ([^,]*)$/, ' dan $1')}
+                <strong className="text-[#7a5c2e]">
+                  {Array.from({ length: (kom.level - 100) / 100 }, (_, i) => `KOM ${(i + 1) * 100}`)
+                    .join(', ')
+                    .replace(/, ([^,]*)$/, ' dan $1')}
+                </strong>
                 .
               </p>
             )}

@@ -7,10 +7,15 @@ const requests = new Map<string, number[]>();
 // Rate limits per route prefix: [max requests, window in seconds]
 const RATE_LIMITS: Record<string, [number, number]> = {
   '/api/chat': [15, 60],        // 15 req/min — AI calls are expensive
-  '/api/forms': [2, 60],        // 2 req/min
+  '/api/forms': [30, 60],       // 30 req/min — admin browsing needs headroom
   '/api/documents': [2, 5],     // 2 req/5s
   '/api/analytics': [2, 5],     // 2 req/5s
   '/api/monitor': [2, 5],       // 2 req/5s
+};
+
+// Stricter limits for specific methods (public submission abuse prevention)
+const METHOD_LIMITS: Record<string, Record<string, [number, number]>> = {
+  '/api/forms': { POST: [2, 60] }, // 2 POST/min — public form submissions
 };
 const DEFAULT_LIMIT: [number, number] = [60, 60]; // 60 req/min fallback
 
@@ -26,6 +31,13 @@ function cleanup(now: number) {
       requests.delete(key);
     }
   }
+}
+
+function getMethodLimit(routeGroup: string, method: string): [number, number] | null {
+  for (const [prefix, methods] of Object.entries(METHOD_LIMITS)) {
+    if (routeGroup.startsWith(prefix) && methods[method]) return methods[method];
+  }
+  return null;
 }
 
 function getLimit(pathname: string): [number, number] {
@@ -49,7 +61,27 @@ export function middleware(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
     || request.headers.get('x-real-ip')
     || 'unknown';
-  const key = `${ip}:${pathname.split('/').slice(0, 3).join('/')}`; // group by /api/{resource}
+  const routeGroup = pathname.split('/').slice(0, 3).join('/'); // /api/{resource}
+  const method = request.method;
+
+  // Check method-specific limit first (e.g., POST /api/forms)
+  const methodLimit = getMethodLimit(routeGroup, method);
+  if (methodLimit) {
+    const methodKey = `${ip}:${routeGroup}:${method}`;
+    const methodTimestamps = (requests.get(methodKey) || []).filter(t => now - t < methodLimit[1] * 1000);
+    if (methodTimestamps.length >= methodLimit[0]) {
+      const oldest = methodTimestamps[0];
+      const retryAfter = Math.ceil((oldest + methodLimit[1] * 1000 - now) / 1000);
+      return NextResponse.json(
+        { error: 'Terlalu banyak permintaan. Silakan coba lagi nanti.' },
+        { status: 429, headers: { 'Retry-After': String(retryAfter) } }
+      );
+    }
+    methodTimestamps.push(now);
+    requests.set(methodKey, methodTimestamps);
+  }
+
+  const key = `${ip}:${routeGroup}`;
 
   const [maxRequests, windowSec] = getLimit(pathname);
   const windowMs = windowSec * 1000;

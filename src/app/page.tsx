@@ -18,9 +18,12 @@ const WELCOME_MESSAGE: ChatMessageType = {
   content:
     'Shalom! Saya asisten virtual **GBI Baranangsiang Evening Church (BEC)**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
   suggestedQuestions: [
-    'Kapan jadwal ibadah GBI BEC?',
+    'Kapan jadwal ibadah dan dimana lokasi GBI BEC?',
+    'Bagaimana cara menjadi jemaat tetap?',
     'Apa saja syarat baptisan air?',
     'Bagaimana cara mendaftar KOM?',
+    'Apa syarat pemberkatan nikah?',
+    'Apa syarat penyerahan anak?',
   ],
   timestamp: Date.now(),
 };
@@ -42,6 +45,11 @@ export default function Home() {
   }, []);
 
   const form = useFormFlow(addMessage);
+
+  // Auto-focus input on mount
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   // Auto-scroll tracking
   useEffect(() => {
@@ -116,8 +124,14 @@ export default function Home() {
 
       setMessages(prev => [...prev, {
         id: `assistant-${Date.now()}`, role: 'assistant', content: data.response,
-        suggestedQuestions: data.suggestedQuestions, sources: data.sources, timestamp: Date.now(),
+        suggestedQuestions: data.formTrigger ? undefined : data.suggestedQuestions,
+        sources: data.sources, timestamp: Date.now(),
       }]);
+
+      // Auto-trigger form if AI detected user confirmation
+      if (data.formTrigger && !form.isActive) {
+        setTimeout(() => form.selectForm(data.formTrigger, true), 500);
+      }
     } catch {
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`, role: 'assistant', timestamp: Date.now(), isError: true,
@@ -226,8 +240,27 @@ export default function Home() {
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
-        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto flex gap-2 items-end">
+      <div className="bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
+        {/* Form stepper */}
+        {(form.isActive || form.isSummary) && form.totalSteps > 0 && (
+          <div className="max-w-2xl mx-auto mb-3">
+            <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
+              <span>
+                {form.isSummary
+                  ? 'Konfirmasi jawaban'
+                  : `Langkah ${form.stepIndex + 1} dari ${form.totalSteps}`}
+              </span>
+              <span>{Math.min(Math.round(((form.isSummary ? form.totalSteps : form.stepIndex) / form.totalSteps) * 100), 100)}%</span>
+            </div>
+            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(((form.isSummary ? form.totalSteps : form.stepIndex) / form.totalSteps) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+        )}
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto bg-secondary rounded-2xl px-3 py-2 flex gap-2 items-center">
           {/* Form summary → submit + cancel buttons */}
           {form.isSummary && (
             <>
@@ -276,9 +309,9 @@ export default function Home() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ketik pertanyaan Anda..."
                 disabled={isLoading}
-                className="flex-1 min-h-10 max-h-32 resize-none field-sizing-content"
+                className="flex-1 min-h-10 max-h-32 resize-none field-sizing-content border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-transparent"
               />
-              <Button type="submit" disabled={isLoading || !input.trim()} className="shrink-0">
+              <Button type="submit" disabled={isLoading || !input.trim()} className="shrink-0 rounded-xl">
                 <Send className="w-4 h-4" />
               </Button>
             </>

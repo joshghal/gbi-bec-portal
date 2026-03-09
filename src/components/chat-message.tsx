@@ -2,19 +2,20 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { User, BookOpen, RotateCcw, GraduationCap, Droplets, Baby, Heart, ExternalLink, Download } from 'lucide-react';
+import { User, BookOpen, RotateCcw, ExternalLink, Download, ClipboardCheck } from 'lucide-react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { FormSummary } from '@/components/form-summary';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 
-const formIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  GraduationCap,
-  Droplets,
-  Baby,
-  HandHeart: Heart,
+const formGlassMap: Record<string, string> = {
+  kom: '/glass-one.png',
+  baptism: '/glass-second.png',
+  'child-dedication': '/glass-third.png',
+  prayer: '/glass-fourth.png',
 };
+const getFormGlass = (type: string) => formGlassMap[type] || '/glass-one.png';
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -35,12 +36,13 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
   const isUser = message.role === 'user';
 
   return (
+    <>
     <div className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
       <Avatar className="w-8 h-8 shrink-0">
         <AvatarFallback
           className={
             isUser
-              ? 'bg-primary text-primary-foreground'
+              ? 'bg-primary/15 text-primary'
               : 'bg-muted text-muted-foreground'
           }
         >
@@ -52,10 +54,10 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
         <div
           className={`rounded-2xl px-4 py-2.5 text-sm ${
             isUser
-              ? 'bg-primary text-primary-foreground rounded-tr-sm'
+              ? 'bg-secondary text-foreground rounded-tr-sm'
               : message.isError
                 ? 'bg-destructive/10 text-destructive rounded-tl-sm border border-destructive/20'
-                : 'bg-muted rounded-tl-sm'
+                : 'bg-card border border-border rounded-tl-sm'
           }`}
         >
           {isUser ? (
@@ -67,7 +69,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
               onUpdate={(field, value) => onFormSummaryUpdate?.(field, value)}
             />
           ) : (
-            <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-2 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:my-2 [&_li]:my-0.5 [&_p]:my-1.5 [&_a]:text-primary [&_a]:underline dark:[&_a]:text-blue-300">
+            <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-4 [&_ul]:my-2 [&_ol]:list-decimal [&_ol]:pl-4 [&_ol]:my-2 [&_li]:my-0.5 [&_p]:my-1.5 [&_a]:text-primary [&_a]:underline">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
                 components={{
@@ -117,35 +119,23 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
           </div>
         )}
 
-        {/* Suggested questions */}
-        {message.suggestedQuestions && message.suggestedQuestions.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-1">
-            {message.suggestedQuestions.map((q, i) => (
-              <button
-                key={i}
-                className="cursor-pointer rounded-full border border-primary/30 bg-secondary text-sm py-1.5 px-3.5 text-foreground hover:bg-primary/15 hover:border-primary/50 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                onClick={() => onSuggestionClick?.(q)}
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        )}
-
         {/* Form type cards */}
         {message.formCards && message.formCards.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mt-1">
             {message.formCards.map(card => {
-              const Icon = formIconMap[card.icon];
               return (
                 <button
                   key={card.type}
                   onClick={() => onFormCardClick?.(card.type)}
-                  className="flex flex-col items-start gap-1.5 p-3 rounded-xl border border-primary/20 bg-card hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer text-left"
+                  className="relative overflow-hidden flex flex-col items-start gap-1 p-3 rounded-xl border border-primary/20 bg-card hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer text-left pt-[60px]"
                 >
-                  {Icon && <Icon className="w-6 h-6 text-primary" />}
-                  <span className="text-sm font-medium">{card.title}</span>
-                  <span className="text-xs text-muted-foreground">{card.description}</span>
+                  <img
+                    src={getFormGlass(card.type)}
+                    alt=""
+                    className="absolute top-[-52px] right-[-40px] w-[136px] h-[136px] opacity-70 rotate-60 object-cover pointer-events-none"
+                  />
+                  <span className="relative z-10 text-sm font-bold">{card.title}</span>
+                  <span className="relative z-10 text-xs text-muted-foreground">{card.description}</span>
                 </button>
               );
             })}
@@ -167,27 +157,34 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
           </div>
         )}
 
-        {/* WhatsApp + PDF buttons */}
+        {/* Status link + WhatsApp + PDF buttons */}
         {message.formWhatsApp && (
-          <div className="flex flex-col gap-2 mt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+            <a
+              href={message.formWhatsApp.editUrl}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-2.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+            >
+              <ClipboardCheck className="w-3.5 h-3.5" />
+              Lihat Status
+            </a>
             <a
               href={message.formWhatsApp.churchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#25D366] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#20bd5a] transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#25D366] text-white px-3 py-2.5 text-xs font-medium hover:bg-[#20bd5a] transition-colors"
             >
-              <ExternalLink className="w-4 h-4" />
-              Kirim ke WhatsApp Gereja
+              <ExternalLink className="w-3.5 h-3.5" />
+              Kirim pesan ke Call Centre
             </a>
             {message.formWhatsApp.selfUrl && (
               <a
                 href={message.formWhatsApp.selfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] px-4 py-2.5 text-sm font-medium hover:bg-[#25D366]/10 transition-colors"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#25D366] text-[#25D366] px-3 py-2.5 text-xs font-medium hover:bg-[#25D366]/10 transition-colors"
               >
-                <ExternalLink className="w-4 h-4" />
-                Simpan ke WhatsApp Saya
+                <ExternalLink className="w-3.5 h-3.5" />
+                Simpan link ke Whatsapp Saya
               </a>
             )}
             <button
@@ -199,14 +196,35 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
                   message.formWhatsApp!.name,
                 );
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/30 text-primary px-4 py-2.5 text-sm font-medium hover:bg-primary/10 transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 text-primary px-3 py-2.5 text-xs font-medium hover:bg-primary/10 transition-colors"
             >
-              <Download className="w-4 h-4" />
-              Simpan ke Device Saya (PDF)
+              <Download className="w-3.5 h-3.5" />
+              Simpan link ke PDF
             </button>
           </div>
         )}
       </div>
     </div>
+
+    {/* Suggested questions — single balloon with dividers */}
+    {message.suggestedQuestions && message.suggestedQuestions.length > 0 && (
+      <div className="flex flex-col items-end gap-1">
+        <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Saran pertanyaan</p>
+        <div className="rounded-2xl rounded-tr-sm bg-secondary overflow-hidden w-fit">
+          {message.suggestedQuestions.map((q, i) => (
+            <div key={i}>
+              {i > 0 && <hr className="border-background/60" />}
+              <button
+                className="cursor-pointer text-sm py-2.5 px-4 text-foreground hover:bg-secondary/60 active:scale-[0.98] transition-all w-full text-left"
+                onClick={() => onSuggestionClick?.(q)}
+              >
+                {q}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+    </>
   );
 }

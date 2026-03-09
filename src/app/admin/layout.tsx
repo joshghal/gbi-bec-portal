@@ -21,11 +21,26 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet';
 
-const NAV_ITEMS = [
-  { href: '/admin', label: 'Basis Pengetahuan', icon: FileText },
-  { href: '/admin/forms', label: 'Formulir', icon: ClipboardList },
-  { href: '/admin/analytics', label: 'Analitik', icon: BarChart3 },
-  { href: '/admin/monitor', label: 'Monitor', icon: Activity },
+const NAV_GROUPS = [
+  {
+    label: 'Konten',
+    items: [
+      { href: '/admin', label: 'Basis Pengetahuan', icon: FileText },
+    ],
+  },
+  {
+    label: 'Pelayanan',
+    items: [
+      { href: '/admin/forms', label: 'Formulir', icon: ClipboardList },
+    ],
+  },
+  {
+    label: 'Sistem',
+    items: [
+      { href: '/admin/analytics', label: 'Analitik', icon: BarChart3 },
+      { href: '/admin/monitor', label: 'Monitor', icon: Activity },
+    ],
+  },
 ];
 
 function GoogleIcon() {
@@ -55,24 +70,33 @@ function SidebarContent({ pathname, signOut, email }: {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-1">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
-                active
-                  ? 'bg-accent text-accent-foreground font-medium'
-                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              {label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 px-2 py-3 space-y-4">
+        {NAV_GROUPS.map(group => (
+          <div key={group.label}>
+            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {group.label}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map(({ href, label, icon: Icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
+                      active
+                        ? 'bg-accent text-accent-foreground font-medium'
+                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    {label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       {/* Bottom */}
@@ -127,7 +151,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     };
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary px-4">
         <div className="w-full max-w-sm space-y-6 text-center">
           <div>
             <h1 className="text-2xl font-bold">Admin Login</h1>

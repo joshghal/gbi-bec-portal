@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { GraduationCap, Droplets, Baby, Heart, ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -10,12 +11,13 @@ import {
 } from '@/components/ui/card';
 import { FORM_CONFIGS } from '@/lib/form-config';
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  GraduationCap,
-  Droplets,
-  Baby,
-  HandHeart: Heart,
+const glassImageMap: Record<string, string> = {
+  kom: '/glass-one.png',
+  baptism: '/glass-second.png',
+  'child-dedication': '/glass-third.png',
+  prayer: '/glass-fourth.png',
 };
+const getGlassImage = (type: string) => glassImageMap[type] || '/glass-one.png';
 
 export default function FormsPage() {
   return (
@@ -33,14 +35,17 @@ export default function FormsPage() {
       <div className="max-w-2xl mx-auto p-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {FORM_CONFIGS.map(config => {
-            const Icon = iconMap[config.icon];
             return (
               <Link key={config.type} href={`/forms/${config.type}`}>
-                <Card className="h-full hover:ring-2 hover:ring-primary/30 transition-all cursor-pointer">
-                  <CardHeader>
-                    {Icon && (
-                      <Icon className="w-8 h-8 text-primary mb-1" />
-                    )}
+                <Card className="h-full hover:ring-2 hover:ring-primary/20 transition-all cursor-pointer relative overflow-hidden">
+                  <Image
+                    src={getGlassImage(config.type)}
+                    alt=""
+                    width={320}
+                    height={320}
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none blur-sm"
+                  />
+                  <CardHeader className="relative z-10">
                     <CardTitle>{config.title}</CardTitle>
                     <CardDescription>{config.description}</CardDescription>
                   </CardHeader>

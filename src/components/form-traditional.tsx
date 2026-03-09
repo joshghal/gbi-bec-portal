@@ -13,9 +13,17 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Save, Check, AlertCircle, Clock, Eye, CheckCircle2 } from 'lucide-react';
+import { Loader2, Save, Check, AlertCircle, Clock, Eye, CheckCircle2, ExternalLink, Download } from 'lucide-react';
 import type { FormSubmission } from '@/lib/form-types';
 import { getFormConfig } from '@/lib/form-config';
+
+function formatPhone(raw: string): string {
+  const digits = raw.replace(/[\s\-()]/g, '');
+  if (digits.startsWith('0')) return '62' + digits.slice(1);
+  if (digits.startsWith('+62')) return digits.slice(1);
+  if (digits.startsWith('62')) return digits;
+  return '62' + digits;
+}
 
 interface FormTraditionalProps {
   submissionId: string;
@@ -237,7 +245,7 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
           );
         })}
 
-        <div className="pt-4">
+        <div className="pt-4 space-y-2">
           <Button onClick={handleSave} disabled={saving} className="w-full">
             {saving ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -246,6 +254,36 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
             )}
             Simpan Perubahan
           </Button>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {formState.noTelepon && (
+              <a
+                href={`https://wa.me/${formatPhone(formState.noTelepon)}?text=${encodeURIComponent(
+                  `Link formulir ${config.title}: ${window.location.href}`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#25D366] text-[#25D366] px-3 py-2.5 text-xs font-medium hover:bg-[#25D366]/10 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                Simpan link ke WhatsApp Saya
+              </a>
+            )}
+            <button
+              onClick={async () => {
+                const { generateFormPDF } = await import('@/lib/form-pdf');
+                await generateFormPDF(
+                  window.location.href,
+                  config.title,
+                  formState.namaLengkap || formState.namaAnak || '',
+                );
+              }}
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 text-primary px-3 py-2.5 text-xs font-medium hover:bg-primary/10 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              Simpan link ke PDF
+            </button>
+          </div>
         </div>
       </CardContent>
       </Card>

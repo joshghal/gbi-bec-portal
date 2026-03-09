@@ -45,7 +45,7 @@ export function FormInput({ step, value, error, onChange, onSubmit, onSkip }: Fo
             onChange={e => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={step.placeholder || 'Ketik jawaban...'}
-            className="min-h-10 max-h-32 resize-none field-sizing-content"
+            className="min-h-10 max-h-32 resize-none field-sizing-content border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-transparent"
           />
         ) : (
           <Input
@@ -55,6 +55,7 @@ export function FormInput({ step, value, error, onChange, onSubmit, onSkip }: Fo
             onChange={e => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={step.placeholder || 'Ketik jawaban...'}
+            className="border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-transparent"
           />
         )}
         {error && <p className="text-xs text-destructive mt-1">{error}</p>}

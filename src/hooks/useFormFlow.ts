@@ -129,12 +129,26 @@ export function useFormFlow(addMessage: AddMessageFn) {
       });
       const data = await res.json();
 
-      // Handle duplicate submission
+      // Handle duplicate submission — show same buttons as success
       if (res.status === 409) {
         const existingLink = `${window.location.origin}${data.editLink}`;
+        const churchPhone = '6287823420950';
+        const userPhone = formAnswers.noTelepon ? formatPhone(formAnswers.noTelepon) : '';
+        const displayName = formAnswers.namaLengkap || formAnswers.namaAnak || '';
+
+        const churchUrl = `https://wa.me/${churchPhone}?text=${encodeURIComponent(
+          `Saya ingin menanyakan status formulir ${activeForm.title} atas nama ${displayName}.\n\nLink: ${existingLink}`
+        )}`;
+        const selfUrl = userPhone
+          ? `https://wa.me/${userPhone}?text=${encodeURIComponent(
+              `Link formulir ${activeForm.title}: ${existingLink}`
+            )}`
+          : undefined;
+
         addMessage({
           role: 'assistant',
-          content: `Formulir serupa sudah pernah diajukan dan masih dalam proses. Anda dapat melihat status atau mengedit formulir sebelumnya melalui link berikut:\n\n[Lihat Status Formulir](${existingLink})`,
+          content: 'Formulir serupa sudah pernah diajukan dan masih dalam proses.',
+          formWhatsApp: { churchUrl, selfUrl, editUrl: existingLink, formTitle: activeForm.title, name: displayName },
         });
         setActiveForm(null);
         setFormStep(-1);
@@ -165,7 +179,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
 
       addMessage({
         role: 'assistant',
-        content: 'Formulir berhasil dikirim! Anda dapat mengedit formulir ini kapan saja melalui link berikut.',
+        content: 'Formulir berhasil dikirim! Anda dapat memantau status dan mengedit formulir kapan saja.',
         formWhatsApp: { churchUrl, selfUrl, editUrl: editLink, formTitle: activeForm.title, name: displayName },
       });
 
@@ -202,6 +216,9 @@ export function useFormFlow(addMessage: AddMessageFn) {
     setFormAnswers(prev => ({ ...prev, [field]: value }));
   }, []);
 
+  const stepIndex = formStep;
+  const totalSteps = activeForm?.steps.length ?? 0;
+
   return {
     isActive,
     currentStep,
@@ -209,6 +226,8 @@ export function useFormFlow(addMessage: AddMessageFn) {
     isSubmitting,
     formError,
     setFormError,
+    stepIndex,
+    totalSteps,
     showFormCards,
     selectForm,
     advanceStep,

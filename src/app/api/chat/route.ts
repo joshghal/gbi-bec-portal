@@ -47,12 +47,14 @@ export async function POST(request: NextRequest) {
     const parsed = parseJSONResponse<{
       response: string;
       suggestedQuestions: string[];
+      formTrigger?: string | null;
     }>(aiResult.content!);
 
     if (parsed) {
       return NextResponse.json({
         response: parsed.response,
         suggestedQuestions: parsed.suggestedQuestions || [],
+        formTrigger: parsed.formTrigger || null,
         sources,
       });
     }

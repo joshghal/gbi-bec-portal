@@ -39,9 +39,9 @@ import { FORM_TYPE_LABELS, FORM_STATUS_LABELS, getFormConfig } from '@/lib/form-
 import type { FormSubmission } from '@/lib/form-types';
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: 'border-yellow-300 bg-yellow-50 text-yellow-700 dark:border-yellow-600 dark:bg-yellow-950 dark:text-yellow-400',
-  reviewed: 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-600 dark:bg-blue-950 dark:text-blue-400',
-  completed: 'border-green-300 bg-green-50 text-green-700 dark:border-green-600 dark:bg-green-950 dark:text-green-400',
+  pending: 'border-yellow-300 bg-yellow-50 text-yellow-700',
+  reviewed: 'border-blue-300 bg-blue-50 text-blue-700',
+  completed: 'border-green-300 bg-green-50 text-green-700',
 };
 
 const SUPER_ADMIN_EMAIL = 'joshuag.profesional@gmail.com';
