@@ -1,0 +1,104 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import type { FormType } from '@/lib/form-types';
+
+const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer'];
+
+export async function POST(request: NextRequest) {
+  try {
+    const { type, data } = await request.json();
+
+    if (!type || !VALID_TYPES.includes(type)) {
+      return NextResponse.json({ error: 'Invalid form type' }, { status: 400 });
+    }
+    if (!data || typeof data !== 'object') {
+      return NextResponse.json({ error: 'Invalid data' }, { status: 400 });
+    }
+
+    const db = getAdminFirestore();
+
+    // --- Duplicate / similar entry prevention ---
+    const nameField = type === 'child-dedication' ? 'namaAnak' : 'namaLengkap';
+    const nameValue = data[nameField]?.trim().toLowerCase();
+    const phoneValue = data.noTelepon?.replace(/[\s\-+()]/g, '');
+
+    if (nameValue || phoneValue) {
+      const existingSnap = await db
+        .collection('form_submissions')
+        .where('type', '==', type)
+        .where('status', 'in', ['pending', 'reviewed'])
+        .get();
+
+      const duplicate = existingSnap.docs.find(doc => {
+        const d = doc.data();
+        const existingName = d.data?.[nameField]?.trim().toLowerCase();
+        const existingPhone = d.data?.noTelepon?.replace(/[\s\-+()]/g, '');
+        // Match by name OR phone
+        if (nameValue && existingName === nameValue) return true;
+        if (phoneValue && existingPhone && existingPhone === phoneValue) return true;
+        return false;
+      });
+
+      if (duplicate) {
+        const editLink = `/forms/edit/${duplicate.id}?token=${duplicate.data().editToken}`;
+        return NextResponse.json(
+          {
+            error: 'Formulir serupa sudah pernah diajukan dan masih dalam proses.',
+            existingId: duplicate.id,
+            editLink,
+          },
+          { status: 409 }
+        );
+      }
+    }
+
+    const editToken = crypto.randomUUID();
+    const now = new Date().toISOString();
+
+    const docRef = await db.collection('form_submissions').add({
+      type,
+      editToken,
+      status: 'pending',
+      data,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return NextResponse.json({ id: docRef.id, editToken });
+  } catch (error) {
+    console.error('Form submission error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function GET(request: NextRequest) {
+  const authError = await verifyAuthToken(request);
+  if (authError) return authError;
+
+  try {
+    const db = getAdminFirestore();
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type');
+    const status = searchParams.get('status');
+
+    let query = db.collection('form_submissions').orderBy('createdAt', 'desc');
+
+    if (type) {
+      query = query.where('type', '==', type);
+    }
+    if (status) {
+      query = query.where('status', '==', status);
+    }
+
+    const snapshot = await query.limit(100).get();
+    const submissions = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return NextResponse.json({ submissions });
+  } catch (error) {
+    console.error('List submissions error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

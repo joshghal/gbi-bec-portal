@@ -1,20 +1,30 @@
 import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 
 function getAdminApp(): App {
   if (getApps().length > 0) return getApps()[0];
 
-  // When using Firebase hosting with the same project,
-  // GOOGLE_APPLICATION_CREDENTIALS or FIREBASE_CONFIG auto-inits.
-  // For Vercel, we use the project ID to initialize with default credentials.
-  return initializeApp({
-    projectId: 'baranangsiang-evening-chur',
-  });
+  const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  if (credPath) {
+    const fullPath = resolve(credPath);
+    const serviceAccount = JSON.parse(readFileSync(fullPath, 'utf8'));
+    return initializeApp({ credential: cert(serviceAccount) });
+  }
+
+  // Fallback: Vercel / GCP hosted environments with default credentials
+  return initializeApp({ projectId: 'baranangsiang-evening-chur' });
 }
 
 const adminApp = getAdminApp();
 const adminAuth = getAuth(adminApp);
+
+export function getAdminFirestore() {
+  return getFirestore(adminApp);
+}
 
 export async function verifyAuthToken(request: NextRequest): Promise<NextResponse | null> {
   const authHeader = request.headers.get('Authorization');

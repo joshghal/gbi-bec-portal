@@ -1,0 +1,110 @@
+'use client';
+
+import { useState } from 'react';
+import { Pencil } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+
+interface SummaryRow {
+  label: string;
+  field: string;
+  value: string;
+  type: string;
+  options?: string[];
+}
+
+interface FormSummaryProps {
+  rows: SummaryRow[];
+  editable?: boolean;
+  onUpdate: (field: string, value: string) => void;
+}
+
+export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProps) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<Record<string, string>>(() =>
+    Object.fromEntries(rows.map(r => [r.field, r.value]))
+  );
+
+  const handleToggleEdit = () => {
+    if (editing) {
+      for (const row of rows) {
+        if (draft[row.field] !== row.value) {
+          onUpdate(row.field, draft[row.field]);
+        }
+      }
+    }
+    setEditing(!editing);
+  };
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-medium">Ringkasan jawaban Anda:</p>
+        {editable && (
+          <Button
+            variant={editing ? 'default' : 'ghost'}
+            size="sm"
+            className="h-6 text-[11px] gap-1 px-2"
+            onClick={handleToggleEdit}
+          >
+            <Pencil className="w-2.5 h-2.5" />
+            {editing ? 'Simpan' : 'Edit'}
+          </Button>
+        )}
+      </div>
+
+      <div className="divide-y divide-border/50">
+        {rows.map(row => (
+          <div key={row.field} className="py-1.5">
+            <p className="text-xs text-muted-foreground leading-tight">{row.label}</p>
+            {editing ? (
+              <div className="mt-1">
+                {row.type === 'select' && row.options ? (
+                  <div className="flex flex-wrap gap-1">
+                    {row.options.map(opt => (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => setDraft(d => ({ ...d, [row.field]: opt }))}
+                        className={`rounded-full text-[11px] py-0.5 px-2 border transition-colors ${
+                          draft[row.field] === opt
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'border-border hover:bg-muted'
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </div>
+                ) : row.type === 'textarea' ? (
+                  <Textarea
+                    value={draft[row.field] || ''}
+                    onChange={e => setDraft(d => ({ ...d, [row.field]: e.target.value }))}
+                    className="text-xs min-h-7 py-1 px-2"
+                    rows={2}
+                  />
+                ) : (
+                  <Input
+                    type={row.type === 'text' ? 'text' : row.type}
+                    value={draft[row.field] || ''}
+                    onChange={e => setDraft(d => ({ ...d, [row.field]: e.target.value }))}
+                    className="text-xs h-7 py-1 px-2"
+                  />
+                )}
+              </div>
+            ) : (
+              <p className="text-xs mt-0.5">{row.value || <span className="text-muted-foreground italic">(kosong)</span>}</p>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {!editing && editable && (
+        <p className="text-[10px] text-muted-foreground">
+          Jika sudah benar, tekan tombol <strong>&quot;Kirim&quot;</strong> di bawah.
+        </p>
+      )}
+    </div>
+  );
+}

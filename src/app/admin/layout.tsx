@@ -7,6 +7,7 @@ import {
   FileText,
   BarChart3,
   Activity,
+  ClipboardList,
   ArrowLeft,
   LogOut,
   Loader2,
@@ -22,6 +23,7 @@ import {
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Basis Pengetahuan', icon: FileText },
+  { href: '/admin/forms', label: 'Formulir', icon: ClipboardList },
   { href: '/admin/analytics', label: 'Analitik', icon: BarChart3 },
   { href: '/admin/monitor', label: 'Monitor', icon: Activity },
 ];

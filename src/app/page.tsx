@@ -1,19 +1,21 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Church, Loader2, BookOpen } from 'lucide-react';
+import { Send, Church, Loader2, BookOpen, ClipboardList, X } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from '@/components/chat-message';
+import { FormInput } from '@/components/form-input';
+import { useFormFlow } from '@/hooks/useFormFlow';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 
 const WELCOME_MESSAGE: ChatMessageType = {
   id: 'welcome',
   role: 'assistant',
   content:
-    'Shalom! Saya asisten virtual **GBI Baranangsiang Evening Church**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
+    'Shalom! Saya asisten virtual **GBI Baranangsiang Evening Church (BEC)**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
   suggestedQuestions: [
     'Kapan jadwal ibadah GBI BEC?',
     'Apa saja syarat baptisan air?',
@@ -30,40 +32,70 @@ export default function Home() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const shouldAutoScroll = useRef(true);
 
-  // Track whether user is near bottom
+  const addMessage = useCallback((msg: Omit<ChatMessageType, 'id' | 'timestamp'>) => {
+    shouldAutoScroll.current = true;
+    setMessages(prev => [
+      ...prev,
+      { ...msg, id: `${msg.role}-${Date.now()}-${Math.random()}`, timestamp: Date.now() },
+    ]);
+  }, []);
+
+  const form = useFormFlow(addMessage);
+
+  // Auto-scroll tracking
   useEffect(() => {
     const viewport = scrollRef.current?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
     if (!viewport) return;
-
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = viewport;
       shouldAutoScroll.current = scrollHeight - scrollTop - clientHeight < 100;
     };
-
     viewport.addEventListener('scroll', handleScroll, { passive: true });
     return () => viewport.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Auto-scroll only when user is near bottom
   useEffect(() => {
     if (!shouldAutoScroll.current) return;
     const viewport = scrollRef.current?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
-    if (viewport) {
-      viewport.scrollTop = viewport.scrollHeight;
-    }
+    if (viewport) viewport.scrollTop = viewport.scrollHeight;
   }, [messages, isLoading]);
+
+  // --- Form intent detection ---
+
+  const detectFormIntent = useCallback((text: string): string | null => {
+    const lower = text.toLowerCase().trim();
+    const komPatterns = /\b(daftar|ikut|registrasi|mendaftar)\b.*\b(kom|kelas orientasi)\b|\b(kom|kelas orientasi)\b.*\b(daftar|ikut|registrasi|mendaftar)\b/;
+    const baptismPatterns = /\b(daftar|ikut|mau)\b.*\b(baptis|baptisan)\b|\b(baptis|baptisan)\b.*\b(daftar|ikut|mau)\b/;
+    const childPatterns = /\b(daftar|mau)\b.*\b(penyerahan anak|serah.*anak)\b|\b(penyerahan anak|serah.*anak)\b.*\b(daftar|mau)\b/;
+    const prayerPatterns = /\b(mau|ingin|kirim|titip)\b.*\b(dido.?akan|pokok doa|doa)\b|\b(pokok doa)\b/;
+
+    if (komPatterns.test(lower)) return 'kom';
+    if (baptismPatterns.test(lower)) return 'baptism';
+    if (childPatterns.test(lower)) return 'child-dedication';
+    if (prayerPatterns.test(lower)) return 'prayer';
+    return null;
+  }, []);
+
+  // --- Chat ---
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
 
-    const userMessage: ChatMessageType = {
-      id: `user-${Date.now()}`,
-      role: 'user',
-      content: text.trim(),
-      timestamp: Date.now(),
-    };
+    // Check for form registration intent
+    const formType = detectFormIntent(text);
+    if (formType && !form.isActive) {
+      setMessages(prev => [...prev, {
+        id: `user-${Date.now()}`, role: 'user', content: text.trim(), timestamp: Date.now(),
+      }]);
+      setInput('');
+      shouldAutoScroll.current = true;
+      setTimeout(() => form.selectForm(formType, true), 300);
+      return;
+    }
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => [...prev, {
+      id: `user-${Date.now()}`, role: 'user', content: text.trim(), timestamp: Date.now(),
+    }]);
     setInput('');
     setIsLoading(true);
     shouldAutoScroll.current = true;
@@ -78,57 +110,68 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text.trim(), history }),
       });
-
       const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Request failed');
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Request failed');
-      }
-
-      const assistantMessage: ChatMessageType = {
-        id: `assistant-${Date.now()}`,
-        role: 'assistant',
-        content: data.response,
-        suggestedQuestions: data.suggestedQuestions,
-        sources: data.sources,
-        timestamp: Date.now(),
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => [...prev, {
+        id: `assistant-${Date.now()}`, role: 'assistant', content: data.response,
+        suggestedQuestions: data.suggestedQuestions, sources: data.sources, timestamp: Date.now(),
+      }]);
     } catch {
-      const errorMessage: ChatMessageType = {
-        id: `error-${Date.now()}`,
-        role: 'assistant',
-        content:
-          'Maaf, terjadi kesalahan. Silahkan coba lagi atau hubungi Call Centre GBI BEC di [WhatsApp 0878-2342-0950](https://wa.me/6287823420950).',
-        timestamp: Date.now(),
-        isError: true,
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, {
+        id: `error-${Date.now()}`, role: 'assistant', timestamp: Date.now(), isError: true,
+        content: 'Maaf, terjadi kesalahan. Silahkan coba lagi atau hubungi Call Centre GBI BEC di [WhatsApp 0878-2342-0950](https://wa.me/6287823420950).',
+      }]);
     } finally {
       setIsLoading(false);
       inputRef.current?.focus();
     }
-  }, [isLoading, messages]);
+  }, [isLoading, messages, detectFormIntent, form]);
 
   const handleRetry = useCallback(() => {
     const lastUserMessage = [...messages].reverse().find(m => m.role === 'user');
     if (lastUserMessage) {
-      // Remove the error message before retrying
       setMessages(prev => prev.filter(m => !m.isError));
       sendMessage(lastUserMessage.content);
     }
   }, [messages, sendMessage]);
 
+  const handleFormSummaryUpdate = useCallback((field: string, value: string) => {
+    form.updateAnswer(field, value);
+    // Update the formSummary row in the latest summary message
+    setMessages(prev => prev.map(msg =>
+      msg.formSummary
+        ? { ...msg, formSummary: msg.formSummary.map(row => row.field === field ? { ...row, value } : row) }
+        : msg
+    ));
+  }, [form]);
+
+  // --- Submit handler (chat or form) ---
+
+  const isCancelIntent = (text: string) =>
+    /^(batal|batalkan|cancel|stop|keluar|ga jadi|gak jadi|tidak jadi)$/i.test(text.trim());
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if ((form.isActive || form.isSummary) && isCancelIntent(input)) {
+      addMessage({ role: 'user', content: input.trim() });
+      setInput('');
+      form.cancelForm();
+      return;
+    }
+    if (form.isSummary) { form.submitForm(); return; }
+    if (form.isActive && form.currentStep?.type !== 'select') {
+      form.advanceStep(input);
+      setInput('');
+      return;
+    }
     sendMessage(input);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      sendMessage(input);
+      handleSubmit(e);
     }
   };
 
@@ -141,10 +184,16 @@ export default function Home() {
         </div>
         <div className="flex-1">
           <h1 className="font-semibold text-lg leading-tight">Helpdesk</h1>
-          <p className="text-xs text-muted-foreground">
-            Baranangsiang Evening Church
-          </p>
+          <p className="text-xs text-muted-foreground">Baranangsiang Evening Church (BEC)</p>
         </div>
+        <Button
+          variant="outline" size="sm" className="gap-1.5"
+          onClick={form.showFormCards}
+          disabled={form.isActive || form.isSummary}
+        >
+          <ClipboardList className="w-4 h-4" />
+          <span className="hidden sm:inline">Formulir</span>
+        </Button>
         <Link href="/kom">
           <Button variant="outline" size="sm" className="gap-1.5">
             <BookOpen className="w-4 h-4" />
@@ -160,14 +209,18 @@ export default function Home() {
             <ChatMessage
               key={message.id}
               message={message}
+              formSummaryEditable={form.isSummary && !!message.formSummary}
               onSuggestionClick={sendMessage}
               onRetry={message.isError ? handleRetry : undefined}
+              onFormCardClick={form.selectForm}
+              onFormOptionClick={form.isActive ? form.advanceStep : undefined}
+              onFormSummaryUpdate={handleFormSummaryUpdate}
             />
           ))}
-          {isLoading && (
+          {(isLoading || form.isSubmitting) && (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Sedang mengetik...</span>
+              <span>{form.isSubmitting ? 'Mengirim formulir...' : 'Sedang mengetik...'}</span>
             </div>
           )}
         </div>
@@ -175,22 +228,62 @@ export default function Home() {
 
       {/* Input */}
       <div className="border-t bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
-        <form
-          onSubmit={handleSubmit}
-          className="max-w-2xl mx-auto flex gap-2 items-end"
-        >
-          <Textarea
-            ref={inputRef}
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ketik pertanyaan Anda..."
-            disabled={isLoading}
-            className="flex-1 min-h-10 max-h-32 resize-none field-sizing-content"
-          />
-          <Button type="submit" disabled={isLoading || !input.trim()} className="shrink-0">
-            <Send className="w-4 h-4" />
-          </Button>
+        <form onSubmit={handleSubmit} className="max-w-2xl mx-auto flex gap-2 items-end">
+          {/* Form summary → submit + cancel buttons */}
+          {form.isSummary && (
+            <>
+              <Button variant="outline" onClick={form.cancelForm} disabled={form.isSubmitting} className="shrink-0 gap-1.5">
+                <X className="w-4 h-4" />
+                Batal
+              </Button>
+              <Button onClick={form.submitForm} className="flex-1 gap-2" disabled={form.isSubmitting}>
+                <Send className="w-4 h-4" />
+                Kirim Formulir
+              </Button>
+            </>
+          )}
+
+          {/* Active form step → form-specific input + cancel */}
+          {form.isActive && form.currentStep && !form.isSummary && (
+            <>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={form.cancelForm}
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                title="Batalkan formulir"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              <FormInput
+                step={form.currentStep}
+                value={input}
+                error={form.formError}
+                onChange={v => { setInput(v); form.setFormError(''); }}
+                onSubmit={() => { form.advanceStep(input); setInput(''); }}
+                onSkip={() => { form.skipStep(); setInput(''); }}
+              />
+            </>
+          )}
+
+          {/* Regular chat input */}
+          {!form.isActive && !form.isSummary && (
+            <>
+              <Textarea
+                ref={inputRef}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ketik pertanyaan Anda..."
+                disabled={isLoading}
+                className="flex-1 min-h-10 max-h-32 resize-none field-sizing-content"
+              />
+              <Button type="submit" disabled={isLoading || !input.trim()} className="shrink-0">
+                <Send className="w-4 h-4" />
+              </Button>
+            </>
+          )}
         </form>
       </div>
     </div>

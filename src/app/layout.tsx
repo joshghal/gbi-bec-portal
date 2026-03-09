@@ -21,8 +21,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Helpdesk | Baranangsiang Evening Church",
-  description: "Helpdesk - Baranangsiang Evening Church",
+  title: "Helpdesk | Baranangsiang Evening Church (BEC)",
+  description: "Helpdesk - Baranangsiang Evening Church (BEC)",
 };
 
 export default function RootLayout({
