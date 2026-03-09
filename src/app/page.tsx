@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Church, Loader2, BookOpen, ClipboardList, X } from 'lucide-react';
+import { Send, Loader2, BookOpen, ClipboardList, X } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -179,9 +180,7 @@ export default function Home() {
     <div className="flex flex-col h-dvh bg-background overflow-hidden fixed inset-0 overscroll-none">
       {/* Header */}
       <header className="border-b bg-card px-4 py-3 flex items-center gap-3 shrink-0">
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground">
-          <Church className="w-5 h-5" />
-        </div>
+        <Image src="/logo.png" alt="BEC" width={40} height={40} className="w-10 h-10 object-contain" />
         <div className="flex-1">
           <h1 className="font-semibold text-lg leading-tight">Helpdesk</h1>
           <p className="text-xs text-muted-foreground">Baranangsiang Evening Church (BEC)</p>

@@ -2,7 +2,8 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Church, User, BookOpen, RotateCcw, GraduationCap, Droplets, Baby, Heart, ExternalLink, Download } from 'lucide-react';
+import { User, BookOpen, RotateCcw, GraduationCap, Droplets, Baby, Heart, ExternalLink, Download } from 'lucide-react';
+import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { FormSummary } from '@/components/form-summary';
@@ -43,7 +44,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
               : 'bg-muted text-muted-foreground'
           }
         >
-          {isUser ? <User className="w-4 h-4" /> : <Church className="w-4 h-4" />}
+          {isUser ? <User className="w-4 h-4" /> : <Image src="/logo.png" alt="BEC" width={16} height={16} className="w-4 h-4 object-contain" />}
         </AvatarFallback>
       </Avatar>
 

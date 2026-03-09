@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Church, ArrowLeft, BookOpen, Download, Lock } from 'lucide-react';
+import { ArrowLeft, BookOpen, Download, Lock } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,9 +53,7 @@ export default function KomPage() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
-        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground">
-          <Church className="w-5 h-5" />
-        </div>
+        <Image src="/logo.png" alt="BEC" width={40} height={40} className="w-10 h-10 object-contain" />
         <div>
           <h1 className="font-semibold text-lg leading-tight">Materi KOM</h1>
           <p className="text-xs text-muted-foreground">Kehidupan Orientasi Melayani</p>
