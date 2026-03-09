@@ -121,10 +121,10 @@ function SidebarContent({ pathname, signOut, email }: {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading: authLoading, signInWithGoogle, signOut } = useAuth();
+  const { user, loading: authLoading, isAdmin, adminChecking, adminError, signInWithGoogle, signOut } = useAuth();
   const pathname = usePathname();
   const [signingIn, setSigningIn] = useState(false);
-  const [authError, setAuthError] = useState('');
+  const [localError, setLocalError] = useState('');
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Loading
@@ -136,19 +136,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     );
   }
 
-  // Login screen
-  if (!user) {
+  // Verifying admin status after sign-in
+  if (user && adminChecking) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-3">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Memverifikasi akses admin...</p>
+      </div>
+    );
+  }
+
+  // Login screen (not signed in, or signed in but not admin)
+  if (!user || !isAdmin) {
     const handleGoogleSignIn = async () => {
-      setAuthError('');
+      setLocalError('');
       setSigningIn(true);
       try {
         await signInWithGoogle();
       } catch {
-        setAuthError('Gagal masuk dengan Google.');
+        setLocalError('Gagal masuk dengan Google.');
       } finally {
         setSigningIn(false);
       }
     };
+
+    const errorMsg = adminError || localError;
 
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-background to-secondary px-4">
@@ -156,17 +168,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div>
             <h1 className="text-2xl font-bold">Admin Login</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              GBI BEC Knowledge Base
+              GBI BEC Portal
             </p>
           </div>
-          {authError && (
-            <p className="text-sm text-destructive">{authError}</p>
+          {errorMsg && (
+            <p className="text-sm text-destructive">{errorMsg}</p>
           )}
           <Button
             onClick={handleGoogleSignIn}
             disabled={signingIn}
             variant="outline"
-            className="w-full"
+            className="w-full p-[20px]"
           >
             {signingIn ? (
               <Loader2 className="w-4 h-4 animate-spin mr-2" />

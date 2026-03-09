@@ -1,19 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Save, Check, AlertCircle, Clock, Eye, CheckCircle2, ExternalLink, Download } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, Check, AlertCircle, Clock, Eye, CheckCircle2, ExternalLink, Download } from 'lucide-react';
 import type { FormSubmission } from '@/lib/form-types';
 import { getFormConfig } from '@/lib/form-config';
 
@@ -25,6 +14,13 @@ function formatPhone(raw: string): string {
   return '62' + digits;
 }
 
+const GLASS_MAP: Record<string, string> = {
+  kom: '/glass-one.png',
+  baptism: '/glass-second.png',
+  'child-dedication': '/glass-third.png',
+  prayer: '/glass-fourth.png',
+};
+
 interface FormTraditionalProps {
   submissionId: string;
   editToken: string;
@@ -32,31 +28,19 @@ interface FormTraditionalProps {
 
 export default function FormTraditional({ submissionId, editToken }: FormTraditionalProps) {
   const [submission, setSubmission] = useState<FormSubmission | null>(null);
-  const [formState, setFormState] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [pdfSaved, setPdfSaved] = useState(false);
 
   useEffect(() => {
     async function fetchSubmission() {
       try {
         const res = await fetch(`/api/forms/${submissionId}?token=${editToken}`);
-        if (res.status === 404) {
-          setError('Formulir tidak ditemukan.');
-          return;
-        }
-        if (res.status === 401) {
-          setError('Token akses tidak valid atau sudah kedaluwarsa.');
-          return;
-        }
-        if (!res.ok) {
-          setError('Gagal memuat formulir.');
-          return;
-        }
+        if (res.status === 404) { setError('Formulir tidak ditemukan.'); return; }
+        if (res.status === 401) { setError('Token akses tidak valid atau sudah kedaluwarsa.'); return; }
+        if (!res.ok) { setError('Gagal memuat formulir.'); return; }
         const data: FormSubmission = await res.json();
         setSubmission(data);
-        setFormState(data.data);
       } catch {
         setError('Gagal terhubung ke server.');
       } finally {
@@ -70,53 +54,27 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
 
   function formatTimestamp(dateStr: string) {
     const date = new Date(dateStr);
-    return `${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID')}`;
-  }
-
-  function handleChange(field: string, value: string) {
-    setFormState(prev => ({ ...prev, [field]: value }));
-    setSaved(false);
-  }
-
-  async function handleSave() {
-    setSaving(true);
-    setSaved(false);
-    setError(null);
-    try {
-      const res = await fetch(`/api/forms/${submissionId}?token=${editToken}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: formState }),
-      });
-      if (!res.ok) {
-        setError('Gagal menyimpan perubahan.');
-        return;
-      }
-      const updated: FormSubmission = await res.json();
-      setSubmission(updated);
-      setSaved(true);
-    } catch {
-      setError('Gagal terhubung ke server.');
-    } finally {
-      setSaving(false);
-    }
+    return `${date.toLocaleDateString('id-ID')} ${date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`;
   }
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Memuat formulir...</p>
       </div>
     );
   }
 
   if (error && !submission) {
     return (
-      <Card className="max-w-2xl mx-auto">
+      <Card className="max-w-md mx-auto mt-8">
         <CardContent className="pt-6">
-          <div className="flex items-center gap-2 text-destructive">
-            <AlertCircle className="w-5 h-5" />
-            <p>{error}</p>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertCircle className="w-6 h-6 text-destructive" />
+            </div>
+            <p className="text-sm text-destructive font-medium">{error}</p>
           </div>
         </CardContent>
       </Card>
@@ -126,53 +84,93 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
   if (!config || !submission) return null;
 
   const STATUS_STEPS = [
-    { key: 'pending', label: 'Menunggu', icon: Clock, description: 'Formulir diterima' },
-    { key: 'reviewed', label: 'Ditinjau', icon: Eye, description: 'Sedang ditinjau admin' },
+    { key: 'pending', label: 'Diterima', icon: Clock, description: 'Formulir diterima' },
+    { key: 'reviewed', label: 'Ditinjau', icon: Eye, description: 'Sedang ditinjau' },
     { key: 'completed', label: 'Selesai', icon: CheckCircle2, description: 'Proses selesai' },
   ] as const;
 
   const currentStatusIndex = STATUS_STEPS.findIndex(s => s.key === submission.status);
+  const glassImage = GLASS_MAP[submission.type] || '/glass-one.png';
+  const name = submission.data.namaLengkap || submission.data.namaAnak || '';
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
+    <div className="max-w-lg mx-auto space-y-4">
+      {/* Hero header card */}
+      <Card className="relative overflow-hidden border-0 bg-primary text-primary-foreground">
+        <img
+          src={glassImage}
+          alt=""
+          className="absolute top-[-30px] right-[-30px] w-36 h-36 opacity-15 rotate-12 pointer-events-none"
+        />
+        <CardContent className="relative z-10 py-4 pb-2">
+          <div className="space-y-1">
+            <p className="text-xs font-medium opacity-75 uppercase tracking-wider">{config.title}</p>
+            <h2 className="text-xl font-bold">{name || 'Formulir'}</h2>
+          </div>
+          <div className="flex gap-4 mt-3 text-[11px] opacity-70">
+            <span>Diajukan: {formatTimestamp(submission.createdAt)}</span>
+            <span>Diperbarui: {formatTimestamp(submission.updatedAt)}</span>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Status Tracker */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">{config.title}</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            Diajukan: {formatTimestamp(submission.createdAt)} &bull; Diperbarui: {formatTimestamp(submission.updatedAt)}
-          </p>
-        </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between">
-            {STATUS_STEPS.map((step, i) => {
-              const StepIcon = step.icon;
-              const isActive = i === currentStatusIndex;
-              const isDone = i < currentStatusIndex;
-              return (
-                <div key={step.key} className="flex flex-1 items-center">
-                  <div className="flex flex-col items-center gap-1 flex-1">
-                    <div className={`flex items-center justify-center w-9 h-9 rounded-full border-2 transition-colors ${
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3 pb-2">Status</p>
+          <div className="relative">
+            {/* Connector lines — positioned behind circles */}
+            <div className="absolute top-5 left-0 right-0 flex px-[16.67%]">
+              {[0, 1].map(i => (
+                <div key={i} className={`h-0.5 flex-1 rounded-full ${
+                  i < currentStatusIndex ? 'bg-primary/30' : 'bg-muted'
+                }`} />
+              ))}
+            </div>
+            {/* Steps — equal 3-col grid */}
+            <div className="relative grid grid-cols-3">
+              {STATUS_STEPS.map((step, i) => {
+                const StepIcon = step.icon;
+                const isActive = i === currentStatusIndex;
+                const isDone = i < currentStatusIndex;
+                return (
+                  <div key={step.key} className="flex flex-col items-center gap-1.5">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
                       isActive
-                        ? 'border-primary bg-primary text-primary-foreground'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : isDone
-                          ? 'border-green-500 bg-green-500 text-white'
-                          : 'border-muted-foreground/30 bg-muted text-muted-foreground'
+                          ? 'bg-primary/15 text-primary'
+                          : 'bg-muted text-muted-foreground'
                     }`}>
                       {isDone ? <Check className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
                     </div>
-                    <span className={`text-[11px] font-medium ${isActive ? 'text-primary' : isDone ? 'text-green-600' : 'text-muted-foreground'}`}>
+                    <span className={`text-xs font-semibold ${isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'}`}>
                       {step.label}
                     </span>
-                    <span className="text-[10px] text-muted-foreground text-center hidden sm:block">
+                    <span className="text-[10px] text-muted-foreground text-center leading-tight">
                       {step.description}
                     </span>
                   </div>
-                  {i < STATUS_STEPS.length - 1 && (
-                    <div className={`h-0.5 flex-1 mx-1 mt-[-1.5rem] ${
-                      i < currentStatusIndex ? 'bg-green-500' : 'bg-muted-foreground/20'
-                    }`} />
-                  )}
+                );
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Form details — read only */}
+      <Card>
+        <CardContent>
+          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Detail Formulir</p>
+          <div className="divide-y divide-border">
+            {config.steps.map(step => {
+              const label = step.question.replace(/\?$/, '').replace(/\.$/, '').replace(/\s*\(opsional\)$/, '');
+              const value = submission.data[step.field];
+              if (!value && step.optional) return null;
+              return (
+                <div key={step.field} className="py-2.5 first:pt-0 last:pb-0">
+                  <p className="text-[11px] text-muted-foreground mb-0.5">{label}</p>
+                  <p className="text-sm text-foreground">{value || <span className="text-muted-foreground italic">—</span>}</p>
                 </div>
               );
             })}
@@ -180,113 +178,48 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
         </CardContent>
       </Card>
 
-      {/* Edit Form */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Detail Formulir</CardTitle>
-        </CardHeader>
-      <CardContent className="space-y-4">
-        {saved && (
-          <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 rounded-md px-3 py-2">
-            <Check className="w-4 h-4" />
-            Perubahan berhasil disimpan!
-          </div>
+      {/* Action buttons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {submission.data.noTelepon && (
+          <a
+            href={`https://wa.me/${formatPhone(submission.data.noTelepon)}?text=${encodeURIComponent(
+              `Link formulir ${config.title}: ${typeof window !== 'undefined' ? window.location.href : ''}`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary text-secondary-foreground border border-border px-3.5 py-2.5 text-xs font-medium hover:bg-accent active:scale-[0.98] transition-all"
+          >
+            <ExternalLink className="w-3.5 h-3.5" />
+            Simpan link ke WhatsApp Saya
+          </a>
         )}
-        {error && submission && (
-          <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 rounded-md px-3 py-2">
-            <AlertCircle className="w-4 h-4" />
-            {error}
-          </div>
-        )}
+        <button
+          disabled={pdfSaved}
+          onClick={async () => {
+            const { generateFormPDF } = await import('@/lib/form-pdf');
+            await generateFormPDF(
+              window.location.href,
+              config.title,
+              name,
+            );
+            setPdfSaved(true);
+            setTimeout(() => setPdfSaved(false), 3000);
+          }}
+          className={`inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-medium active:scale-[0.98] transition-all ${
+            pdfSaved
+              ? 'bg-primary/10 text-primary border border-primary/25'
+              : 'bg-secondary text-secondary-foreground border border-border hover:bg-accent'
+          }`}
+        >
+          {pdfSaved ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+          {pdfSaved ? 'PDF Tersimpan!' : 'Simpan link ke PDF'}
+        </button>
+      </div>
 
-        {config.steps.map(step => {
-          const label = step.question.replace(/\?$/, '').replace(/\s*\(opsional\)$/, '');
-          const value = formState[step.field] || '';
-
-          return (
-            <div key={step.field} className="space-y-2">
-              <Label htmlFor={step.field}>
-                {label}
-                {step.optional && <span className="text-muted-foreground ml-1">(opsional)</span>}
-              </Label>
-
-              {step.type === 'textarea' ? (
-                <Textarea
-                  id={step.field}
-                  rows={3}
-                  value={value}
-                  onChange={e => handleChange(step.field, e.target.value)}
-                />
-              ) : step.type === 'select' ? (
-                <Select
-                  value={value}
-                  onValueChange={v => handleChange(step.field, v ?? '')}
-                >
-                  <SelectTrigger id={step.field}>
-                    <SelectValue placeholder="Pilih..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {step.options?.map(opt => (
-                      <SelectItem key={opt} value={opt}>
-                        {opt}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  id={step.field}
-                  type={step.type}
-                  value={value}
-                  onChange={e => handleChange(step.field, e.target.value)}
-                />
-              )}
-            </div>
-          );
-        })}
-
-        <div className="pt-4 space-y-2">
-          <Button onClick={handleSave} disabled={saving} className="w-full">
-            {saving ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
-            )}
-            Simpan Perubahan
-          </Button>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {formState.noTelepon && (
-              <a
-                href={`https://wa.me/${formatPhone(formState.noTelepon)}?text=${encodeURIComponent(
-                  `Link formulir ${config.title}: ${window.location.href}`
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#25D366] text-[#25D366] px-3 py-2.5 text-xs font-medium hover:bg-[#25D366]/10 transition-colors"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                Simpan link ke WhatsApp Saya
-              </a>
-            )}
-            <button
-              onClick={async () => {
-                const { generateFormPDF } = await import('@/lib/form-pdf');
-                await generateFormPDF(
-                  window.location.href,
-                  config.title,
-                  formState.namaLengkap || formState.namaAnak || '',
-                );
-              }}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 text-primary px-3 py-2.5 text-xs font-medium hover:bg-primary/10 transition-colors"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Simpan link ke PDF
-            </button>
-          </div>
-        </div>
-      </CardContent>
-      </Card>
+      {/* Footer note */}
+      <p className="text-center text-[11px] text-muted-foreground pb-4">
+        Halaman ini hanya untuk melihat status. Hubungi admin untuk perubahan data.
+      </p>
     </div>
   );
 }

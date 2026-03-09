@@ -2,6 +2,7 @@
 
 import { use } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FormTraditional from '@/components/form-traditional';
@@ -24,13 +25,17 @@ export default function EditFormPage({
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
-        <h1 className="font-semibold text-lg">Status Formulir</h1>
+        <Image src="/logo.png" alt="BEC" width={28} height={28} className="w-7 h-7 object-contain" />
+        <div>
+          <h1 className="font-semibold text-sm leading-tight">Status Formulir</h1>
+          <p className="text-[10px] text-muted-foreground">GBI Baranangsiang Evening Church</p>
+        </div>
       </header>
 
       <main className="p-4">
         {!token ? (
-          <div className="max-w-2xl mx-auto text-center py-20">
-            <p className="text-destructive">Link tidak valid. Token akses diperlukan.</p>
+          <div className="max-w-md mx-auto text-center py-20">
+            <p className="text-sm text-destructive">Link tidak valid. Token akses diperlukan.</p>
           </div>
         ) : (
           <FormTraditional submissionId={id} editToken={token} />

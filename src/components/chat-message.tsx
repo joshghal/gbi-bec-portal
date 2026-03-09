@@ -2,7 +2,8 @@
 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { User, BookOpen, RotateCcw, ExternalLink, Download, ClipboardCheck } from 'lucide-react';
+import { useState } from 'react';
+import { User, BookOpen, RotateCcw, ExternalLink, Download, ClipboardCheck, Check } from 'lucide-react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ function formatTime(timestamp: number): string {
 
 export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, onRetry, onFormCardClick, onFormOptionClick, onFormSummaryUpdate }: ChatMessageProps) {
   const isUser = message.role === 'user';
+  const [pdfSaved, setPdfSaved] = useState(false);
 
   return (
     <>
@@ -162,7 +164,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
             <a
               href={message.formWhatsApp.editUrl}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 py-2.5 text-xs font-medium hover:bg-primary/90 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-3.5 py-2.5 text-xs font-medium hover:bg-primary/90 active:scale-[0.98] transition-all"
             >
               <ClipboardCheck className="w-3.5 h-3.5" />
               Lihat Status
@@ -171,7 +173,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
               href={message.formWhatsApp.churchUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#25D366] text-white px-3 py-2.5 text-xs font-medium hover:bg-[#20bd5a] transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary/10 text-primary border border-primary/25 px-3.5 py-2.5 text-xs font-medium hover:bg-primary/15 active:scale-[0.98] transition-all"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Kirim pesan ke Call Centre
@@ -181,13 +183,14 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
                 href={message.formWhatsApp.selfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#25D366] text-[#25D366] px-3 py-2.5 text-xs font-medium hover:bg-[#25D366]/10 transition-colors"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary text-secondary-foreground border border-border px-3.5 py-2.5 text-xs font-medium hover:bg-accent active:scale-[0.98] transition-all"
               >
                 <ExternalLink className="w-3.5 h-3.5" />
                 Simpan link ke Whatsapp Saya
               </a>
             )}
             <button
+              disabled={pdfSaved}
               onClick={async () => {
                 const { generateFormPDF } = await import('@/lib/form-pdf');
                 await generateFormPDF(
@@ -195,11 +198,17 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
                   message.formWhatsApp!.formTitle,
                   message.formWhatsApp!.name,
                 );
+                setPdfSaved(true);
+                setTimeout(() => setPdfSaved(false), 3000);
               }}
-              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-primary/30 text-primary px-3 py-2.5 text-xs font-medium hover:bg-primary/10 transition-colors"
+              className={`inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-medium active:scale-[0.98] transition-all ${
+                pdfSaved
+                  ? 'bg-primary/10 text-primary border border-primary/25'
+                  : 'bg-secondary text-secondary-foreground border border-border hover:bg-accent'
+              }`}
             >
-              <Download className="w-3.5 h-3.5" />
-              Simpan link ke PDF
+              {pdfSaved ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
+              {pdfSaved ? 'PDF Tersimpan!' : 'Simpan link ke PDF'}
             </button>
           </div>
         )}
