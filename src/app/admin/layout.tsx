@@ -156,7 +156,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Authenticated layout
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-dvh bg-background flex overflow-hidden">
       {/* Desktop sidebar */}
       <aside className="hidden md:flex w-[220px] border-r bg-card flex-col shrink-0">
         <SidebarContent
@@ -188,7 +188,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Page content */}
-        {children}
+        <div className="flex-1 min-h-0 overflow-y-auto">
+          {children}
+        </div>
       </div>
     </div>
   );

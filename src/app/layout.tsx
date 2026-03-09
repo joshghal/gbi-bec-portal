@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AnalyticsProvider } from "@/components/analytics-provider";
@@ -13,9 +13,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  viewportFit: 'cover',
+};
+
 export const metadata: Metadata = {
-  title: "GBI BEC Helper",
-  description: "Asisten Virtual - Baranangsiang Evening Church",
+  title: "Helpdesk | Baranangsiang Evening Church",
+  description: "Helpdesk - Baranangsiang Evening Church",
 };
 
 export default function RootLayout({

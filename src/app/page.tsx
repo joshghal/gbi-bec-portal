@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Church, Loader2 } from 'lucide-react';
+import { Send, Church, Loader2, BookOpen } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,7 +13,7 @@ const WELCOME_MESSAGE: ChatMessageType = {
   id: 'welcome',
   role: 'assistant',
   content:
-    'Halo! Saya asisten virtual **GBI Baranangsiang Evening Church**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
+    'Shalom! Saya asisten virtual **GBI Baranangsiang Evening Church**. Saya bisa membantu Anda dengan informasi seputar jadwal ibadah, persyaratan baptisan, penyerahan anak, KOM, dan kegiatan gereja lainnya.\n\nAda yang bisa saya bantu?',
   suggestedQuestions: [
     'Kapan jadwal ibadah GBI BEC?',
     'Apa saja syarat baptisan air?',
@@ -27,12 +28,30 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const shouldAutoScroll = useRef(true);
 
+  // Track whether user is near bottom
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    const viewport = scrollRef.current?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
+    if (!viewport) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = viewport;
+      shouldAutoScroll.current = scrollHeight - scrollTop - clientHeight < 100;
+    };
+
+    viewport.addEventListener('scroll', handleScroll, { passive: true });
+    return () => viewport.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Auto-scroll only when user is near bottom
+  useEffect(() => {
+    if (!shouldAutoScroll.current) return;
+    const viewport = scrollRef.current?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
+    if (viewport) {
+      viewport.scrollTop = viewport.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || isLoading) return;
@@ -47,6 +66,7 @@ export default function Home() {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+    shouldAutoScroll.current = true;
 
     try {
       const history = messages
@@ -113,22 +133,28 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
+    <div className="flex flex-col h-dvh bg-background overflow-hidden fixed inset-0 overscroll-none">
       {/* Header */}
       <header className="border-b bg-card px-4 py-3 flex items-center gap-3 shrink-0">
         <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-primary-foreground">
           <Church className="w-5 h-5" />
         </div>
         <div className="flex-1">
-          <h1 className="font-semibold text-lg leading-tight">GBI BEC Helper</h1>
+          <h1 className="font-semibold text-lg leading-tight">Helpdesk</h1>
           <p className="text-xs text-muted-foreground">
-            Asisten Virtual - Baranangsiang Evening Church
+            Baranangsiang Evening Church
           </p>
         </div>
+        <Link href="/kom">
+          <Button variant="outline" size="sm" className="gap-1.5">
+            <BookOpen className="w-4 h-4" />
+            <span className="hidden sm:inline">Materi KOM</span>
+          </Button>
+        </Link>
       </header>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 px-4" ref={scrollRef}>
+      <ScrollArea className="flex-1 min-h-0 px-4" ref={scrollRef}>
         <div className="max-w-2xl mx-auto py-4 space-y-4">
           {messages.map(message => (
             <ChatMessage
@@ -148,7 +174,7 @@ export default function Home() {
       </ScrollArea>
 
       {/* Input */}
-      <div className="border-t bg-card p-4 shrink-0">
+      <div className="border-t bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
         <form
           onSubmit={handleSubmit}
           className="max-w-2xl mx-auto flex gap-2 items-end"
