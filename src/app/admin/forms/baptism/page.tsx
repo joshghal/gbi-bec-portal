@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { AdminFormTable } from '@/components/admin-form-table';
+import { RequirePermission } from '@/components/require-permission';
 
 interface BaptismDate {
   date: string;
@@ -186,11 +187,13 @@ function BaptismDateManager() {
 
 export default function AdminBaptismPage() {
   return (
-    <div className="flex flex-col flex-1 min-h-0">
-      <div className="border-b bg-card px-6 py-4">
-        <BaptismDateManager />
+    <RequirePermission permission="page:forms/baptism">
+      <div className="flex flex-col flex-1 min-h-0">
+        <div className="border-b bg-card px-6 py-4">
+          <BaptismDateManager />
+        </div>
+        <AdminFormTable formType="baptism" title="Baptisan" />
       </div>
-      <AdminFormTable formType="baptism" title="Baptisan" />
-    </div>
+    </RequirePermission>
   );
 }

@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyAuthToken } from '@/lib/firebase-admin';
+import { getVerifiedEmail, getAdminUser } from '@/lib/firebase-admin';
 
 export async function GET(request: NextRequest) {
-  const authError = await verifyAuthToken(request);
-  if (authError) return authError;
-  return NextResponse.json({ admin: true });
+  const email = await getVerifiedEmail(request);
+  if (!email) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const adminUser = await getAdminUser(email);
+  if (!adminUser) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
+  return NextResponse.json({
+    admin: true,
+    role: adminUser.role,
+    permissions: adminUser.permissions,
+    isSuperAdmin: adminUser.permissions.includes('*'),
+  });
 }

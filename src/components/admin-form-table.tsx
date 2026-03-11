@@ -45,11 +45,9 @@ const STATUS_STYLES: Record<string, string> = {
   completed: 'border-green-300 bg-green-50 text-green-700',
 };
 
-const SUPER_ADMIN_EMAIL = 'joshuag.profesional@gmail.com';
-
-export function AdminFormTable({ formType, title }: { formType: string; title: string }) {
-  const { user } = useAuth();
-  const isSuperAdmin = user?.email === SUPER_ADMIN_EMAIL;
+export function AdminFormTable({ formType, title, readOnly = false }: { formType: string; title: string; readOnly?: boolean }) {
+  const { user, isSuperAdmin, hasPermission } = useAuth();
+  const isReadOnly = readOnly || !hasPermission(`page:forms/${formType}`);
 
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -277,24 +275,26 @@ export function AdminFormTable({ formType, title }: { formType: string; title: s
                 ))}
               </div>
 
-              <div className="border-t pt-4">
-                <Label>Status</Label>
-                <Select value={editStatus} onValueChange={v => setEditStatus(v ?? '')}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Menunggu</SelectItem>
-                    <SelectItem value="reviewed">Ditinjau</SelectItem>
-                    <SelectItem value="completed">Selesai</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {!isReadOnly && (
+                <div className="border-t pt-4">
+                  <Label>Status</Label>
+                  <Select value={editStatus} onValueChange={v => setEditStatus(v ?? '')}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Menunggu</SelectItem>
+                      <SelectItem value="reviewed">Ditinjau</SelectItem>
+                      <SelectItem value="completed">Selesai</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           )}
 
           <DialogFooter className="flex-row justify-between sm:justify-between">
-            {isSuperAdmin ? (
+            {isSuperAdmin && !isReadOnly ? (
               <Button variant="destructive" onClick={handleDelete} disabled={saving}>
                 <Trash2 className="w-4 h-4 mr-1.5" />
                 Hapus
@@ -302,16 +302,18 @@ export function AdminFormTable({ formType, title }: { formType: string; title: s
             ) : <div />}
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setSelected(null)}>
-                Batal
+                {isReadOnly ? 'Tutup' : 'Batal'}
               </Button>
-              <Button onClick={handleStatusSave} disabled={saving || editStatus === selected?.status}>
-                {saving ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-                ) : (
-                  <Save className="w-4 h-4 mr-1.5" />
-                )}
-                Simpan
-              </Button>
+              {!isReadOnly && (
+                <Button onClick={handleStatusSave} disabled={saving || editStatus === selected?.status}>
+                  {saving ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                  ) : (
+                    <Save className="w-4 h-4 mr-1.5" />
+                  )}
+                  Simpan
+                </Button>
+              )}
             </div>
           </DialogFooter>
         </DialogContent>

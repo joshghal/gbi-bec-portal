@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { RequirePermission } from '@/components/require-permission';
 
 interface AnalyticsData {
   overview: {
@@ -95,6 +96,7 @@ export default function AnalyticsPage() {
   const month = data?.overview.month || {};
 
   return (
+    <RequirePermission permission="page:analytics">
     <div className="min-h-0 flex-1">
       <header className="border-b bg-card px-6 py-4">
         <div className="flex items-center justify-between">
@@ -263,5 +265,6 @@ export default function AnalyticsPage() {
         ) : null}
       </main>
     </div>
+    </RequirePermission>
   );
 }

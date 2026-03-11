@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { FORM_CONFIGS, FORM_TYPE_LABELS } from '@/lib/form-config';
+import { RequirePermission } from '@/components/require-permission';
 
 interface FormSettings {
   disabledForms?: string[];
@@ -80,6 +81,7 @@ export default function SettingsPage() {
   };
 
   return (
+    <RequirePermission permission="page:settings">
     <div className="min-h-0 flex-1">
       <header className="border-b bg-card px-6 py-4">
         <div className="flex items-center justify-between">
@@ -149,5 +151,6 @@ export default function SettingsPage() {
         )}
       </main>
     </div>
+    </RequirePermission>
   );
 }

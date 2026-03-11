@@ -9,6 +9,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { hasPermission as checkPermission } from '@/lib/permissions';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -19,6 +20,10 @@ export function useAuth() {
   const [adminChecking, setAdminChecking] = useState(false);
   const [adminError, setAdminError] = useState('');
 
+  const [role, setRole] = useState<string>('');
+  const [permissions, setPermissions] = useState<string[]>([]);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
   const verifyAdmin = useCallback(async (u: User) => {
     setAdminChecking(true);
     setAdminError('');
@@ -28,14 +33,24 @@ export function useAuth() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
+        const data = await res.json();
         setIsAdmin(true);
+        setRole(data.role || '');
+        setPermissions(data.permissions || []);
+        setIsSuperAdmin(data.isSuperAdmin || false);
       } else {
         setIsAdmin(false);
+        setRole('');
+        setPermissions([]);
+        setIsSuperAdmin(false);
         setAdminError('Akun Anda tidak terdaftar sebagai admin.');
         await firebaseSignOut(auth);
       }
     } catch {
       setIsAdmin(false);
+      setRole('');
+      setPermissions([]);
+      setIsSuperAdmin(false);
       setAdminError('Gagal memverifikasi akses admin.');
       await firebaseSignOut(auth);
     } finally {
@@ -50,6 +65,9 @@ export function useAuth() {
         verifyAdmin(u);
       } else {
         setIsAdmin(false);
+        setRole('');
+        setPermissions([]);
+        setIsSuperAdmin(false);
       }
       setLoading(false);
     });
@@ -60,5 +78,22 @@ export function useAuth() {
 
   const signOut = () => firebaseSignOut(auth);
 
-  return { user, loading, isAdmin, adminChecking, adminError, signInWithGoogle, signOut };
+  const hasPermission = useCallback(
+    (required: string) => checkPermission(permissions, required),
+    [permissions],
+  );
+
+  return {
+    user,
+    loading,
+    isAdmin,
+    adminChecking,
+    adminError,
+    role,
+    permissions,
+    isSuperAdmin,
+    hasPermission,
+    signInWithGoogle,
+    signOut,
+  };
 }

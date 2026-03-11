@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
+import { RequirePermission } from '@/components/require-permission';
 
 interface MonitorData {
   health: { status: string; latencyMs: number };
@@ -95,6 +96,7 @@ export default function MonitorPage() {
         : 'text-red-500';
 
   return (
+    <RequirePermission permission="page:monitor">
     <div className="min-h-0 flex-1">
       <header className="border-b bg-card px-6 py-4">
         <div className="flex items-center justify-between">
@@ -225,5 +227,6 @@ export default function MonitorPage() {
         ) : null}
       </main>
     </div>
+    </RequirePermission>
   );
 }

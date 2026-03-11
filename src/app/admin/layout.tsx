@@ -17,6 +17,7 @@ import {
   LogOut,
   Loader2,
   Menu,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -25,30 +26,44 @@ import {
   SheetContent,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import type { LucideIcon } from 'lucide-react';
 
-const NAV_GROUPS = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  permission: string;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Konten',
     items: [
-      { href: '/admin', label: 'Basis Pengetahuan', icon: FileText },
+      { href: '/admin', label: 'Basis Pengetahuan', icon: FileText, permission: 'page:knowledge-base' },
     ],
   },
   {
     label: 'Formulir',
     items: [
-      { href: '/admin/forms/kom', label: 'KOM', icon: GraduationCap },
-      { href: '/admin/forms/baptism', label: 'Baptisan', icon: Droplets },
-      { href: '/admin/forms/child-dedication', label: 'Penyerahan Anak', icon: Baby },
-      { href: '/admin/forms/prayer', label: 'Pokok Doa', icon: HandHeart },
-      { href: '/admin/forms/mclass', label: 'M-Class', icon: BookOpen },
+      { href: '/admin/forms/kom', label: 'KOM', icon: GraduationCap, permission: 'page:forms/kom' },
+      { href: '/admin/forms/baptism', label: 'Baptisan', icon: Droplets, permission: 'page:forms/baptism' },
+      { href: '/admin/forms/child-dedication', label: 'Penyerahan Anak', icon: Baby, permission: 'page:forms/child-dedication' },
+      { href: '/admin/forms/prayer', label: 'Pokok Doa', icon: HandHeart, permission: 'page:forms/prayer' },
+      { href: '/admin/forms/mclass', label: 'M-Class', icon: BookOpen, permission: 'page:forms/mclass' },
     ],
   },
   {
     label: 'Sistem',
     items: [
-      { href: '/admin/settings', label: 'Pengaturan Formulir', icon: Settings },
-      { href: '/admin/analytics', label: 'Analitik', icon: BarChart3 },
-      { href: '/admin/monitor', label: 'Monitor', icon: Activity },
+      { href: '/admin/settings', label: 'Pengaturan Formulir', icon: Settings, permission: 'page:settings' },
+      { href: '/admin/analytics', label: 'Analitik', icon: BarChart3, permission: 'page:analytics' },
+      { href: '/admin/monitor', label: 'Monitor', icon: Activity, permission: 'page:monitor' },
+      { href: '/admin/users', label: 'Kelola Admin', icon: Users, permission: 'page:admin-users' },
     ],
   },
 ];
@@ -64,11 +79,25 @@ function GoogleIcon() {
   );
 }
 
-function SidebarContent({ pathname, signOut, email }: {
+function SidebarContent({
+  pathname,
+  signOut,
+  email,
+  hasPermission,
+}: {
   pathname: string;
   signOut: () => void;
   email: string | null;
+  hasPermission: (perm: string) => boolean;
 }) {
+  // Filter nav groups to only show items the user can access
+  const filteredGroups = NAV_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item =>
+      hasPermission(item.permission) || hasPermission(item.permission + ':read')
+    ),
+  })).filter(group => group.items.length > 0);
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -81,7 +110,7 @@ function SidebarContent({ pathname, signOut, email }: {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 space-y-4">
-        {NAV_GROUPS.map(group => (
+        {filteredGroups.map(group => (
           <div key={group.label}>
             <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {group.label}
@@ -131,7 +160,7 @@ function SidebarContent({ pathname, signOut, email }: {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading: authLoading, isAdmin, adminChecking, adminError, signInWithGoogle, signOut } = useAuth();
+  const { user, loading: authLoading, isAdmin, adminChecking, adminError, hasPermission, signInWithGoogle, signOut } = useAuth();
   const pathname = usePathname();
   const [signingIn, setSigningIn] = useState(false);
   const [localError, setLocalError] = useState('');
@@ -211,6 +240,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           pathname={pathname}
           signOut={signOut}
           email={user.email}
+          hasPermission={hasPermission}
         />
       </aside>
 
@@ -228,6 +258,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   pathname={pathname}
                   signOut={signOut}
                   email={user.email}
+                  hasPermission={hasPermission}
                 />
               </div>
             </SheetContent>

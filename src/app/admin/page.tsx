@@ -39,6 +39,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { RequirePermission } from '@/components/require-permission';
 
 interface Document {
   id: string;
@@ -172,260 +173,262 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-0 flex-1">
-      {/* Header */}
-      <header className="border-b bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-semibold text-lg">Knowledge Base</h1>
-            <p className="text-xs text-muted-foreground">
-              Kelola dokumen GBI BEC di Pinecone
-            </p>
+    <RequirePermission permission="page:knowledge-base">
+      <div className="min-h-0 flex-1">
+        {/* Header */}
+        <header className="border-b bg-card px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-semibold text-lg">Knowledge Base</h1>
+              <p className="text-xs text-muted-foreground">
+                Kelola dokumen GBI BEC di Pinecone
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary">{documents.length} dokumen</Badge>
+              <Button variant="outline" size="icon" onClick={fetchDocuments} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                onClick={() => {
+                  setEditDoc({ ...EMPTY_DOC });
+                  setIsNew(true);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Tambah
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">{documents.length} dokumen</Badge>
-            <Button variant="outline" size="icon" onClick={fetchDocuments} disabled={loading}>
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button
-              onClick={() => {
-                setEditDoc({ ...EMPTY_DOC });
-                setIsNew(true);
-              }}
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Tambah
-            </Button>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Content */}
-      <main className="p-6">
-        {/* Search */}
-        <div className="relative mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Cari dokumen..."
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
+        {/* Content */}
+        <main className="p-6">
+          {/* Search */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Cari dokumen..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
-        {/* Table */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20 text-muted-foreground">
-            <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            Memuat dokumen...
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            {searchQuery ? 'Tidak ditemukan.' : 'Belum ada dokumen.'}
-          </div>
-        ) : (
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[180px]">ID</TableHead>
-                  <TableHead>Konten</TableHead>
-                  <TableHead className="w-[120px]">Kategori</TableHead>
-                  <TableHead className="w-[100px]">Tipe</TableHead>
-                  <TableHead className="w-[80px] text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map(doc => (
-                  <TableRow key={doc.id}>
-                    <TableCell className="font-mono text-xs">{doc.id}</TableCell>
-                    <TableCell className="text-sm max-w-md">
-                      <p className="line-clamp-2">{doc.content}</p>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="text-xs">
-                        {doc.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {doc.type}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => {
-                            setEditDoc({ ...doc });
-                            setIsNew(false);
-                          }}
-                        >
-                          <Pencil className="w-3.5 h-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => setDeleteDoc(doc)}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          {/* Table */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              Memuat dokumen...
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-20 text-muted-foreground">
+              {searchQuery ? 'Tidak ditemukan.' : 'Belum ada dokumen.'}
+            </div>
+          ) : (
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[180px]">ID</TableHead>
+                    <TableHead>Konten</TableHead>
+                    <TableHead className="w-[120px]">Kategori</TableHead>
+                    <TableHead className="w-[100px]">Tipe</TableHead>
+                    <TableHead className="w-[80px] text-right">Aksi</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </main>
-
-      {/* Edit / Add Dialog */}
-      <Dialog open={!!editDoc} onOpenChange={open => !open && setEditDoc(null)}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>{isNew ? 'Tambah Dokumen Baru' : 'Edit Dokumen'}</DialogTitle>
-            <DialogDescription>
-              {isNew
-                ? 'Tambahkan informasi baru ke knowledge base.'
-                : 'Ubah konten dan metadata. Embedding akan di-generate ulang.'}
-            </DialogDescription>
-          </DialogHeader>
-
-          {editDoc && (
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="doc-id">ID</Label>
-                <Input
-                  id="doc-id"
-                  value={editDoc.id}
-                  onChange={e =>
-                    setEditDoc({ ...editDoc, id: e.target.value })
-                  }
-                  disabled={!isNew}
-                  placeholder="contoh: jadwal-ibadah-minggu"
-                  className="mt-1 font-mono text-sm"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="doc-content">Konten</Label>
-                <Textarea
-                  id="doc-content"
-                  value={editDoc.content}
-                  onChange={e =>
-                    setEditDoc({ ...editDoc, content: e.target.value })
-                  }
-                  placeholder="Tulis informasi yang akan dijadikan jawaban oleh chatbot..."
-                  rows={5}
-                  className="mt-1"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label>Kategori</Label>
-                  <Select
-                    value={editDoc.category}
-                    onValueChange={v =>
-                      setEditDoc({ ...editDoc, category: v ?? '' })
-                    }
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Pilih kategori" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map(c => (
-                        <SelectItem key={c} value={c}>
-                          {c}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label>Tipe</Label>
-                  <Select
-                    value={editDoc.type}
-                    onValueChange={v =>
-                      setEditDoc({ ...editDoc, type: v ?? '' })
-                    }
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Pilih tipe" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {TYPES.map(t => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label htmlFor="doc-source">Sumber</Label>
-                <Input
-                  id="doc-source"
-                  value={editDoc.source}
-                  onChange={e =>
-                    setEditDoc({ ...editDoc, source: e.target.value })
-                  }
-                  placeholder="contoh: kegiatan-gbi-bec"
-                  className="mt-1"
-                />
-              </div>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map(doc => (
+                    <TableRow key={doc.id}>
+                      <TableCell className="font-mono text-xs">{doc.id}</TableCell>
+                      <TableCell className="text-sm max-w-md">
+                        <p className="line-clamp-2">{doc.content}</p>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          {doc.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {doc.type}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => {
+                              setEditDoc({ ...doc });
+                              setIsNew(false);
+                            }}
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => setDeleteDoc(doc)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
+        </main>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDoc(null)}>
-              Batal
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={saving || !editDoc?.content.trim() || (isNew && !editDoc?.id.trim())}
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-              ) : (
-                <Save className="w-4 h-4 mr-1.5" />
-              )}
-              {isNew ? 'Tambah' : 'Simpan'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Edit / Add Dialog */}
+        <Dialog open={!!editDoc} onOpenChange={open => !open && setEditDoc(null)}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>{isNew ? 'Tambah Dokumen Baru' : 'Edit Dokumen'}</DialogTitle>
+              <DialogDescription>
+                {isNew
+                  ? 'Tambahkan informasi baru ke knowledge base.'
+                  : 'Ubah konten dan metadata. Embedding akan di-generate ulang.'}
+              </DialogDescription>
+            </DialogHeader>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={!!deleteDoc} onOpenChange={open => !open && setDeleteDoc(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Hapus Dokumen?</DialogTitle>
-            <DialogDescription>
-              Dokumen <strong className="text-foreground">{deleteDoc?.id}</strong> akan
-              dihapus permanen dari knowledge base.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDoc(null)}>
-              Batal
-            </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-              ) : (
-                <Trash2 className="w-4 h-4 mr-1.5" />
-              )}
-              Hapus
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+            {editDoc && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="doc-id">ID</Label>
+                  <Input
+                    id="doc-id"
+                    value={editDoc.id}
+                    onChange={e =>
+                      setEditDoc({ ...editDoc, id: e.target.value })
+                    }
+                    disabled={!isNew}
+                    placeholder="contoh: jadwal-ibadah-minggu"
+                    className="mt-1 font-mono text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="doc-content">Konten</Label>
+                  <Textarea
+                    id="doc-content"
+                    value={editDoc.content}
+                    onChange={e =>
+                      setEditDoc({ ...editDoc, content: e.target.value })
+                    }
+                    placeholder="Tulis informasi yang akan dijadikan jawaban oleh chatbot..."
+                    rows={5}
+                    className="mt-1"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label>Kategori</Label>
+                    <Select
+                      value={editDoc.category}
+                      onValueChange={v =>
+                        setEditDoc({ ...editDoc, category: v ?? '' })
+                      }
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Pilih kategori" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CATEGORIES.map(c => (
+                          <SelectItem key={c} value={c}>
+                            {c}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Tipe</Label>
+                    <Select
+                      value={editDoc.type}
+                      onValueChange={v =>
+                        setEditDoc({ ...editDoc, type: v ?? '' })
+                      }
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Pilih tipe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TYPES.map(t => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="doc-source">Sumber</Label>
+                  <Input
+                    id="doc-source"
+                    value={editDoc.source}
+                    onChange={e =>
+                      setEditDoc({ ...editDoc, source: e.target.value })
+                    }
+                    placeholder="contoh: kegiatan-gbi-bec"
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            )}
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditDoc(null)}>
+                Batal
+              </Button>
+              <Button
+                onClick={handleSave}
+                disabled={saving || !editDoc?.content.trim() || (isNew && !editDoc?.id.trim())}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                ) : (
+                  <Save className="w-4 h-4 mr-1.5" />
+                )}
+                {isNew ? 'Tambah' : 'Simpan'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={!!deleteDoc} onOpenChange={open => !open && setDeleteDoc(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Hapus Dokumen?</DialogTitle>
+              <DialogDescription>
+                Dokumen <strong className="text-foreground">{deleteDoc?.id}</strong> akan
+                dihapus permanen dari knowledge base.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setDeleteDoc(null)}>
+                Batal
+              </Button>
+              <Button variant="destructive" onClick={handleDelete} disabled={saving}>
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                ) : (
+                  <Trash2 className="w-4 h-4 mr-1.5" />
+                )}
+                Hapus
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </RequirePermission>
   );
 }

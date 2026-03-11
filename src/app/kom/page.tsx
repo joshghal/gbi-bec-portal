@@ -22,6 +22,30 @@ export default function KomPage() {
       </header>
 
       <main className="max-w-2xl mx-auto p-4 space-y-6">
+        {/* Registration + Contact */}
+        <Card className="relative border-0 bg-gradient-to-br from-primary/10 to-primary/5 overflow-hidden shadow-[inset_0_4px_20px_rgba(0,0,0,0.04),inset_0_1px_4px_rgba(0,0,0,0.03)]" style={{ backgroundImage: 'linear-gradient(to right, rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.04) 1px, transparent 1px)', backgroundSize: '80px 80px' }}>
+          <CardContent className="flex flex-col items-center text-center gap-4 py-6">
+            <div className="space-y-1">
+              <p className="text-2xl font-extrabold text-primary">Pendaftaran KOM</p>
+              <p className="text-sm text-muted-foreground">Mulai perjalanan pertumbuhan imanmu sekarang</p>
+            </div>
+            <div className="flex flex-col gap-2 w-full max-w-xs">
+              <a href="https://bit.ly/DaftarKOMBarsiBEC" target="_blank" rel="noopener noreferrer">
+                <Button className="w-full gap-2">
+                  <ExternalLink className="w-4 h-4" />
+                  Daftar Sekarang
+                </Button>
+              </a>
+              <a href="https://wa.me/6285860060050" target="_blank" rel="noopener noreferrer">
+                <Button variant="outline" className="w-full gap-2">
+                  <Phone className="w-4 h-4" />
+                  Hubungi Henny
+                </Button>
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">
             Program pengajaran Firman Tuhan berjenjang di GBI — 4 level, 82 sesi total.
@@ -140,30 +164,6 @@ export default function KomPage() {
             </Card>
           </Link>
         </div>
-
-        {/* Registration + Contact */}
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="space-y-3">
-            <p className="text-sm font-semibold text-primary">Pendaftaran KOM</p>
-            <a href="https://bit.ly/DaftarKOMBarsiBEC" target="_blank" rel="noopener noreferrer">
-              <Button className="w-full">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Daftar KOM Sekarang
-              </Button>
-            </a>
-            <div className="flex items-center gap-3 pt-1">
-              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
-                <Phone className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Narahubung KOM</p>
-                <a href="https://wa.me/6285860060050" className="text-sm font-medium text-primary hover:underline">
-                  Henny — 0858-6006-0050
-                </a>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Card className="bg-[#fdf6ec] border-[#f0e0c4]">
           <CardContent className="text-sm">
