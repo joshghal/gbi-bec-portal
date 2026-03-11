@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { FORM_CONFIGS } from '@/lib/form-config';
 import type { ChatMessage } from '@/lib/types';
 import type { FormConfig, FormStep } from '@/lib/form-types';
@@ -24,11 +24,24 @@ function validateField(step: FormStep, value: string): string | null {
 type AddMessageFn = (msg: Omit<ChatMessage, 'id' | 'timestamp'>) => void;
 
 export function useFormFlow(addMessage: AddMessageFn) {
+  const [disabledForms, setDisabledForms] = useState<string[]>([]);
+  const fetchedRef = useRef(false);
+
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    fetch('/api/forms/settings')
+      .then(r => r.json())
+      .then(data => setDisabledForms(data.disabledForms || []))
+      .catch(() => {});
+  }, []);
+
   const [activeForm, setActiveForm] = useState<FormConfig | null>(null);
   const [formStep, setFormStep] = useState(-1);
   const [formAnswers, setFormAnswers] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [dynamicOptionsCache, setDynamicOptionsCache] = useState<Record<string, string[]>>({});
 
   const isActive = activeForm !== null && formStep >= 0;
   const currentStep = isActive && formStep < activeForm!.steps.length
@@ -36,22 +49,53 @@ export function useFormFlow(addMessage: AddMessageFn) {
     : null;
   const isSummary = activeForm !== null && formStep === activeForm.steps.length;
 
+  const fetchDynamicOptions = useCallback(async (url: string): Promise<string[]> => {
+    if (dynamicOptionsCache[url]) return dynamicOptionsCache[url];
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      const labels = (data.dates || []).map((d: { label: string }) => d.label);
+      setDynamicOptionsCache(prev => ({ ...prev, [url]: labels }));
+      return labels;
+    } catch {
+      return [];
+    }
+  }, [dynamicOptionsCache]);
+
   const showFormCards = useCallback(() => {
     addMessage({
       role: 'assistant',
       content: 'Silakan pilih formulir yang ingin Anda isi:',
-      formCards: FORM_CONFIGS.map(c => ({
+      formCards: FORM_CONFIGS.filter(c => !c.externalUrl && !disabledForms.includes(c.type)).map(c => ({
         type: c.type,
         title: c.title,
         description: c.description,
         icon: c.icon,
       })),
     });
-  }, [addMessage]);
+  }, [addMessage, disabledForms]);
 
   const selectForm = useCallback((type: string, skipUserMessage = false) => {
     const config = FORM_CONFIGS.find(c => c.type === type);
     if (!config) return;
+
+    // External form — always show link regardless of disabled status
+    if (config.externalUrl) {
+      addMessage({
+        role: 'assistant',
+        content: `Pendaftaran ${config.title} menggunakan formulir terpisah.\n\n**[Daftar Sekarang](${config.externalUrl})**\n\nNarahubung: [Henny — 0858-6006-0050](https://wa.me/6285860060050)`,
+      });
+      return;
+    }
+
+    // Disabled built-in form
+    if (disabledForms.includes(config.type)) {
+      addMessage({
+        role: 'assistant',
+        content: `Maaf, formulir ${config.title} sedang tidak tersedia saat ini.`,
+      });
+      return;
+    }
 
     if (!skipUserMessage) {
       addMessage({ role: 'user', content: config.title });
@@ -62,15 +106,19 @@ export function useFormFlow(addMessage: AddMessageFn) {
     setFormStep(0);
     setFormError('');
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const first = config.steps[0];
+      let options = first.type === 'select' ? first.options : undefined;
+      if (first.dynamicOptionsUrl) {
+        options = await fetchDynamicOptions(first.dynamicOptionsUrl);
+      }
       addMessage({
         role: 'assistant',
         content: `Baik, mari isi formulir **${config.title}**. Saya akan memandu Anda langkah demi langkah.\n\n${first.question}`,
-        formOptions: first.type === 'select' ? first.options : undefined,
+        formOptions: options,
       });
     }, 300);
-  }, [addMessage]);
+  }, [addMessage, disabledForms, fetchDynamicOptions]);
 
   const advanceStep = useCallback((value: string) => {
     if (!activeForm) return;
@@ -90,14 +138,18 @@ export function useFormFlow(addMessage: AddMessageFn) {
 
     const next = formStep + 1;
 
-    setTimeout(() => {
+    setTimeout(async () => {
       if (next < activeForm.steps.length) {
         setFormStep(next);
         const nextStep = activeForm.steps[next];
+        let options = nextStep.type === 'select' ? nextStep.options : undefined;
+        if (nextStep.dynamicOptionsUrl) {
+          options = await fetchDynamicOptions(nextStep.dynamicOptionsUrl);
+        }
         addMessage({
           role: 'assistant',
           content: nextStep.question,
-          formOptions: nextStep.type === 'select' ? nextStep.options : undefined,
+          formOptions: options,
         });
       } else {
         setFormStep(next);
@@ -115,7 +167,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
         });
       }
     }, 300);
-  }, [activeForm, formStep, formAnswers, addMessage]);
+  }, [activeForm, formStep, formAnswers, addMessage, fetchDynamicOptions]);
 
   const submitForm = useCallback(async () => {
     if (!activeForm) return;

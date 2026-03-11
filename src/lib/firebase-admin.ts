@@ -1,34 +1,16 @@
-import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, type App, type ServiceAccount } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
 import { NextRequest, NextResponse } from 'next/server';
+import { getServiceAccountCredentials } from './service-account';
 
 function getAdminApp(): App {
   if (getApps().length > 0) return getApps()[0];
 
-  // Vercel: base64-encoded service account
-  const base64 = process.env.GOOGLE_SERVICE_ACCOUNT_BASE64;
-  if (base64) {
-    try {
-      const serviceAccount = JSON.parse(Buffer.from(base64, 'base64').toString());
-      console.log('[firebase-admin] Initializing with base64 credentials, project:', serviceAccount.project_id);
-      return initializeApp({ credential: cert(serviceAccount) });
-    } catch (e) {
-      console.error('[firebase-admin] Failed to parse GOOGLE_SERVICE_ACCOUNT_BASE64:', e);
-    }
-  } else {
-    console.log('[firebase-admin] GOOGLE_SERVICE_ACCOUNT_BASE64 not found');
-  }
-
-  // Local: file-based service account
-  const credPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  if (credPath) {
-    const fullPath = resolve(credPath);
-    const serviceAccount = JSON.parse(readFileSync(fullPath, 'utf8'));
-    console.log('[firebase-admin] Initializing with file credentials');
-    return initializeApp({ credential: cert(serviceAccount) });
+  const creds = getServiceAccountCredentials();
+  if (creds) {
+    console.log('[firebase-admin] Initializing with service account, project:', creds.project_id);
+    return initializeApp({ credential: cert(creds as ServiceAccount) });
   }
 
   // Fallback: GCP hosted environments with default credentials

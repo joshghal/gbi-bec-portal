@@ -1,8 +1,9 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -16,10 +17,26 @@ const glassImageMap: Record<string, string> = {
   baptism: '/glass-second.webp',
   'child-dedication': '/glass-third.webp',
   prayer: '/glass-fourth.webp',
+  mclass: '/glass-one.webp',
 };
 const getGlassImage = (type: string) => glassImageMap[type] || '/glass-one.webp';
 
 export default function FormsPage() {
+  const [disabledForms, setDisabledForms] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/forms/settings')
+      .then(r => r.json())
+      .then(data => setDisabledForms(data.disabledForms || []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const activeForms = FORM_CONFIGS.filter(
+    c => !c.externalUrl && !disabledForms.includes(c.type),
+  );
+
   return (
     <div className="min-h-dvh bg-background">
       <header className="border-b bg-card px-4 py-3 flex items-center gap-3">
@@ -33,9 +50,17 @@ export default function FormsPage() {
       </header>
 
       <div className="max-w-2xl mx-auto p-4">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {FORM_CONFIGS.map(config => {
-            return (
+        {loading ? (
+          <div className="flex items-center justify-center py-20 text-muted-foreground">
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+          </div>
+        ) : activeForms.length === 0 ? (
+          <div className="text-center py-20 text-muted-foreground text-sm">
+            Belum ada formulir yang tersedia saat ini.
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {activeForms.map(config => (
               <Link key={config.type} href={`/forms/${config.type}`}>
                 <Card className="h-full hover:ring-2 hover:ring-primary/20 transition-all cursor-pointer relative overflow-hidden">
                   <Image
@@ -51,9 +76,9 @@ export default function FormsPage() {
                   </CardHeader>
                 </Card>
               </Link>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

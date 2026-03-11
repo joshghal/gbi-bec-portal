@@ -3,10 +3,21 @@ import { generateEmbedding } from '@/lib/embeddings';
 import { searchDocuments } from '@/lib/pinecone';
 import { callChatAI, parseJSONResponse } from '@/lib/ai/chat-handler';
 import {
-  CHAT_SYSTEM_PROMPT,
+  buildSystemPrompt,
   buildUserPrompt,
   formatDocumentsForContext,
 } from '@/lib/ai/chat-prompts';
+import { getAdminFirestore } from '@/lib/firebase-admin';
+
+async function getDisabledForms(): Promise<string[]> {
+  try {
+    const db = getAdminFirestore();
+    const doc = await db.collection('settings').doc('forms').get();
+    return doc.exists ? (doc.data()!.disabledForms || []) : [];
+  } catch {
+    return [];
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,8 +27,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    // 1. Embed the user query
-    const queryEmbedding = await generateEmbedding(message, 'query');
+    // 1. Embed the user query + fetch form settings in parallel
+    const [queryEmbedding, disabledForms] = await Promise.all([
+      generateEmbedding(message, 'query'),
+      getDisabledForms(),
+    ]);
 
     // 2. Search Pinecone for relevant documents
     const results = await searchDocuments(queryEmbedding, { topK: 5 });
@@ -27,11 +41,12 @@ export async function POST(request: NextRequest) {
     const sources = [...new Set(results.map(r => r.metadata.source).filter(Boolean))] as string[];
 
     const userPrompt = buildUserPrompt(message, documentContext, history || []);
+    const systemPrompt = buildSystemPrompt(disabledForms);
 
     // 4. Call ASI:One Mini
     const aiResult = await callChatAI({
       messages: [
-        { role: 'system', content: CHAT_SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
     });

@@ -123,7 +123,7 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
             <div className="absolute top-5 left-0 right-0 flex px-[16.67%]">
               {[0, 1].map(i => (
                 <div key={i} className={`h-0.5 flex-1 rounded-full ${
-                  i < currentStatusIndex ? 'bg-primary/30' : 'bg-muted'
+                  i < currentStatusIndex ? 'bg-primary' : 'bg-muted'
                 }`} />
               ))}
             </div>
@@ -139,12 +139,12 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
                       isActive
                         ? 'bg-primary text-primary-foreground shadow-sm'
                         : isDone
-                          ? 'bg-primary/15 text-primary'
+                          ? 'bg-primary-light text-primary'
                           : 'bg-muted text-muted-foreground'
                     }`}>
                       {isDone ? <Check className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
                     </div>
-                    <span className={`text-xs font-semibold ${isActive ? 'text-primary' : isDone ? 'text-primary/70' : 'text-muted-foreground'}`}>
+                    <span className={`text-xs font-semibold ${isActive ? 'text-primary' : isDone ? 'text-primary' : 'text-muted-foreground'}`}>
                       {step.label}
                     </span>
                     <span className="text-[10px] text-muted-foreground text-center leading-tight">

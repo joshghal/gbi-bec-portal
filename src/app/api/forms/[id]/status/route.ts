@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { syncToSheets } from '@/lib/google-sheets';
 
 const VALID_STATUSES = ['pending', 'reviewed', 'completed'];
 
@@ -30,6 +31,9 @@ export async function PATCH(
       status,
       updatedAt: now,
     });
+
+    // Fire-and-forget: sync to Google Sheets
+    syncToSheets('update', doc.data()!.type, id, { status, updatedAt: now });
 
     return NextResponse.json({ id, status, updatedAt: now });
   } catch (error) {

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Phone, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -140,6 +140,30 @@ export default function KomPage() {
             </Card>
           </Link>
         </div>
+
+        {/* Registration + Contact */}
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="space-y-3">
+            <p className="text-sm font-semibold text-primary">Pendaftaran KOM</p>
+            <a href="https://bit.ly/DaftarKOMBarsiBEC" target="_blank" rel="noopener noreferrer">
+              <Button className="w-full">
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Daftar KOM Sekarang
+              </Button>
+            </a>
+            <div className="flex items-center gap-3 pt-1">
+              <div className="flex items-center justify-center w-9 h-9 rounded-full bg-primary/10">
+                <Phone className="w-4 h-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Narahubung KOM</p>
+                <a href="https://wa.me/6285860060050" className="text-sm font-medium text-primary hover:underline">
+                  Henny — 0858-6006-0050
+                </a>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card className="bg-[#fdf6ec] border-[#f0e0c4]">
           <CardContent className="text-sm">

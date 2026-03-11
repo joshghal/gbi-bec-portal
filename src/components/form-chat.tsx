@@ -42,6 +42,8 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
     editToken: string;
   } | null>(null);
   const [error, setError] = useState('');
+  const [dynamicOptions, setDynamicOptions] = useState<string[] | null>(null);
+  const [loadingOptions, setLoadingOptions] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -76,6 +78,29 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Fetch dynamic options when step has dynamicOptionsUrl
+  useEffect(() => {
+    if (currentStep < 0 || currentStep >= totalSteps) {
+      setDynamicOptions(null);
+      return;
+    }
+    const step = formConfig.steps[currentStep];
+    if (!step.dynamicOptionsUrl) {
+      setDynamicOptions(null);
+      return;
+    }
+    setLoadingOptions(true);
+    setDynamicOptions(null);
+    fetch(step.dynamicOptionsUrl)
+      .then(r => r.json())
+      .then(data => {
+        const labels = (data.dates || []).map((d: { label: string }) => d.label);
+        setDynamicOptions(labels);
+      })
+      .catch(() => setDynamicOptions([]))
+      .finally(() => setLoadingOptions(false));
+  }, [currentStep, totalSteps, formConfig.steps]);
 
   // Focus input when step changes
   useEffect(() => {
@@ -232,21 +257,40 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
           ))}
 
           {/* Select pill buttons */}
-          {currentStepConfig?.type === 'select' &&
-            currentStepConfig.options && (
-              <div className="flex flex-wrap gap-2 pl-1">
-                {currentStepConfig.options.map(option => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => handleSelectOption(option)}
-                    className="rounded-full border border-primary/30 bg-secondary text-sm py-1.5 px-3.5 hover:bg-primary/10 transition-colors cursor-pointer"
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            )}
+          {currentStepConfig?.type === 'select' && (() => {
+            const options = currentStepConfig.dynamicOptionsUrl ? dynamicOptions : currentStepConfig.options;
+            if (currentStepConfig.dynamicOptionsUrl && loadingOptions) {
+              return (
+                <div className="text-sm text-muted-foreground pl-1">
+                  Memuat pilihan...
+                </div>
+              );
+            }
+            if (options && options.length === 0) {
+              return (
+                <div className="text-sm text-muted-foreground pl-1">
+                  Belum ada jadwal baptisan tersedia. Silakan hubungi gereja.
+                </div>
+              );
+            }
+            if (options && options.length > 0) {
+              return (
+                <div className="flex flex-wrap gap-2 pl-1">
+                  {options.map(option => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => handleSelectOption(option)}
+                      className="rounded-full border border-primary/30 bg-secondary text-sm py-1.5 px-3.5 hover:bg-primary/10 transition-colors cursor-pointer"
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              );
+            }
+            return null;
+          })()}
 
           {/* Summary submit button */}
           {isSummary && !isSubmitting && (

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { syncToSheets, getSheetUrl } from '@/lib/google-sheets';
 import type { FormType } from '@/lib/form-types';
 
-const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer'];
+const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer', 'mclass'];
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,6 +65,9 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
     });
 
+    // Fire-and-forget: sync to Google Sheets
+    syncToSheets('create', type, docRef.id, { data, status: 'pending', createdAt: now });
+
     return NextResponse.json({ id: docRef.id, editToken });
   } catch (error) {
     console.error('Form submission error:', error);
@@ -96,7 +100,13 @@ export async function GET(request: NextRequest) {
       ...doc.data(),
     }));
 
-    return NextResponse.json({ submissions });
+    // Get or create sheet URL
+    let sheetUrl: string | null = null;
+    if (type) {
+      sheetUrl = await getSheetUrl(type as FormType);
+    }
+
+    return NextResponse.json({ submissions, sheetUrl });
   } catch (error) {
     console.error('List submissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

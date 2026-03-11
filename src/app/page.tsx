@@ -66,7 +66,26 @@ export default function Home() {
   useEffect(() => {
     if (!shouldAutoScroll.current) return;
     const viewport = scrollRef.current?.querySelector('[data-slot="scroll-area-viewport"]') as HTMLElement | null;
-    if (viewport) viewport.scrollTop = viewport.scrollHeight;
+    if (!viewport) return;
+
+    // For loading indicator, scroll to bottom
+    if (isLoading) {
+      viewport.scrollTop = viewport.scrollHeight;
+      return;
+    }
+
+    // For new messages, scroll the last message's top into view
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg && lastMsg.role === 'assistant' && lastMsg.id !== 'welcome') {
+      const el = viewport.querySelector(`[data-message-id="${lastMsg.id}"]`) as HTMLElement | null;
+      if (el) {
+        const elTop = el.offsetTop;
+        viewport.scrollTo({ top: Math.max(0, elTop - 12), behavior: 'smooth' });
+        return;
+      }
+    }
+
+    viewport.scrollTop = viewport.scrollHeight;
   }, [messages, isLoading]);
 
   // --- Form intent detection ---
@@ -219,8 +238,8 @@ export default function Home() {
       <ScrollArea className="flex-1 min-h-0 px-4" ref={scrollRef}>
         <div className="max-w-2xl mx-auto py-4 space-y-4">
           {messages.map(message => (
+            <div key={message.id} data-message-id={message.id}>
             <ChatMessage
-              key={message.id}
               message={message}
               formSummaryEditable={form.isSummary && !!message.formSummary}
               onSuggestionClick={sendMessage}
@@ -229,6 +248,7 @@ export default function Home() {
               onFormOptionClick={form.isActive ? form.advanceStep : undefined}
               onFormSummaryUpdate={handleFormSummaryUpdate}
             />
+            </div>
           ))}
           {(isLoading || form.isSubmitting) && (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">

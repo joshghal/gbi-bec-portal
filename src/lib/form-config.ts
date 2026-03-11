@@ -6,6 +6,7 @@ export const FORM_CONFIGS: FormConfig[] = [
     title: 'Pendaftaran KOM',
     description: 'Daftar kelas Kehidupan Orientasi Melayani',
     icon: 'GraduationCap',
+    externalUrl: 'https://bit.ly/DaftarKOMBarsiBEC',
     steps: [
       { field: 'namaLengkap', question: 'Siapa nama lengkap Anda?', type: 'text' },
       { field: 'tempatLahir', question: 'Dimana tempat lahir Anda?', type: 'text' },
@@ -32,6 +33,7 @@ export const FORM_CONFIGS: FormConfig[] = [
       { field: 'alamat', question: 'Alamat tempat tinggal saat ini?', type: 'textarea' },
       { field: 'noTelepon', question: 'Nomor WhatsApp Anda?', type: 'tel' },
       { field: 'email', question: 'Alamat email?', type: 'email' },
+      { field: 'tanggalBaptis', question: 'Pilih tanggal baptisan yang tersedia:', type: 'select', dynamicOptionsUrl: '/api/forms/baptism-dates' },
       { field: 'sudahKOM100', question: 'Apakah sudah menyelesaikan KOM 100?', type: 'select', options: ['Sudah', 'Belum'] },
       { field: 'alasanBaptis', question: 'Ceritakan alasan dan kesaksian Anda untuk dibaptis.', type: 'textarea' },
     ],
@@ -66,6 +68,16 @@ export const FORM_CONFIGS: FormConfig[] = [
       { field: 'bolehDibagikan', question: 'Bolehkah pokok doa ini dibagikan ke tim pendoa?', type: 'select', options: ['Boleh', 'Tidak'] },
     ],
   },
+  {
+    type: 'mclass',
+    title: 'Pendaftaran M-Class',
+    description: 'Daftar kelas Membership',
+    icon: 'BookOpen',
+    steps: [
+      { field: 'namaLengkap', question: 'Siapa nama lengkap Anda?', type: 'text' },
+      { field: 'noTelepon', question: 'Nomor WhatsApp Anda?', type: 'tel' },
+    ],
+  },
 ];
 
 export function getFormConfig(type: string): FormConfig | undefined {
@@ -77,6 +89,7 @@ export const FORM_TYPE_LABELS: Record<string, string> = {
   baptism: 'Baptisan',
   'child-dedication': 'Penyerahan Anak',
   prayer: 'Pokok Doa',
+  mclass: 'M-Class',
 };
 
 export const FORM_STATUS_LABELS: Record<string, string> = {

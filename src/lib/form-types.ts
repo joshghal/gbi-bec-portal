@@ -1,4 +1,4 @@
-export type FormType = 'kom' | 'baptism' | 'child-dedication' | 'prayer';
+export type FormType = 'kom' | 'baptism' | 'child-dedication' | 'prayer' | 'mclass';
 
 export type FormFieldType = 'text' | 'textarea' | 'date' | 'tel' | 'email' | 'select';
 
@@ -9,6 +9,8 @@ export interface FormStep {
   options?: string[];
   optional?: boolean;
   placeholder?: string;
+  /** Fetch options from this URL instead of using static options[] */
+  dynamicOptionsUrl?: string;
 }
 
 export interface FormConfig {
@@ -17,6 +19,8 @@ export interface FormConfig {
   description: string;
   icon: string;
   steps: FormStep[];
+  /** External registration URL — hides from built-in form flow */
+  externalUrl?: string;
 }
 
 export interface FormSubmission {

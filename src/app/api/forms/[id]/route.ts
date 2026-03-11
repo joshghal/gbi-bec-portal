@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { syncToSheets } from '@/lib/google-sheets';
 
 async function authorize(request: NextRequest, docData: { editToken: string }) {
   const { searchParams } = new URL(request.url);
@@ -64,6 +65,9 @@ export async function PUT(
       updatedAt: now,
     });
 
+    // Fire-and-forget: sync to Google Sheets
+    syncToSheets('update', existing.type, id, { data, updatedAt: now });
+
     return NextResponse.json({ id, updatedAt: now });
   } catch (error) {
     console.error('Update submission error:', error);
@@ -87,7 +91,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
+    const docType = doc.data()!.type;
     await db.collection('form_submissions').doc(id).delete();
+
+    // Fire-and-forget: sync to Google Sheets
+    syncToSheets('delete', docType, id);
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete submission error:', error);
