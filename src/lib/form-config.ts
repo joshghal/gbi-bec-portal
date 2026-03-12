@@ -27,6 +27,7 @@ export const FORM_CONFIGS: FormConfig[] = [
     icon: 'Droplets',
     steps: [
       { field: 'namaLengkap', question: 'Siapa nama lengkap Anda?', type: 'text' },
+      { field: 'nomorKTP', question: 'Berapa nomor KTP (NIK) Anda?', type: 'text' },
       { field: 'tempatLahir', question: 'Dimana tempat lahir Anda?', type: 'text' },
       { field: 'tanggalLahir', question: 'Kapan tanggal lahir Anda?', type: 'date' },
       { field: 'jenisKelamin', question: 'Jenis kelamin?', type: 'select', options: ['Pria', 'Wanita'] },
@@ -35,6 +36,7 @@ export const FORM_CONFIGS: FormConfig[] = [
       { field: 'email', question: 'Alamat email?', type: 'email' },
       { field: 'tanggalBaptis', question: 'Pilih tanggal baptisan yang tersedia:', type: 'select', dynamicOptionsUrl: '/api/forms/baptism-dates' },
       { field: 'sudahKOM100', question: 'Apakah sudah menyelesaikan KOM 100?', type: 'select', options: ['Sudah', 'Belum'] },
+      { field: 'sudahKAJ', question: 'Apakah Anda sudah memiliki KAJ?', type: 'select', options: ['Sudah', 'Belum'] },
       { field: 'alasanBaptis', question: 'Ceritakan alasan dan kesaksian Anda untuk dibaptis.', type: 'textarea' },
     ],
   },

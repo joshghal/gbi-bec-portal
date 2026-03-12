@@ -65,8 +65,8 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
     });
 
-    // Fire-and-forget: sync to Google Sheets
-    syncToSheets('create', type, docRef.id, { data, status: 'pending', createdAt: now });
+    // Sync to Google Sheets (awaited so Vercel doesn't kill the request)
+    await syncToSheets('create', type, docRef.id, { data, status: 'pending', createdAt: now });
 
     return NextResponse.json({ id: docRef.id, editToken });
   } catch (error) {

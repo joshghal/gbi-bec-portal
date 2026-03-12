@@ -32,8 +32,7 @@ export async function PATCH(
       updatedAt: now,
     });
 
-    // Fire-and-forget: sync to Google Sheets
-    syncToSheets('update', doc.data()!.type, id, { status, updatedAt: now });
+    await syncToSheets('update', doc.data()!.type, id, { status, updatedAt: now });
 
     return NextResponse.json({ id, status, updatedAt: now });
   } catch (error) {
