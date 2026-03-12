@@ -75,6 +75,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validate date fields against allowed dates in Firestore
+    const DATE_VALIDATION: Record<string, { field: string; settingsDoc: string }> = {
+      mclass: { field: 'tanggalMClass', settingsDoc: 'mclass-dates' },
+      baptism: { field: 'tanggalBaptis', settingsDoc: 'baptism-dates' },
+    };
+
+    const dateRule = DATE_VALIDATION[type];
+    if (dateRule && data[dateRule.field]) {
+      const settingsDoc = await db.collection('settings').doc(dateRule.settingsDoc).get();
+      const allowedDates: string[] = settingsDoc.exists
+        ? (settingsDoc.data()!.dates || []).map((d: { label: string }) => d.label)
+        : [];
+      if (!allowedDates.includes(data[dateRule.field])) {
+        return NextResponse.json(
+          { error: `Tanggal yang dipilih tidak valid atau sudah tidak tersedia.` },
+          { status: 400 }
+        );
+      }
+    }
+
     // Auto-generate registration numbers
     if (type === 'mclass' && data.tanggalMClass) {
       data.noMClass = await generateRegNo(db, 'mclass', 'tanggalMClass', data.tanggalMClass, 'MC-BS5');
