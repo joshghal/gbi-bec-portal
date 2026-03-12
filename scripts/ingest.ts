@@ -36,7 +36,7 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'baptis-persyaratan',
-    content: 'Persyaratan Baptisan Air di GBI Baranangsiang: 1) Mengisi formulir pendaftaran baptisan. 2) Pas foto berwarna ukuran 3x4 dua lembar (background merah/biru, jangan dihakter). 3) Membawa baju ganti dan handuk. 4) Pakaian pada saat di baptis bebas rapi dan sopan. 5) Memakai masker bila diperlukan. 6) Hadir satu jam sebelum Baptisan, wajib datang tepat waktu. 7) Apabila berasal dari kepercayaan bukan Kristen, harus membuat surat pernyataan diatas meterai Rp 10.000 yang menyatakan tidak dipaksa dalam mengikuti baptisan, disertai fotocopy KTP. Isi surat pernyataan: nama lengkap, tempat/tanggal lahir, alamat tinggal, ditandatangani di Bandung. 8) Usia 12 tahun keatas. Baptisan diadakan setiap 2 bulan sekali.',
+    content: 'Persyaratan Baptisan Air di GBI Baranangsiang: 1) Mengisi formulir pendaftaran baptisan. 2) Pas foto berwarna ukuran 3x4 dua lembar (background merah/biru, jangan dihakter). 3) Membawa baju ganti dan handuk. 4) Pakaian pada saat di baptis bebas rapi dan sopan. 5) Memakai masker bila diperlukan. 6) Hadir satu jam sebelum Baptisan, wajib datang tepat waktu. 7) Apabila berasal dari kepercayaan bukan Kristen, harus membuat surat pernyataan diatas meterai Rp 10.000 yang menyatakan tidak dipaksa dalam mengikuti baptisan, disertai fotocopy KTP. Isi surat pernyataan: nama lengkap, tempat/tanggal lahir, alamat tinggal, ditandatangani di Bandung. 8) Usia 12 tahun keatas. Baptisan diadakan setiap 2 bulan sekali. Pendaftaran dan pelaksanaan baptisan tidak dipungut biaya (gratis).',
     metadata: { category: 'baptisan', source: 'google-sites', type: 'persyaratan' },
   },
   {
@@ -46,7 +46,7 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'penyerahan-anak',
-    content: 'Persyaratan Penyerahan Anak di GBI Baranangsiang: 1) Pas foto anak ukuran 3x4 dua lembar. 2) Fotocopy KTP Ayah. 3) Fotocopy KTP Ibu. 4) Fotocopy akta nikah/pemberkatan nikah orang tua. 5) Fotocopy akta lahir anak. 6) Fotocopy KAJ ayah dan ibu. Dokumen fisik diserahkan ke diaken BEC dengan lengkap. Pakaian bebas rapih dan sopan pada saat penyerahan anak. Untuk pendaftaran, hubungi call centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950). Surat penyerahan anak dapat diambil di diaken BEC. Surat yang hilang tidak dapat diterbitkan kembali, gereja hanya memberikan surat keterangan. Penyerahan anak tidak diadakan rutin setiap bulan, cek jadwal Gembala GBI BEC.',
+    content: 'Persyaratan Penyerahan Anak di GBI Baranangsiang: 1) Pas foto anak ukuran 3x4 dua lembar. 2) Fotocopy KTP Ayah. 3) Fotocopy KTP Ibu. 4) Fotocopy akta nikah/pemberkatan nikah orang tua. 5) Fotocopy akta lahir anak. 6) Fotocopy KAJ ayah dan ibu. Dokumen fisik diserahkan ke diaken BEC dengan lengkap. Pakaian bebas rapih dan sopan pada saat penyerahan anak. Untuk pendaftaran, hubungi call centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950). Surat penyerahan anak dapat diambil di diaken BEC. Surat yang hilang tidak dapat diterbitkan kembali, gereja hanya memberikan surat keterangan. Penyerahan anak tidak diadakan rutin setiap bulan, cek jadwal Gembala GBI BEC. Pendaftaran dan pelaksanaan penyerahan anak tidak dipungut biaya (gratis).',
     metadata: { category: 'penyerahan_anak', source: 'google-sites', type: 'persyaratan' },
   },
   {
@@ -61,22 +61,22 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'kaj-info',
-    content: 'Persyaratan Kartu Anggota Jemaat (KAJ) GBI BEC: 1) Sudah melakukan baptisan selam (boleh dari gereja lain) atau sedang menunggu baptisan selam di GBI BEC. 2) Pernah beribadah di GBI BEC atau mengikuti ibadah online di YouTube Channel GBI Sukawarna. 3) Usia diatas 15 tahun. 4) Sudah lulus mengikuti M-Class (Kelas Membership). 5) Mengisi form pendataan jemaat (Google Form), link form diberikan oleh gereja jika persyaratan 1-4 sudah terpenuhi. 6) Wajib melampirkan foto format JPEG: foto asli surat baptis selam, foto asli KTP/KK, foto diri terbaru. Pendaftaran KAJ tidak tersedia di aplikasi ini. Hubungi Call Centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950) untuk informasi lebih lanjut.',
+    content: 'Persyaratan Kartu Anggota Jemaat (KAJ) GBI BEC: 1) Sudah melakukan baptisan selam (boleh dari gereja lain) atau sedang menunggu baptisan selam di GBI BEC. 2) Pernah beribadah di GBI BEC atau mengikuti ibadah online di YouTube Channel GBI Sukawarna. 3) Usia diatas 15 tahun. 4) Sudah lulus mengikuti M-Class (Kelas Membership). 5) Mengisi form pendataan jemaat (Google Form), link form diberikan oleh gereja jika persyaratan 1-4 sudah terpenuhi. 6) Wajib melampirkan foto format JPEG: foto asli surat baptis selam, foto asli KTP/KK, foto diri terbaru. Pendaftaran KAJ tidak dipungut biaya (gratis). Pendaftaran KAJ tidak tersedia di aplikasi ini. Hubungi Call Centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950) untuk informasi lebih lanjut.',
     metadata: { category: 'kaj', source: 'google-sites', type: 'persyaratan' },
   },
   {
     id: 'cool-info',
-    content: 'COOL (Community of Love) adalah komsel/kelompok sel GBI Baranangsiang. Untuk bergabung, hubungi call centre BEC. Pendaftaran memerlukan: Nama Lengkap, No. HP/WhatsApp, Alamat Lengkap & Daerah, Usia, dan pilihan apakah ingin menyediakan rumah sebagai tempat COOL atau ingin bergabung di COOL.',
+    content: 'COOL (Community of Love) adalah komsel/kelompok sel GBI Baranangsiang. Untuk bergabung, hubungi call centre BEC. Pendaftaran memerlukan: Nama Lengkap, No. HP/WhatsApp, Alamat Lengkap & Daerah, Usia, dan pilihan apakah ingin menyediakan rumah sebagai tempat COOL atau ingin bergabung di COOL. Pendaftaran dan kegiatan COOL tidak dipungut biaya (gratis).',
     metadata: { category: 'kegiatan', source: 'google-sites', type: 'info' },
   },
   {
     id: 'doa-kesaksian',
-    content: 'Formulir Doa & Kesaksian GBI Baranangsiang: Bapak/Ibu/Saudara dapat menuliskan beban doa atau kesaksian untuk dapat didoakan/ditindaklanjuti oleh Tim Doa dan Pelayanan Jemaat GBI Baranangsiang. Untuk informasi lebih lanjut, hubungi call centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950).',
+    content: 'Formulir Doa & Kesaksian GBI Baranangsiang: Bapak/Ibu/Saudara dapat menuliskan beban doa atau kesaksian untuk dapat didoakan/ditindaklanjuti oleh Tim Doa dan Pelayanan Jemaat GBI Baranangsiang. Pelayanan doa dan kesaksian tidak dipungut biaya (gratis). Untuk informasi lebih lanjut, hubungi call centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950).',
     metadata: { category: 'doa_kesaksian', source: 'google-sites', type: 'info' },
   },
   {
     id: 'pelayanan-jemaat',
-    content: 'Pelayanan Jemaat GBI BEC menyediakan layanan berikut: 1) Pelayanan Kedukaan. 2) Ucapan syukur 40 hari, 100 hari, 1 tahun almarhum yang meninggal. 3) Kunjungan yang sakit di rumah sakit. 4) Kunjungan yang sakit di rumah. 5) Pengudusan rumah, kantor, tempat usaha, atau pabrik. 6) Konseling (pribadi, pernikahan, keluarga). 7) Pelayanan Pelepasan (kutuk/okultisme). 8) Perjamuan kudus di rumah (bagi yang tidak bisa pergi ke gereja/lansia). Narahubung Pelayanan Jemaat: Thomas — 0815-7309-7720 (WhatsApp: https://wa.me/6281573097720).',
+    content: 'Pelayanan Jemaat GBI BEC menyediakan layanan berikut: 1) Pelayanan Kedukaan. 2) Ucapan syukur 40 hari, 100 hari, 1 tahun almarhum yang meninggal. 3) Kunjungan yang sakit di rumah sakit. 4) Kunjungan yang sakit di rumah. 5) Pengudusan rumah, kantor, tempat usaha, atau pabrik. 6) Konseling (pribadi, pernikahan, keluarga). 7) Pelayanan Pelepasan (kutuk/okultisme). 8) Perjamuan kudus di rumah (bagi yang tidak bisa pergi ke gereja/lansia). Seluruh pelayanan jemaat tidak dipungut biaya (gratis). Narahubung Pelayanan Jemaat: Thomas — 0815-7309-7720 (WhatsApp: https://wa.me/6281573097720).',
     metadata: { category: 'pelayanan_jemaat', source: 'kegiatan-gbi-bec', type: 'info' },
   },
   // === Kept from old BEC data (3 chunks) ===
@@ -88,7 +88,7 @@ const CHUNKS: Chunk[] = [
   // === KOM Curriculum from GBI wiki ===
   {
     id: 'kom-overview',
-    content: 'KOM (Kehidupan Orientasi Melayani) adalah program pengajaran Firman Tuhan berjenjang di GBI, diluncurkan tahun 2005 menggantikan SOM (Sekolah Orientasi Melayani). Visi: "Mempersiapkan Umat yang Layak." Motto: Discipleship Movement (Matius 28:19). KOM terdiri dari 4 level: KOM 100 Pencari Tuhan (The Seeker) — 27 sesi, KOM 200 Pelayan Tuhan (The Servant) — 23 sesi, KOM 300 Prajurit Tuhan (The Soldier) — 16 sesi, KOM 400 Penilik Tuhan (The Steward) — 16 sesi. Total: 82 sesi. Kurikulum KOM bersifat nasional, ditetapkan oleh GBI pusat Jakarta dan berlaku di seluruh gereja GBI termasuk GBI Sukawarna/BEC.',
+    content: 'KOM (Kehidupan Orientasi Melayani) adalah program pengajaran Firman Tuhan berjenjang di GBI, diluncurkan tahun 2005 menggantikan SOM (Sekolah Orientasi Melayani). Visi: "Mempersiapkan Umat yang Layak." Motto: Discipleship Movement (Matius 28:19). KOM terdiri dari 4 level: KOM 100 Pencari Tuhan (The Seeker) — 27 sesi, KOM 200 Pelayan Tuhan (The Servant) — 23 sesi, KOM 300 Prajurit Tuhan (The Soldier) — 16 sesi, KOM 400 Penilik Tuhan (The Steward) — 16 sesi. Total: 82 sesi. Kurikulum KOM bersifat nasional, ditetapkan oleh GBI pusat Jakarta dan berlaku di seluruh gereja GBI termasuk GBI Sukawarna/BEC. Pendaftaran dan seluruh kelas KOM tidak dipungut biaya (gratis).',
     metadata: { category: 'kom', source: 'gbi-kom-wiki', type: 'overview' },
   },
   {
@@ -123,7 +123,7 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'jadwal-mclass',
-    content: 'M-Class diadakan setiap hari Senin pukul 18.30 WIB.',
+    content: 'M-Class (Kelas Membership) diadakan setiap hari Senin pukul 18.30 WIB. Pendaftaran dan kegiatan M-Class tidak dipungut biaya (gratis).',
     metadata: { category: 'kegiatan', source: 'kegiatan-gbi-bec', type: 'jadwal' },
   },
   {
