@@ -3,8 +3,8 @@
 import { getFormConfig } from '@/lib/form-config';
 import { FormDirect } from '@/components/form-direct';
 
-const config = getFormConfig('child-dedication')!;
+const config = getFormConfig('mclass')!;
 
-export default function ChildDedicationFormPage() {
+export default function MclassFormPage() {
   return <FormDirect formConfig={config} />;
 }

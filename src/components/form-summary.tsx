@@ -44,8 +44,7 @@ export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProp
         {editable && (
           <Button
             variant={editing ? 'default' : 'ghost'}
-            size="sm"
-            className="h-6 text-[11px] gap-1 px-2"
+            size="xs"
             onClick={handleToggleEdit}
           >
             <Pencil className="w-2.5 h-2.5" />
@@ -63,18 +62,16 @@ export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProp
                 {row.type === 'select' && row.options ? (
                   <div className="flex flex-wrap gap-1">
                     {row.options.map(opt => (
-                      <button
+                      <Button
                         key={opt}
                         type="button"
+                        variant={draft[row.field] === opt ? 'default' : 'outline'}
+                        size="xs"
+                        className="rounded-full"
                         onClick={() => setDraft(d => ({ ...d, [row.field]: opt }))}
-                        className={`rounded-full text-[11px] py-0.5 px-2 border transition-colors ${
-                          draft[row.field] === opt
-                            ? 'bg-primary text-primary-foreground border-primary'
-                            : 'border-border hover:bg-muted'
-                        }`}
                       >
                         {opt}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 ) : row.type === 'textarea' ? (
@@ -101,7 +98,7 @@ export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProp
       </div>
 
       {!editing && editable && (
-        <p className="text-[10px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Jika sudah benar, tekan tombol <strong>&quot;Kirim&quot;</strong> di bawah.
         </p>
       )}

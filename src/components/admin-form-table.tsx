@@ -44,9 +44,9 @@ import { normalizePhoneForWhatsApp } from '@/lib/search-utils';
 import type { FormSubmission } from '@/lib/form-types';
 
 const STATUS_STYLES: Record<string, string> = {
-  pending: 'border-yellow-300 bg-yellow-50 text-yellow-700',
-  reviewed: 'border-blue-300 bg-blue-50 text-blue-700',
-  completed: 'border-green-300 bg-green-50 text-green-700',
+  pending: 'border-accent bg-accent text-muted-foreground',
+  reviewed: 'border-primary/20 bg-primary-light text-primary',
+  completed: 'border-primary/30 bg-primary/10 text-primary',
 };
 
 export function AdminFormTable({ formType, title, readOnly = false }: { formType: string; title: string; readOnly?: boolean }) {
@@ -176,14 +176,14 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
     const config = getFormConfig(sub.type);
     if (config) {
       const step = config.steps.find(s => s.field === fieldKey);
-      if (step) return step.question;
+      if (step) return step.label || step.question;
     }
     return fieldKey;
   };
 
   return (
     <div className="min-h-0 flex-1">
-      <header className="border-b bg-card px-6 py-4">
+      <header className="border-b bg-card px-4 py-3 md:px-6 md:py-4">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-semibold text-lg">{title}</h1>
@@ -208,19 +208,19 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
         </div>
       </header>
 
-      <main className="p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="relative">
+      <main className="p-4 md:p-6">
+        <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-center">
+          <div className="relative flex-1 sm:max-w-[280px]">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
             <Input
               placeholder="Cari nama, telepon, email..."
-              className="pl-8 w-[240px]"
+              className="pl-8 w-full"
               value={searchInput}
               onChange={e => handleSearchInput(e.target.value)}
             />
           </div>
           <Select value={statusFilter} onValueChange={v => setStatusFilter(v ?? '')}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Semua status" />
             </SelectTrigger>
             <SelectContent>
@@ -247,7 +247,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           </div>
         ) : (
           <>
-            <div className="border rounded-lg">
+            <div className="rounded-xl ring-1 ring-foreground/10 overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -310,7 +310,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       </main>
 
       <Dialog open={!!selected} onOpenChange={open => !open && setSelected(null)}>
-        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {selected && (FORM_TYPE_LABELS[selected.type] || selected.type)}

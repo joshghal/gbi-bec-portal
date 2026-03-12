@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Loader2, Check, AlertCircle, Clock, Eye, CheckCircle2, ExternalLink, Download } from 'lucide-react';
 import type { FormSubmission } from '@/lib/form-types';
 import { getFormConfig } from '@/lib/form-config';
@@ -68,16 +70,14 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
 
   if (error && !submission) {
     return (
-      <Card className="max-w-md mx-auto mt-8">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
-              <AlertCircle className="w-6 h-6 text-destructive" />
-            </div>
-            <p className="text-sm text-destructive font-medium">{error}</p>
+      <div className="max-w-md mx-auto mt-8 rounded-xl bg-card ring-1 ring-foreground/10 p-6">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-destructive" />
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-sm text-destructive font-medium">{error}</p>
+        </div>
+      </div>
     );
   }
 
@@ -96,30 +96,30 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
   return (
     <div className="max-w-lg mx-auto space-y-4">
       {/* Hero header card */}
-      <Card className="relative overflow-hidden border-0 bg-primary text-primary-foreground">
-        <img
+      <div className="relative overflow-hidden rounded-xl bg-primary text-primary-foreground">
+        <Image
           src={glassImage}
           alt=""
-          className="absolute top-[-30px] right-[-30px] w-36 h-36 opacity-15 rotate-12 pointer-events-none"
+          width={144}
+          height={144}
+          className="absolute -top-8 -right-8 w-36 h-36 opacity-15 rotate-12 pointer-events-none"
         />
-        <CardContent className="relative z-10 py-4 pb-2">
-          <div className="space-y-1">
-            <p className="text-xs font-medium opacity-75 uppercase tracking-wider">{config.title}</p>
-            <h2 className="text-xl font-bold">{name || 'Formulir'}</h2>
-          </div>
-          <div className="flex gap-4 mt-3 text-[11px] opacity-70">
+        <div className="relative z-10 px-4 py-4">
+          <p className="text-xs font-medium opacity-75 uppercase tracking-wider">{config.title}</p>
+          <h2 className="text-xl font-bold mt-1">{name || 'Formulir'}</h2>
+          <div className="flex gap-4 mt-3 text-xs opacity-70">
             <span>Diajukan: {formatTimestamp(submission.createdAt)}</span>
             <span>Diperbarui: {formatTimestamp(submission.updatedAt)}</span>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Status Tracker */}
       <Card>
         <CardContent>
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3 pb-2">Status</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">Status</p>
           <div className="relative">
-            {/* Connector lines — positioned behind circles */}
+            {/* Connector lines */}
             <div className="absolute top-5 left-0 right-0 flex px-[16.67%]">
               {[0, 1].map(i => (
                 <div key={i} className={`h-0.5 flex-1 rounded-full ${
@@ -127,7 +127,7 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
                 }`} />
               ))}
             </div>
-            {/* Steps — equal 3-col grid */}
+            {/* Steps */}
             <div className="relative grid grid-cols-3">
               {STATUS_STEPS.map((step, i) => {
                 const StepIcon = step.icon;
@@ -144,10 +144,10 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
                     }`}>
                       {isDone ? <Check className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
                     </div>
-                    <span className={`text-xs font-semibold ${isActive ? 'text-primary' : isDone ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <span className={`text-xs font-semibold ${isActive || isDone ? 'text-primary' : 'text-muted-foreground'}`}>
                       {step.label}
                     </span>
-                    <span className="text-[10px] text-muted-foreground text-center leading-tight">
+                    <span className="text-xs text-muted-foreground text-center leading-tight">
                       {step.description}
                     </span>
                   </div>
@@ -161,15 +161,15 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
       {/* Form details — read only */}
       <Card>
         <CardContent>
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-3">Detail Formulir</p>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Detail Formulir</p>
           <div className="divide-y divide-border">
             {config.steps.map(step => {
-              const label = step.question.replace(/\?$/, '').replace(/\.$/, '').replace(/\s*\(opsional\)$/, '');
+              const label = step.label || step.question.replace(/\?$/, '').replace(/\.$/, '').replace(/\s*\(opsional\)$/, '');
               const value = submission.data[step.field];
               if (!value && step.optional) return null;
               return (
                 <div key={step.field} className="py-2.5 first:pt-0 last:pb-0">
-                  <p className="text-[11px] text-muted-foreground mb-0.5">{label}</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
                   <p className="text-sm text-foreground">{value || <span className="text-muted-foreground italic">—</span>}</p>
                 </div>
               );
@@ -187,14 +187,17 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
             )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary text-secondary-foreground border border-border px-3.5 py-2.5 text-xs font-medium hover:bg-accent active:scale-[0.98] transition-all"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
-            Simpan link ke WhatsApp Saya
+            <Button variant="outline" className="w-full gap-2">
+              <ExternalLink className="w-3.5 h-3.5" />
+              Simpan link ke WhatsApp Saya
+            </Button>
           </a>
         )}
-        <button
+        <Button
+          variant={pdfSaved ? 'secondary' : 'outline'}
           disabled={pdfSaved}
+          className={`gap-2 ${pdfSaved ? 'text-primary' : ''}`}
           onClick={async () => {
             const { generateFormPDF } = await import('@/lib/form-pdf');
             await generateFormPDF(
@@ -205,19 +208,14 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
             setPdfSaved(true);
             setTimeout(() => setPdfSaved(false), 3000);
           }}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-xs font-medium active:scale-[0.98] transition-all ${
-            pdfSaved
-              ? 'bg-primary/10 text-primary border border-primary/25'
-              : 'bg-secondary text-secondary-foreground border border-border hover:bg-accent'
-          }`}
         >
           {pdfSaved ? <Check className="w-3.5 h-3.5" /> : <Download className="w-3.5 h-3.5" />}
           {pdfSaved ? 'PDF Tersimpan!' : 'Simpan link ke PDF'}
-        </button>
+        </Button>
       </div>
 
       {/* Footer note */}
-      <p className="text-center text-[11px] text-muted-foreground pb-4">
+      <p className="text-center text-xs text-muted-foreground pb-4">
         Halaman ini hanya untuk melihat status. Hubungi admin untuk perubahan data.
       </p>
     </div>

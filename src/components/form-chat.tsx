@@ -242,13 +242,13 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
           {messages.map(msg => (
             <div
               key={msg.id}
-              className={`flex ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={
                   msg.role === 'bot'
-                    ? 'bg-muted rounded-2xl rounded-tl-sm px-4 py-2.5 text-sm max-w-[85%] whitespace-pre-wrap'
-                    : 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm max-w-[85%] whitespace-pre-wrap'
+                    ? 'bg-muted text-foreground rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-sm max-w-[85%] whitespace-pre-wrap'
+                    : 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm px-3.5 py-2.5 text-sm max-w-[85%] whitespace-pre-wrap'
                 }
               >
                 {msg.content}
@@ -277,14 +277,16 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
               return (
                 <div className="flex flex-wrap gap-2 pl-1">
                   {options.map(option => (
-                    <button
+                    <Button
                       key={option}
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleSelectOption(option)}
-                      className="rounded-full border border-primary/30 bg-secondary text-sm py-1.5 px-3.5 hover:bg-primary/10 transition-colors cursor-pointer"
+                      className="rounded-full border-primary/30 bg-secondary hover:bg-primary/10"
                     >
                       {option}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               );
@@ -311,14 +313,14 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
 
           {/* WhatsApp buttons after submission */}
           {isSubmitted && submissionResult && (
-            <div className="space-y-2 pl-1">
+            <div className="space-y-2">
               <a
                 href={`https://wa.me/${churchPhone}?text=${encodeURIComponent(
                   `Formulir ${formConfig.title}:\n\n${whatsappSummary}\n\nEdit: ${editLink}`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#25D366] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#20bd5a] transition-colors w-full justify-center"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#20bd5a] transition-colors w-full justify-center"
               >
                 <ExternalLink className="w-4 h-4" />
                 Kirim ke WhatsApp Gereja
@@ -330,7 +332,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#25D366] text-[#25D366] px-4 py-2.5 text-sm font-medium hover:bg-[#25D366]/10 transition-colors w-full justify-center"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#25D366] text-[#25D366] px-4 py-2.5 text-sm font-medium hover:bg-[#25D366]/10 transition-colors w-full justify-center"
                 >
                   <ExternalLink className="w-4 h-4" />
                   Simpan ke WhatsApp Saya
@@ -345,7 +347,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
 
       {/* Input area - only show during active steps */}
       {currentStepConfig && currentStepConfig.type !== 'select' && (
-        <div className="border-t bg-card p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
+        <div className="border-t bg-card px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shrink-0">
           <form
             onSubmit={handleSubmit}
             className="max-w-lg mx-auto flex gap-2 items-end"
@@ -362,7 +364,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
                   placeholder={
                     currentStepConfig.placeholder || 'Ketik jawaban...'
                   }
-                  className="min-h-10 max-h-32 resize-none field-sizing-content"
+                  className="min-h-10 max-h-32 resize-none border-input bg-background"
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
@@ -382,6 +384,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
                   placeholder={
                     currentStepConfig.placeholder || 'Ketik jawaban...'
                   }
+                  className="bg-background"
                 />
               )}
               {error && (
