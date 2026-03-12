@@ -10,6 +10,9 @@ import {
   Sheet,
   Search,
   MessageCircle,
+  Link as LinkIcon,
+  Copy,
+  CheckCheck,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -47,7 +50,31 @@ const STATUS_STYLES: Record<string, string> = {
   pending: 'border-accent bg-accent text-muted-foreground',
   reviewed: 'border-primary/20 bg-primary-light text-primary',
   completed: 'border-primary/30 bg-primary/10 text-primary',
+  hadir: 'border-primary/30 bg-primary/10 text-primary',
+  'tidak-hadir': 'border-destructive/30 bg-destructive/10 text-destructive',
 };
+
+function EditLinkCopy({ editLink }: { editLink: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="mt-1 flex items-center gap-1.5 overflow-hidden">
+      <div className="flex-1 overflow-hidden rounded-md bg-muted/60 px-2.5 py-1.5">
+        <p className="text-xs truncate select-all">{editLink}</p>
+      </div>
+      <button
+        type="button"
+        onClick={() => {
+          navigator.clipboard.writeText(editLink);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        }}
+        className="shrink-0 flex items-center justify-center w-7 h-7 rounded-md hover:bg-muted transition-colors"
+      >
+        {copied ? <CheckCheck className="w-3.5 h-3.5 text-primary" /> : <Copy className="w-3.5 h-3.5 text-muted-foreground" />}
+      </button>
+    </div>
+  );
+}
 
 export function AdminFormTable({ formType, title, readOnly = false }: { formType: string; title: string; readOnly?: boolean }) {
   const { user, isSuperAdmin, hasPermission } = useAuth();
@@ -228,6 +255,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
               <SelectItem value="pending">Menunggu</SelectItem>
               <SelectItem value="reviewed">Ditinjau</SelectItem>
               <SelectItem value="completed">Selesai</SelectItem>
+              <SelectItem value="hadir">Hadir</SelectItem>
+              <SelectItem value="tidak-hadir">Tidak Hadir</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -322,7 +351,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           </DialogHeader>
 
           {selected && (
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-hidden">
               <div className="space-y-3">
                 {Object.entries(selected.data).map(([key, value]) => (
                   <div key={key}>
@@ -350,6 +379,14 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                 ))}
               </div>
 
+              <div className="border-t pt-4">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <LinkIcon className="w-3 h-3" />
+                  Link Edit
+                </p>
+                <EditLinkCopy editLink={`${typeof window !== 'undefined' ? window.location.origin : ''}/forms/edit/${selected.id}?token=${selected.editToken}`} />
+              </div>
+
               {!isReadOnly && (
                 <div className="border-t pt-4">
                   <Label>Status</Label>
@@ -361,6 +398,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                       <SelectItem value="pending">Menunggu</SelectItem>
                       <SelectItem value="reviewed">Ditinjau</SelectItem>
                       <SelectItem value="completed">Selesai</SelectItem>
+                      <SelectItem value="hadir">Hadir</SelectItem>
+                      <SelectItem value="tidak-hadir">Tidak Hadir</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

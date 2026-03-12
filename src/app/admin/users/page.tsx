@@ -40,6 +40,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RequirePermission } from '@/components/require-permission';
+import { AdminTabs } from '@/components/admin-tabs';
 import { ALL_PERMISSIONS, type Role, type AdminUser } from '@/lib/permissions';
 
 type Tab = 'users' | 'roles';
@@ -215,7 +216,7 @@ function RoleEditor({
 // ──────────────────────── Main Page ────────────────────────
 
 export default function AdminUsersPage() {
-  const { user, isSuperAdmin } = useAuth();
+  const { user, isSuperAdmin, refreshPermissions } = useAuth();
   const [tab, setTab] = useState<Tab>('users');
   const [users, setUsers] = useState<Record<string, AdminUser>>({});
   const [roles, setRoles] = useState<Record<string, Role>>({});
@@ -310,7 +311,7 @@ export default function AdminUsersPage() {
         body: JSON.stringify({ email, name: existingUser?.name || '', role }),
       });
       if (!res.ok) throw new Error('Failed to update');
-      await fetchData();
+      await Promise.all([fetchData(), refreshPermissions()]);
     } catch (error) {
       console.error('Role update failed:', error);
     } finally {
@@ -334,7 +335,7 @@ export default function AdminUsersPage() {
         throw new Error(err.error || 'Failed');
       }
       setEditingRole(null);
-      await fetchData();
+      await Promise.all([fetchData(), refreshPermissions()]);
     } catch (error) {
       setRoleError(error instanceof Error ? error.message : 'Error');
     } finally {
@@ -358,7 +359,7 @@ export default function AdminUsersPage() {
         throw new Error(err.error || 'Failed');
       }
       setDeleteRoleKey(null);
-      await fetchData();
+      await Promise.all([fetchData(), refreshPermissions()]);
     } catch (error) {
       setRoleError(error instanceof Error ? error.message : 'Error');
     } finally {
@@ -375,7 +376,7 @@ export default function AdminUsersPage() {
   return (
     <RequirePermission permission="page:admin-users">
       <div className="min-h-0 flex-1">
-        <header className="border-b bg-card px-6 py-4">
+        <header className="border-b bg-card px-6 pt-4 pb-0">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="font-semibold text-lg">Kelola Admin</h1>
@@ -402,26 +403,14 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-1 mt-4">
-            {([
+          <AdminTabs
+            tabs={[
               { id: 'users' as Tab, label: 'Pengguna', count: userEntries.length },
               { id: 'roles' as Tab, label: 'Peran', count: Object.keys(roles).length },
-            ]).map(t => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`px-4 py-1.5 text-sm rounded-md transition-colors ${
-                  tab === t.id
-                    ? 'bg-accent text-accent-foreground font-medium'
-                    : 'text-muted-foreground hover:bg-accent/50'
-                }`}
-              >
-                {t.label}
-                <Badge variant="secondary" className="ml-2 text-[10px] px-1.5">{t.count}</Badge>
-              </button>
-            ))}
-          </div>
+            ]}
+            active={tab}
+            onChange={setTab}
+          />
         </header>
 
         <main className="p-6">

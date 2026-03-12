@@ -83,6 +83,10 @@ export function useAuth() {
     [permissions],
   );
 
+  const refreshPermissions = useCallback(async () => {
+    if (user) await verifyAdmin(user);
+  }, [user, verifyAdmin]);
+
   return {
     user,
     loading,
@@ -93,6 +97,7 @@ export function useAuth() {
     permissions,
     isSuperAdmin,
     hasPermission,
+    refreshPermissions,
     signInWithGoogle,
     signOut,
   };

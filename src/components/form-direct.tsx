@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Loader2, Check, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Loader2, Check, ExternalLink, ArrowLeft, Copy, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,23 @@ function validate(step: FormStep, value: string): string | null {
   return null;
 }
 
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-background ring-1 ring-foreground/[0.06] hover:bg-muted transition-colors"
+    >
+      {copied ? <CheckCheck className="w-4 h-4 text-primary" /> : <Copy className="w-4 h-4 text-muted-foreground" />}
+    </button>
+  );
+}
+
 const PILL_THRESHOLD = 5;
 
 const GLASS_MAP: Record<string, string> = {
@@ -68,6 +85,11 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
   const [dynamicOptions, setDynamicOptions] = useState<Record<string, string[]>>({});
   const [loadingOptions, setLoadingOptions] = useState<Record<string, boolean>>({});
 
+  const visibleSteps = useMemo(
+    () => formConfig.steps.filter(s => !s.hidden),
+    [formConfig.steps]
+  );
+
   useEffect(() => {
     formConfig.steps.forEach(step => {
       if (step.dynamicOptionsUrl) {
@@ -85,21 +107,21 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
   }, [formConfig.steps]);
 
   const filledCount = useMemo(
-    () => formConfig.steps.filter(s => (values[s.field] || '').trim()).length,
-    [formConfig.steps, values]
+    () => visibleSteps.filter(s => (values[s.field] || '').trim()).length,
+    [visibleSteps, values]
   );
-  const totalFields = formConfig.steps.length;
+  const totalFields = visibleSteps.length;
 
   const sections: (FormSection & { steps: FormStep[] })[] = useMemo(() => {
     if (formConfig.sections && formConfig.sections.length > 0) {
       return formConfig.sections.map(sec => ({
         ...sec,
         steps: sec.fields
-          .map(f => formConfig.steps.find(s => s.field === f))
+          .map(f => visibleSteps.find(s => s.field === f))
           .filter((s): s is FormStep => !!s),
       }));
     }
-    return [{ title: '', fields: formConfig.steps.map(s => s.field), steps: formConfig.steps }];
+    return [{ title: '', fields: visibleSteps.map(s => s.field), steps: visibleSteps }];
   }, [formConfig]);
 
   const setValue = (field: string, value: string) => {
@@ -123,15 +145,15 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
     setSubmitError('');
 
     const newErrors: Record<string, string> = {};
-    for (const step of formConfig.steps) {
+    for (const step of visibleSteps) {
       const err = validate(step, values[step.field] || '');
       if (err) newErrors[step.field] = err;
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setTouched(Object.fromEntries(formConfig.steps.map(s => [s.field, true])));
-      const firstErrorField = formConfig.steps.find(s => newErrors[s.field])?.field;
+      setTouched(Object.fromEntries(visibleSteps.map(s => [s.field, true])));
+      const firstErrorField = visibleSteps.find(s => newErrors[s.field])?.field;
       if (firstErrorField) {
         document.getElementById(`field-${firstErrorField}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -160,7 +182,7 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
     ? `${typeof window !== 'undefined' ? window.location.origin : ''}/forms/edit/${submissionResult.id}?token=${submissionResult.editToken}`
     : '';
 
-  const whatsappSummary = formConfig.steps
+  const whatsappSummary = visibleSteps
     .map(s => `${getLabel(s)}: ${values[s.field] || '(kosong)'}`)
     .join('\n');
 
@@ -184,6 +206,17 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
               <br />Kami akan menghubungi Anda melalui WhatsApp.
             </p>
           </div>
+
+          <div className="rounded-xl bg-muted/60 p-4 space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Simpan link ini untuk mengedit formulir Anda:</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs bg-background rounded-lg px-3 py-2.5 ring-1 ring-foreground/[0.06] truncate select-all">
+                {editLink}
+              </code>
+              <CopyButton text={editLink} />
+            </div>
+          </div>
+
           <div className="space-y-2.5 pt-2">
             <a
               href={`https://wa.me/${churchPhone}?text=${encodeURIComponent(
@@ -194,7 +227,7 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
               className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] text-white px-4 py-3 text-sm font-medium hover:bg-[#20bd5a] transition-colors w-full justify-center"
             >
               <ExternalLink className="w-4 h-4" />
-              Kirim ke WhatsApp Gereja
+              Kirim Pesan ke WhatsApp Gereja
             </a>
             {userPhone && (
               <a
@@ -282,9 +315,10 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
                     id={`field-${step.field}`}
                     className={cn('space-y-1.5', isFullWidth && 'sm:col-span-2')}
                   >
-                    <Label htmlFor={step.field} className="text-xs text-muted-foreground font-medium">
-                      {getLabel(step)}
-                      {step.optional && (
+                    <Label htmlFor={step.field} className="text-xs text-muted-foreground font-medium leading-none flex items-center gap-0">
+                      <span>{getLabel(step)}</span>{!step.optional && (
+                        <span className="text-destructive text-[10px] leading-none">*</span>
+                      )}{step.optional && (
                         <span className="font-normal ml-1 opacity-60">(opsional)</span>
                       )}
                     </Label>
@@ -384,7 +418,7 @@ function FieldSelect({
   hasError: boolean;
 }) {
   const options = step.dynamicOptionsUrl ? dynamicOpts : step.options;
-  const usePills = !step.dynamicOptionsUrl && options && options.length <= PILL_THRESHOLD;
+  const usePills = options && options.length > 0 && options.length <= PILL_THRESHOLD;
 
   if (loading) {
     return (

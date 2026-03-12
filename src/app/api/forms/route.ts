@@ -4,6 +4,27 @@ import { syncToSheets, getSheetUrl } from '@/lib/google-sheets';
 import { generateSearchTerms } from '@/lib/search-utils';
 import type { FormType } from '@/lib/form-types';
 
+/**
+ * Generate sequential registration number for a form type + date.
+ * Format: {prefix}-{seq} where seq resets per date.
+ */
+async function generateRegNo(
+  db: FirebaseFirestore.Firestore,
+  formType: string,
+  dateField: string,
+  dateValue: string,
+  prefix: string,
+): Promise<string> {
+  const snap = await db
+    .collection('form_submissions')
+    .where('type', '==', formType)
+    .get();
+
+  const count = snap.docs.filter(doc => doc.data().data?.[dateField] === dateValue).length;
+  const seq = count + 1;
+  return `${prefix}-${String(seq).padStart(3, '0')}`;
+}
+
 const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer', 'mclass'];
 
 export async function POST(request: NextRequest) {
@@ -52,6 +73,11 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
+    }
+
+    // Auto-generate registration numbers
+    if (type === 'mclass' && data.tanggalMClass) {
+      data.noMClass = await generateRegNo(db, 'mclass', 'tanggalMClass', data.tanggalMClass, 'MC-BS5');
     }
 
     const editToken = crypto.randomUUID();

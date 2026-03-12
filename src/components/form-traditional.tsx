@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Check, AlertCircle, Clock, Eye, CheckCircle2, ExternalLink, Download } from 'lucide-react';
+import { Loader2, Check, AlertCircle, Clock, Eye, CheckCircle2, ExternalLink, Download, UserCheck, UserX } from 'lucide-react';
 import type { FormSubmission } from '@/lib/form-types';
 import { getFormConfig } from '@/lib/form-config';
 
@@ -83,11 +83,22 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
 
   if (!config || !submission) return null;
 
-  const STATUS_STEPS = [
-    { key: 'pending', label: 'Diterima', icon: Clock, description: 'Formulir diterima' },
-    { key: 'reviewed', label: 'Ditinjau', icon: Eye, description: 'Sedang ditinjau' },
-    { key: 'completed', label: 'Selesai', icon: CheckCircle2, description: 'Proses selesai' },
-  ] as const;
+  const isAttendanceStatus = submission.status === 'hadir' || submission.status === 'tidak-hadir';
+
+  const STATUS_STEPS = isAttendanceStatus
+    ? [
+        { key: 'pending', label: 'Diterima', icon: Clock, description: 'Formulir diterima' },
+        { key: 'reviewed', label: 'Ditinjau', icon: Eye, description: 'Sedang ditinjau' },
+        ...(submission.status === 'hadir'
+          ? [{ key: 'hadir', label: 'Hadir', icon: UserCheck, description: 'Kehadiran dikonfirmasi' }]
+          : [{ key: 'tidak-hadir', label: 'Tidak Hadir', icon: UserX, description: 'Tidak hadir' }]
+        ),
+      ] as const
+    : [
+        { key: 'pending', label: 'Diterima', icon: Clock, description: 'Formulir diterima' },
+        { key: 'reviewed', label: 'Ditinjau', icon: Eye, description: 'Sedang ditinjau' },
+        { key: 'completed', label: 'Selesai', icon: CheckCircle2, description: 'Proses selesai' },
+      ] as const;
 
   const currentStatusIndex = STATUS_STEPS.findIndex(s => s.key === submission.status);
   const glassImage = GLASS_MAP[submission.type] || '/glass-one.webp';
@@ -136,15 +147,22 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
                 return (
                   <div key={step.key} className="flex flex-col items-center gap-1.5">
                     <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-colors ${
-                      isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : isDone
-                          ? 'bg-primary-light text-primary'
-                          : 'bg-muted text-muted-foreground'
+                      isActive && step.key === 'tidak-hadir'
+                        ? 'bg-destructive text-white shadow-sm'
+                        : isActive && step.key === 'hadir'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : isActive
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : isDone
+                              ? 'bg-primary-light text-primary'
+                              : 'bg-muted text-muted-foreground'
                     }`}>
                       {isDone ? <Check className="w-4 h-4" /> : <StepIcon className="w-4 h-4" />}
                     </div>
-                    <span className={`text-xs font-semibold ${isActive || isDone ? 'text-primary' : 'text-muted-foreground'}`}>
+                    <span className={`text-xs font-semibold ${
+                      isActive && step.key === 'tidak-hadir' ? 'text-destructive'
+                        : isActive || isDone ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
                       {step.label}
                     </span>
                     <span className="text-xs text-muted-foreground text-center leading-tight">

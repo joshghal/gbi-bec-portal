@@ -49,7 +49,8 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const totalSteps = formConfig.steps.length;
+  const visibleSteps = formConfig.steps.filter(s => !s.hidden);
+  const totalSteps = visibleSteps.length;
   const isSummary = currentStep === totalSteps;
   const isSubmitted = currentStep === totalSteps + 1;
 
@@ -71,9 +72,10 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
       'bot',
       `Halo! Mari isi formulir ${formConfig.title}. Saya akan memandu Anda langkah demi langkah.`
     );
+    const visible = formConfig.steps.filter(s => !s.hidden);
     const timer = setTimeout(() => {
       setCurrentStep(0);
-      addMessage('bot', formConfig.steps[0].question);
+      addMessage('bot', visible[0]?.question || '');
     }, 500);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,7 +87,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
       setDynamicOptions(null);
       return;
     }
-    const step = formConfig.steps[currentStep];
+    const step = visibleSteps[currentStep];
     if (!step.dynamicOptionsUrl) {
       setDynamicOptions(null);
       return;
@@ -100,12 +102,12 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
       })
       .catch(() => setDynamicOptions([]))
       .finally(() => setLoadingOptions(false));
-  }, [currentStep, totalSteps, formConfig.steps]);
+  }, [currentStep, totalSteps, visibleSteps]);
 
   // Focus input when step changes
   useEffect(() => {
     if (currentStep >= 0 && currentStep < totalSteps) {
-      const step = formConfig.steps[currentStep];
+      const step = visibleSteps[currentStep];
       if (step.type !== 'select') {
         setTimeout(() => {
           if (step.type === 'textarea') {
@@ -116,11 +118,11 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
         }, 350);
       }
     }
-  }, [currentStep, totalSteps, formConfig.steps]);
+  }, [currentStep, totalSteps, visibleSteps]);
 
   const advanceStep = useCallback(
     (value: string) => {
-      const step = formConfig.steps[currentStep];
+      const step = visibleSteps[currentStep];
       const err = validate(step, value);
       if (err) {
         setError(err);
@@ -139,15 +141,15 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
       setTimeout(() => {
         if (nextStep < totalSteps) {
           setCurrentStep(nextStep);
-          addMessage('bot', formConfig.steps[nextStep].question);
+          addMessage('bot', visibleSteps[nextStep].question);
         } else {
           setCurrentStep(nextStep);
           // Build summary
-          const lines = formConfig.steps
+          const lines = visibleSteps
             .map(s => {
               const key = s.field;
               const ans =
-                key === formConfig.steps[currentStep].field
+                key === visibleSteps[currentStep].field
                   ? value.trim()
                   : answers[key];
               return `${s.question.replace(/\?$/, '')}: ${ans || '(kosong)'}`;
@@ -160,7 +162,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
         }
       }, 300);
     },
-    [currentStep, totalSteps, formConfig.steps, addMessage, answers]
+    [currentStep, totalSteps, visibleSteps, addMessage, answers]
   );
 
   const handleSubmit = useCallback(
@@ -168,7 +170,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
       e.preventDefault();
       if (currentStep < 0 || currentStep >= totalSteps) return;
 
-      const step = formConfig.steps[currentStep];
+      const step = visibleSteps[currentStep];
       if (step.type === 'select') return; // select uses pills
 
       const value = inputValue.trim();
@@ -178,7 +180,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
       }
       advanceStep(value);
     },
-    [currentStep, totalSteps, formConfig.steps, inputValue, advanceStep]
+    [currentStep, totalSteps, visibleSteps, inputValue, advanceStep]
   );
 
   const handleSelectOption = useCallback(
@@ -224,10 +226,10 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
 
   const currentStepConfig =
     currentStep >= 0 && currentStep < totalSteps
-      ? formConfig.steps[currentStep]
+      ? visibleSteps[currentStep]
       : null;
 
-  const whatsappSummary = formConfig.steps
+  const whatsappSummary = visibleSteps
     .map(s => `${s.question.replace(/\?$/, '')}: ${answers[s.field] || '(kosong)'}`)
     .join('\n');
 
@@ -323,7 +325,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
                 className="inline-flex items-center gap-2 rounded-xl bg-[#25D366] text-white px-4 py-2.5 text-sm font-medium hover:bg-[#20bd5a] transition-colors w-full justify-center"
               >
                 <ExternalLink className="w-4 h-4" />
-                Kirim ke WhatsApp Gereja
+                Kirim Pesan ke WhatsApp Gereja
               </a>
               {userPhone && (
                 <a

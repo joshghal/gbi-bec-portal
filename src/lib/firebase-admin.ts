@@ -31,8 +31,8 @@ let _rolesCache: Record<string, Role> | null = null;
 let _rolesCacheTime = 0;
 const ROLES_CACHE_TTL = 5 * 60 * 1000;
 
-export async function getRoles(): Promise<Record<string, Role>> {
-  if (_rolesCache && Date.now() - _rolesCacheTime < ROLES_CACHE_TTL) {
+export async function getRoles(skipCache = false): Promise<Record<string, Role>> {
+  if (!skipCache && _rolesCache && Date.now() - _rolesCacheTime < ROLES_CACHE_TTL) {
     return _rolesCache;
   }
   const db = getFirestore(adminApp);
@@ -60,14 +60,14 @@ async function ensureRolesSeeded(): Promise<void> {
 }
 
 // --- Admin user lookup (with legacy fallback + auto-migration) ---
-export async function getAdminUser(email: string): Promise<(AdminUser & { permissions: string[] }) | null> {
+export async function getAdminUser(email: string, skipCache = false): Promise<(AdminUser & { permissions: string[] }) | null> {
   const db = getFirestore(adminApp);
   const usersDoc = await db.collection('admins').doc('users').get();
   const users = (usersDoc.exists ? usersDoc.data()?.users : null) as Record<string, AdminUser> | null;
 
   // Found in new system
   if (users?.[email]) {
-    const roles = await getRoles();
+    const roles = await getRoles(skipCache);
     const role = roles[users[email].role];
     return { ...users[email], permissions: role?.permissions || [] };
   }

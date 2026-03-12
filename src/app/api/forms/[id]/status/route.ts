@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncToSheets } from '@/lib/google-sheets';
 
-const VALID_STATUSES = ['pending', 'reviewed', 'completed'];
+const VALID_STATUSES = ['pending', 'reviewed', 'completed', 'hadir', 'tidak-hadir'];
 
 export async function PATCH(
   request: NextRequest,

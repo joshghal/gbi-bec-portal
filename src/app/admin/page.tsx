@@ -9,6 +9,8 @@ import {
   Loader2,
   Save,
   Search,
+  CalendarSync,
+  Download,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -77,6 +79,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const [syncing, setSyncing] = useState(false);
 
   // Dialog state
   const [editDoc, setEditDoc] = useState<Document | null>(null);
@@ -165,6 +169,34 @@ export default function AdminPage() {
     }
   };
 
+  const handleSyncDates = async () => {
+    setSyncing(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch('/api/documents/sync-dates', {
+        method: 'POST',
+        headers,
+      });
+      if (!res.ok) throw new Error('Failed to sync');
+      await fetchDocuments();
+    } catch (error) {
+      console.error('Sync dates failed:', error);
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const handleExportJSON = () => {
+    const json = JSON.stringify(documents, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `knowledge-base-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = documents.filter(
     doc =>
       doc.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -186,17 +218,23 @@ export default function AdminPage() {
             </div>
             <div className="flex items-center gap-2">
               <Badge variant="secondary">{documents.length} dokumen</Badge>
+              <Button variant="outline" size="icon" onClick={handleSyncDates} disabled={syncing} title="Sync Jadwal">
+                {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CalendarSync className="w-4 h-4" />}
+              </Button>
+              <Button variant="outline" size="icon" onClick={handleExportJSON} disabled={documents.length === 0} title="Export JSON">
+                <Download className="w-4 h-4" />
+              </Button>
               <Button variant="outline" size="icon" onClick={fetchDocuments} disabled={loading}>
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
               <Button
+                size="icon"
                 onClick={() => {
                   setEditDoc({ ...EMPTY_DOC });
                   setIsNew(true);
                 }}
               >
-                <Plus className="w-4 h-4 mr-1.5" />
-                Tambah
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
           </div>

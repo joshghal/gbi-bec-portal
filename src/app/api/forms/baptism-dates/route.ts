@@ -7,7 +7,7 @@ interface BaptismDate {
   slots: number;
 }
 
-// Public — no auth required
+// Public — no auth required (kept for backwards compat with public baptism form)
 export async function GET() {
   try {
     const db = getAdminFirestore();
@@ -15,7 +15,6 @@ export async function GET() {
     const data = doc.exists ? doc.data()! : { dates: [] };
     const allDates: BaptismDate[] = data.dates || [];
 
-    // Filter out past dates
     const today = new Date().toISOString().split('T')[0];
     const futureDates = allDates
       .filter(d => d.date >= today)

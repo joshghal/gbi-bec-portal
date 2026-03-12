@@ -16,6 +16,8 @@ export interface FormStep {
   dynamicOptionsUrl?: string;
   /** Render at half width in 2-col grid (pairs with next half field) */
   half?: boolean;
+  /** Hidden from public form — auto-generated server-side */
+  hidden?: boolean;
 }
 
 export interface FormSection {
@@ -38,7 +40,7 @@ export interface FormSubmission {
   id: string;
   type: FormType;
   editToken: string;
-  status: 'pending' | 'reviewed' | 'completed';
+  status: 'pending' | 'reviewed' | 'completed' | 'hadir' | 'tidak-hadir';
   data: Record<string, string>;
   createdAt: string;
   updatedAt: string;

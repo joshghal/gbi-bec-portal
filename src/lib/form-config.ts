@@ -44,7 +44,7 @@ export const FORM_CONFIGS: FormConfig[] = [
       { field: 'alamat', question: 'Alamat tempat tinggal saat ini?', label: 'Alamat', type: 'textarea', placeholder: 'Alamat lengkap' },
       { field: 'noTelepon', question: 'Nomor WhatsApp Anda?', label: 'Nomor WhatsApp', type: 'tel', placeholder: '08xx xxxx xxxx', half: true },
       { field: 'email', question: 'Alamat email?', label: 'Email', type: 'email', placeholder: 'nama@email.com', half: true },
-      { field: 'tanggalBaptis', question: 'Pilih tanggal baptisan yang tersedia:', label: 'Tanggal baptisan', type: 'select', dynamicOptionsUrl: '/api/forms/baptism-dates' },
+      { field: 'tanggalBaptis', question: 'Pilih tanggal baptisan yang tersedia:', label: 'Tanggal baptisan', type: 'select', dynamicOptionsUrl: '/api/forms/dates?type=baptism' },
       { field: 'sudahKOM100', question: 'Apakah sudah menyelesaikan KOM 100?', label: 'Sudah KOM 100', type: 'select', options: ['Sudah', 'Belum'], half: true },
       { field: 'sudahKAJ', question: 'Apakah Anda sudah memiliki KAJ?', label: 'Memiliki KAJ', type: 'select', options: ['Sudah', 'Belum'], half: true },
       { field: 'alasanBaptis', question: 'Ceritakan alasan dan kesaksian Anda untuk dibaptis.', label: 'Alasan & kesaksian', type: 'textarea', placeholder: 'Ceritakan alasan dan kesaksian Anda' },
@@ -90,8 +90,10 @@ export const FORM_CONFIGS: FormConfig[] = [
     description: 'Daftar kelas Membership',
     icon: 'BookOpen',
     steps: [
+      { field: 'noMClass', question: '', label: 'No. M-Class', type: 'text', hidden: true },
       { field: 'namaLengkap', question: 'Siapa nama lengkap Anda?', label: 'Nama lengkap', type: 'text', placeholder: 'cth. Budi Santoso' },
       { field: 'noTelepon', question: 'Nomor WhatsApp Anda?', label: 'Nomor WhatsApp', type: 'tel', placeholder: '08xx xxxx xxxx' },
+      { field: 'tanggalMClass', question: 'Pilih tanggal M-Class yang tersedia:', label: 'Tanggal M-Class', type: 'select', dynamicOptionsUrl: '/api/forms/dates?type=mclass&months=2' },
     ],
   },
 ];
@@ -112,4 +114,6 @@ export const FORM_STATUS_LABELS: Record<string, string> = {
   pending: 'Menunggu',
   reviewed: 'Ditinjau',
   completed: 'Selesai',
+  hadir: 'Hadir',
+  'tidak-hadir': 'Tidak Hadir',
 };

@@ -43,11 +43,13 @@ export function useFormFlow(addMessage: AddMessageFn) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dynamicOptionsCache, setDynamicOptionsCache] = useState<Record<string, string[]>>({});
 
+  // Filter out hidden steps for the chat flow
+  const visibleSteps = activeForm?.steps.filter(s => !s.hidden) ?? [];
   const isActive = activeForm !== null && formStep >= 0;
-  const currentStep = isActive && formStep < activeForm!.steps.length
-    ? activeForm!.steps[formStep]
+  const currentStep = isActive && formStep < visibleSteps.length
+    ? visibleSteps[formStep]
     : null;
-  const isSummary = activeForm !== null && formStep === activeForm.steps.length;
+  const isSummary = activeForm !== null && formStep === visibleSteps.length;
 
   const fetchDynamicOptions = useCallback(async (url: string): Promise<string[]> => {
     if (dynamicOptionsCache[url]) return dynamicOptionsCache[url];
@@ -107,7 +109,9 @@ export function useFormFlow(addMessage: AddMessageFn) {
     setFormError('');
 
     setTimeout(async () => {
-      const first = config.steps[0];
+      const visible = config.steps.filter(s => !s.hidden);
+      const first = visible[0];
+      if (!first) return;
       let options = first.type === 'select' ? first.options : undefined;
       if (first.dynamicOptionsUrl) {
         options = await fetchDynamicOptions(first.dynamicOptionsUrl);
@@ -123,7 +127,8 @@ export function useFormFlow(addMessage: AddMessageFn) {
   const advanceStep = useCallback((value: string) => {
     if (!activeForm) return;
 
-    const step = activeForm.steps[formStep];
+    const step = visibleSteps[formStep];
+    if (!step) return;
     const err = validateField(step, value);
     if (err) {
       setFormError(err);
@@ -139,9 +144,9 @@ export function useFormFlow(addMessage: AddMessageFn) {
     const next = formStep + 1;
 
     setTimeout(async () => {
-      if (next < activeForm.steps.length) {
+      if (next < visibleSteps.length) {
         setFormStep(next);
-        const nextStep = activeForm.steps[next];
+        const nextStep = visibleSteps[next];
         let options = nextStep.type === 'select' ? nextStep.options : undefined;
         if (nextStep.dynamicOptionsUrl) {
           options = await fetchDynamicOptions(nextStep.dynamicOptionsUrl);
@@ -153,7 +158,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
         });
       } else {
         setFormStep(next);
-        const summaryRows = activeForm.steps.map(s => ({
+        const summaryRows = visibleSteps.map(s => ({
           label: s.question.replace(/\?$/, '').replace(/\s*\(opsional\)$/i, ''),
           field: s.field,
           value: s.field === step.field ? value.trim() : (newAnswers[s.field] || ''),
@@ -167,7 +172,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
         });
       }
     }, 300);
-  }, [activeForm, formStep, formAnswers, addMessage, fetchDynamicOptions]);
+  }, [activeForm, visibleSteps, formStep, formAnswers, addMessage, fetchDynamicOptions]);
 
   const submitForm = useCallback(async () => {
     if (!activeForm) return;
@@ -214,7 +219,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
       const churchPhone = '6287823420950';
       const userPhone = formAnswers.noTelepon ? formatPhone(formAnswers.noTelepon) : '';
 
-      const summary = activeForm.steps
+      const summary = visibleSteps
         .map(s => `${s.question.replace(/\?$/, '')}: ${formAnswers[s.field] || '(kosong)'}`)
         .join('\n');
 
@@ -269,7 +274,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
   }, []);
 
   const stepIndex = formStep;
-  const totalSteps = activeForm?.steps.length ?? 0;
+  const totalSteps = visibleSteps.length;
 
   return {
     isActive,
