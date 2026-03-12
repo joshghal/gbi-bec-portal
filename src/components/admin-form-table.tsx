@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   RefreshCw,
   Loader2,
@@ -8,10 +8,13 @@ import {
   Save,
   Trash2,
   Sheet,
+  Search,
+  MessageCircle,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -37,6 +40,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { FORM_TYPE_LABELS, FORM_STATUS_LABELS, getFormConfig } from '@/lib/form-config';
+import { normalizePhoneForWhatsApp } from '@/lib/search-utils';
 import type { FormSubmission } from '@/lib/form-types';
 
 const STATUS_STYLES: Record<string, string> = {
@@ -51,30 +55,46 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
 
   const [submissions, setSubmissions] = useState<FormSubmission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [statusFilter, setStatusFilter] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const [sheetUrl, setSheetUrl] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<FormSubmission | null>(null);
   const [editStatus, setEditStatus] = useState('');
 
-  const fetchSubmissions = useCallback(async () => {
+  const fetchSubmissions = useCallback(async (cursor?: string) => {
     if (!user) return;
-    setLoading(true);
+    if (cursor) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     try {
       const token = await user.getIdToken();
       const params = new URLSearchParams();
       params.set('type', formType);
       if (statusFilter && statusFilter !== 'all') params.set('status', statusFilter);
+      if (searchQuery.trim()) params.set('search', searchQuery.trim());
+      if (cursor) params.set('cursor', cursor);
       const res = await fetch(`/api/forms?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (data.submissions) {
-        setSubmissions(data.submissions);
+        if (cursor) {
+          setSubmissions(prev => [...prev, ...data.submissions]);
+        } else {
+          setSubmissions(data.submissions);
+        }
       }
+      setNextCursor(data.nextCursor ?? null);
       if (data.sheetUrl) {
         setSheetUrl(data.sheetUrl);
       }
@@ -82,12 +102,21 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       console.error('Failed to fetch submissions:', error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
-  }, [user, formType, statusFilter]);
+  }, [user, formType, statusFilter, searchQuery]);
 
   useEffect(() => {
     fetchSubmissions();
   }, [fetchSubmissions]);
+
+  const handleSearchInput = (value: string) => {
+    setSearchInput(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setSearchQuery(value);
+    }, 400);
+  };
 
   const handleStatusSave = async () => {
     if (!selected || !editStatus) return;
@@ -172,7 +201,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                 </Button>
               </a>
             )}
-            <Button variant="outline" size="icon" onClick={fetchSubmissions} disabled={loading}>
+            <Button variant="outline" size="icon" onClick={() => fetchSubmissions()} disabled={loading}>
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
           </div>
@@ -181,6 +210,15 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
 
       <main className="p-6">
         <div className="flex items-center gap-3 mb-4">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Cari nama, telepon, email..."
+              className="pl-8 w-[240px]"
+              value={searchInput}
+              onChange={e => handleSearchInput(e.target.value)}
+            />
+          </div>
           <Select value={statusFilter} onValueChange={v => setStatusFilter(v ?? '')}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Semua status" />
@@ -201,52 +239,73 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           </div>
         ) : submissions.length === 0 ? (
           <div className="text-center py-20 text-muted-foreground">
-            {statusFilter && statusFilter !== 'all' ? 'Tidak ditemukan.' : 'Belum ada formulir.'}
+            {searchQuery.trim()
+              ? 'Tidak ditemukan.'
+              : statusFilter && statusFilter !== 'all'
+                ? 'Tidak ditemukan.'
+                : 'Belum ada formulir.'}
           </div>
         ) : (
-          <div className="border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nama</TableHead>
-                  <TableHead className="w-[120px]">Status</TableHead>
-                  <TableHead className="w-[120px]">Tanggal</TableHead>
-                  <TableHead className="w-[60px] text-right">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {submissions.map(sub => (
-                  <TableRow key={sub.id}>
-                    <TableCell className="font-medium text-sm">
-                      {getDisplayName(sub)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={`text-xs ${STATUS_STYLES[sub.status] || ''}`}
-                      >
-                        {FORM_STATUS_LABELS[sub.status] || sub.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {new Date(sub.createdAt).toLocaleDateString('id-ID')}{' '}
-                      {new Date(sub.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openDetail(sub)}
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                      </Button>
-                    </TableCell>
+          <>
+            <div className="border rounded-lg">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead className="w-[120px]">Status</TableHead>
+                    <TableHead className="w-[120px]">Tanggal</TableHead>
+                    <TableHead className="w-[60px] text-right">Aksi</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody>
+                  {submissions.map(sub => (
+                    <TableRow key={sub.id}>
+                      <TableCell className="font-medium text-sm">
+                        {getDisplayName(sub)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${STATUS_STYLES[sub.status] || ''}`}
+                        >
+                          {FORM_STATUS_LABELS[sub.status] || sub.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(sub.createdAt).toLocaleDateString('id-ID')}{' '}
+                        {new Date(sub.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => openDetail(sub)}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {nextCursor && (
+              <div className="flex justify-center mt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => fetchSubmissions(nextCursor)}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+                  ) : null}
+                  Muat lebih banyak
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </main>
 
@@ -270,7 +329,23 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                     <p className="text-xs text-muted-foreground">
                       {getFieldLabel(selected, key)}
                     </p>
-                    <p className="text-sm mt-0.5">{value || '-'}</p>
+                    {key === 'noTelepon' && value ? (
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <p className="text-sm">{value}</p>
+                        <a
+                          href={`https://wa.me/${normalizePhoneForWhatsApp(value)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Button variant="outline" size="sm" className="h-6 px-2 text-xs text-green-600 border-green-300 hover:bg-green-50">
+                            <MessageCircle className="w-3 h-3 mr-1" />
+                            WA
+                          </Button>
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-sm mt-0.5">{value || '-'}</p>
+                    )}
                   </div>
                 ))}
               </div>

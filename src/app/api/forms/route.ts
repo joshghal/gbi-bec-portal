@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncToSheets, getSheetUrl } from '@/lib/google-sheets';
+import { generateSearchTerms } from '@/lib/search-utils';
 import type { FormType } from '@/lib/form-types';
 
 const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer', 'mclass'];
@@ -55,12 +56,14 @@ export async function POST(request: NextRequest) {
 
     const editToken = crypto.randomUUID();
     const now = new Date().toISOString();
+    const searchTerms = generateSearchTerms(type, data);
 
     const docRef = await db.collection('form_submissions').add({
       type,
       editToken,
       status: 'pending',
       data,
+      searchTerms,
       createdAt: now,
       updatedAt: now,
     });
@@ -84,8 +87,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
     const status = searchParams.get('status');
+    const search = searchParams.get('search')?.toLowerCase().trim();
+    const cursor = searchParams.get('cursor');
+    const limit = 50;
 
-    let query = db.collection('form_submissions').orderBy('createdAt', 'desc');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query: any = db.collection('form_submissions').orderBy('createdAt', 'desc');
 
     if (type) {
       query = query.where('type', '==', type);
@@ -93,12 +100,27 @@ export async function GET(request: NextRequest) {
     if (status) {
       query = query.where('status', '==', status);
     }
+    if (search) {
+      query = query.where('searchTerms', 'array-contains', search);
+    }
+    if (cursor) {
+      const cursorDoc = await db.collection('form_submissions').doc(cursor).get();
+      if (cursorDoc.exists) {
+        query = query.startAfter(cursorDoc);
+      }
+    }
 
-    const snapshot = await query.limit(100).get();
-    const submissions = snapshot.docs.map(doc => ({
+    const snapshot = await query.limit(limit + 1).get();
+    const docs = snapshot.docs;
+    const hasMore = docs.length > limit;
+    const pageDocs = hasMore ? docs.slice(0, limit) : docs;
+
+    const submissions = pageDocs.map((doc: { id: string; data: () => Record<string, unknown> }) => ({
       id: doc.id,
       ...doc.data(),
     }));
+
+    const nextCursor = hasMore ? pageDocs[pageDocs.length - 1].id : null;
 
     // Get or create sheet URL
     let sheetUrl: string | null = null;
@@ -106,7 +128,7 @@ export async function GET(request: NextRequest) {
       sheetUrl = await getSheetUrl(type as FormType);
     }
 
-    return NextResponse.json({ submissions, sheetUrl });
+    return NextResponse.json({ submissions, sheetUrl, nextCursor });
   } catch (error) {
     console.error('List submissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

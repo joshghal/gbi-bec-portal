@@ -21,7 +21,7 @@ const CHUNKS: Chunk[] = [
   // === New from Google Sites (12 chunks) ===
   {
     id: 'identitas-gereja',
-    content: 'GBI Baranangsiang (Gereja Bethel Indonesia Baranangsiang), juga dikenal sebagai GBI Sukawarna. Alamat: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112, Indonesia. Koordinat: -6.918881, 107.620721. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7',
+    content: 'GBI Baranangsiang (Gereja Bethel Indonesia Baranangsiang), juga dikenal sebagai GBI Sukawarna atau GBI BEC (Baranangsiang Evening Church). Jadwal Ibadah: setiap hari Minggu pukul 17:00 WIB. Alamat: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112, Indonesia. Koordinat: -6.918881, 107.620721. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7',
     metadata: { category: 'identitas', source: 'google-sites', type: 'info' },
   },
   {
@@ -31,7 +31,7 @@ const CHUNKS: Chunk[] = [
   },
   {
     id: 'jadwal-ibadah',
-    content: 'Jadwal Ibadah GBI Baranangsiang setiap hari Minggu pukul 17:00.',
+    content: 'Jadwal Ibadah GBI Baranangsiang (GBI BEC/Sukawarna): setiap hari Minggu pukul 17:00 WIB. Lokasi: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7. Hubungi WhatsApp: 0878-2342-0950 untuk informasi lebih lanjut.',
     metadata: { category: 'jadwal', source: 'google-sites', type: 'jadwal' },
   },
   {

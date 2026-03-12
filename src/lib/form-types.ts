@@ -31,4 +31,5 @@ export interface FormSubmission {
   data: Record<string, string>;
   createdAt: string;
   updatedAt: string;
+  searchTerms?: string[];
 }

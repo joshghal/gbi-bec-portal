@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncToSheets } from '@/lib/google-sheets';
+import { generateSearchTerms } from '@/lib/search-utils';
 
 async function authorize(request: NextRequest, docData: { editToken: string }) {
   const { searchParams } = new URL(request.url);
@@ -60,8 +61,10 @@ export async function PUT(
     }
 
     const now = new Date().toISOString();
+    const searchTerms = generateSearchTerms(existing.type, data);
     await db.collection('form_submissions').doc(id).update({
       data,
+      searchTerms,
       updatedAt: now,
     });
 
