@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Loader2, Check, ExternalLink, ArrowLeft, Copy, CheckCheck } from 'lucide-react';
@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import type { FormConfig, FormStep, FormSection } from '@/lib/form-types';
 
 /* ─── Helpers ─── */
@@ -59,6 +60,45 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
+/* ─── Wilayah (chained address) ─── */
+
+interface WilayahEntry { id: string; name: string }
+interface WilayahRegency extends WilayahEntry { province_id: string }
+interface WilayahDistrict extends WilayahEntry { regency_id: string }
+interface WilayahVillage extends WilayahEntry { district_id: string }
+interface WilayahData {
+  provinces: WilayahEntry[];
+  regencies: WilayahRegency[];
+  districts: WilayahDistrict[];
+  villages: WilayahVillage[];
+}
+
+const PRESERVE_CASE = new Set(['DKI', 'DI']);
+function toTitleCase(str: string): string {
+  return str.split(' ').map(w =>
+    PRESERVE_CASE.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+  ).join(' ');
+}
+
+// Module-level cache so data persists across re-renders
+let wilayahCache: WilayahData | null = null;
+let wilayahPromise: Promise<WilayahData> | null = null;
+
+function loadWilayah(): Promise<WilayahData> {
+  if (wilayahCache) return Promise.resolve(wilayahCache);
+  if (wilayahPromise) return wilayahPromise;
+  wilayahPromise = Promise.all([
+    fetch('/data/wilayah/provinces.json').then(r => r.json()),
+    fetch('/data/wilayah/regencies.json').then(r => r.json()),
+    fetch('/data/wilayah/districts.json').then(r => r.json()),
+    fetch('/data/wilayah/villages.json').then(r => r.json()),
+  ]).then(([provinces, regencies, districts, villages]) => {
+    wilayahCache = { provinces, regencies, districts, villages };
+    return wilayahCache;
+  });
+  return wilayahPromise;
+}
+
 const PILL_THRESHOLD = 5;
 
 const GLASS_MAP: Record<string, string> = {
@@ -84,6 +124,60 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
 
   const [dynamicOptions, setDynamicOptions] = useState<Record<string, string[]>>({});
   const [loadingOptions, setLoadingOptions] = useState<Record<string, boolean>>({});
+
+  // Wilayah (chained address selects)
+  const [wilayah, setWilayah] = useState<WilayahData | null>(wilayahCache);
+  const hasChainFields = useMemo(() => formConfig.steps.some(s => s.chainType), [formConfig.steps]);
+
+  useEffect(() => {
+    if (!hasChainFields || wilayah) return;
+    loadWilayah().then(setWilayah);
+  }, [hasChainFields, wilayah]);
+
+  const getChainOptions = useCallback((step: FormStep): string[] => {
+    if (!wilayah || !step.chainType) return [];
+    switch (step.chainType) {
+      case 'province':
+        return wilayah.provinces.map(p => toTitleCase(p.name));
+      case 'regency': {
+        const provName = values[step.chainParent!];
+        if (!provName) return [];
+        const prov = wilayah.provinces.find(p => toTitleCase(p.name) === provName);
+        if (!prov) return [];
+        return wilayah.regencies.filter(r => r.province_id === prov.id).map(r => toTitleCase(r.name));
+      }
+      case 'district': {
+        const regName = values[step.chainParent!];
+        if (!regName) return [];
+        const reg = wilayah.regencies.find(r => toTitleCase(r.name) === regName);
+        if (!reg) return [];
+        return wilayah.districts.filter(d => d.regency_id === reg.id).map(d => toTitleCase(d.name));
+      }
+      case 'village': {
+        const distName = values[step.chainParent!];
+        if (!distName) return [];
+        const dist = wilayah.districts.find(d => toTitleCase(d.name) === distName);
+        if (!dist) return [];
+        return wilayah.villages.filter(v => v.district_id === dist.id).map(v => toTitleCase(v.name));
+      }
+      default: return [];
+    }
+  }, [wilayah, values]);
+
+  // Find all chain descendants of a field
+  const getChainDescendants = useCallback((field: string): string[] => {
+    const descendants: string[] = [];
+    function collect(parent: string) {
+      for (const s of formConfig.steps) {
+        if (s.chainParent === parent) {
+          descendants.push(s.field);
+          collect(s.field);
+        }
+      }
+    }
+    collect(field);
+    return descendants;
+  }, [formConfig.steps]);
 
   const visibleSteps = useMemo(
     () => formConfig.steps.filter(s => !s.hidden),
@@ -125,7 +219,17 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
   }, [formConfig]);
 
   const setValue = (field: string, value: string) => {
-    setValues(prev => ({ ...prev, [field]: value }));
+    setValues(prev => {
+      const next = { ...prev, [field]: value };
+      // Cascade-clear child chain fields when parent changes
+      const step = formConfig.steps.find(s => s.field === field);
+      if (step?.chainType) {
+        for (const childField of getChainDescendants(field)) {
+          next[childField] = '';
+        }
+      }
+      return next;
+    });
     if (errors[field]) {
       setErrors(prev => { const next = { ...prev }; delete next[field]; return next; });
     }
@@ -294,7 +398,7 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
         {sections.map((section, sIdx) => (
           <div
             key={sIdx}
-            className="rounded-xl bg-card ring-1 ring-foreground/[0.06] shadow-sm overflow-hidden"
+            className="rounded-xl bg-card ring-1 ring-foreground/[0.06] shadow-sm"
           >
             {section.title && (
               <div className="px-4 pt-4 pb-2 sm:px-5">
@@ -323,7 +427,17 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
                       )}
                     </Label>
 
-                    {step.type === 'select' ? (
+                    {step.chainType ? (
+                      <ChainField
+                        step={step}
+                        value={values[step.field] || ''}
+                        onChange={v => setValue(step.field, v)}
+                        options={getChainOptions(step)}
+                        parentValue={step.chainParent ? values[step.chainParent] || '' : ''}
+                        loading={hasChainFields && !wilayah}
+                        hasError={!!errors[step.field] && !!touched[step.field]}
+                      />
+                    ) : step.type === 'select' ? (
                       <FieldSelect
                         step={step}
                         value={values[step.field] || ''}
@@ -476,5 +590,78 @@ function FieldSelect({
         ))}
       </SelectContent>
     </Select>
+  );
+}
+
+/* ─── Chain Field (address selects) ─── */
+
+function ChainField({
+  step,
+  value,
+  onChange,
+  options,
+  parentValue,
+  loading,
+  hasError,
+}: {
+  step: FormStep;
+  value: string;
+  onChange: (v: string) => void;
+  options: string[];
+  parentValue: string;
+  loading: boolean;
+  hasError: boolean;
+}) {
+  const needsParent = !!step.chainParent;
+  const parentSelected = !needsParent || !!parentValue;
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 h-10 text-sm text-muted-foreground">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Memuat data wilayah...
+      </div>
+    );
+  }
+
+  // Parent not selected yet
+  if (!parentSelected) {
+    return (
+      <SearchableSelect
+        options={[]}
+        value=""
+        onChange={() => {}}
+        disabled
+        placeholder="Pilih wilayah di atas terlebih dahulu"
+        hasError={hasError}
+      />
+    );
+  }
+
+  // Parent selected but no data available (non-Jawa Barat for kecamatan/kelurahan)
+  if (parentSelected && options.length === 0 && (step.chainType === 'district' || step.chainType === 'village')) {
+    return (
+      <Input
+        id={step.field}
+        type="text"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={step.placeholder || `Ketik ${step.label?.toLowerCase() || ''}...`}
+        className={cn(
+          'h-10 bg-muted/40 border-transparent focus-visible:bg-background focus-visible:border-input',
+          hasError && 'border-destructive bg-destructive/5',
+        )}
+      />
+    );
+  }
+
+  return (
+    <SearchableSelect
+      options={options}
+      value={value}
+      onChange={onChange}
+      placeholder={`Pilih ${step.label?.toLowerCase() || ''}...`}
+      hasError={hasError}
+    />
   );
 }

@@ -18,6 +18,10 @@ export interface FormStep {
   half?: boolean;
   /** Hidden from public form — auto-generated server-side */
   hidden?: boolean;
+  /** Chained address select: which level of the Indonesian administrative hierarchy */
+  chainType?: 'province' | 'regency' | 'district' | 'village';
+  /** Field name of the parent in the chain (e.g., kecamatan's parent is kota) */
+  chainParent?: string;
 }
 
 export interface FormSection {
