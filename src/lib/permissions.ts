@@ -63,6 +63,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin/forms/mclass': 'page:forms/mclass',
   '/admin/settings': 'page:settings',
   '/admin/analytics': 'page:analytics',
+  '/admin/posters': 'page:posters',
   '/admin/monitor': 'page:monitor',
   '/admin/users': 'page:admin-users',
 };
@@ -70,6 +71,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
 // All assignable permissions with labels (for the role editor UI)
 export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:knowledge-base', label: 'Basis Pengetahuan' },
+  { id: 'page:posters', label: 'Poster' },
   { id: 'page:forms/kom', label: 'Formulir KOM' },
   { id: 'page:forms/baptism', label: 'Formulir Baptisan' },
   { id: 'page:forms/child-dedication', label: 'Formulir Penyerahan Anak' },

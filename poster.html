@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, initial-scale=1">
+<title>Poster - GBI BEC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700;800;900&family=Great+Vibes&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .poster {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    overflow: hidden;
+    background: #0a0a12;
+  }
+
+  /* Dramatic background layers */
+  .bg-base {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 30% 50%, rgba(88, 28, 135, 0.4) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 80% at 75% 40%, rgba(30, 58, 138, 0.35) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 50% 0%, rgba(139, 92, 246, 0.2) 0%, transparent 60%),
+      linear-gradient(180deg, #0a0a18 0%, #0f0f24 40%, #1a1035 100%);
+  }
+
+  /* Geometric accent shapes */
+  .geo-1 {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    right: -100px;
+    top: -150px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.08));
+    transform: rotate(45deg);
+    border-radius: 40px;
+  }
+  .geo-2 {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    right: 50px;
+    top: -50px;
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.12), transparent);
+    transform: rotate(30deg);
+    border-radius: 30px;
+    border: 1px solid rgba(139, 92, 246, 0.1);
+  }
+  .geo-3 {
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    left: -300px;
+    bottom: -400px;
+    background: radial-gradient(circle, rgba(30, 58, 138, 0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* Light rays from top center */
+  .rays {
+    position: absolute;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1200px;
+    height: 700px;
+    background: conic-gradient(
+      from 180deg at 50% 0%,
+      transparent 42%,
+      rgba(255, 215, 0, 0.03) 45%,
+      transparent 48%,
+      transparent 52%,
+      rgba(255, 215, 0, 0.03) 55%,
+      transparent 58%,
+      transparent 62%,
+      rgba(255, 215, 0, 0.02) 65%,
+      transparent 68%,
+      transparent 72%,
+      rgba(255, 215, 0, 0.03) 75%,
+      transparent 78%
+    );
+    opacity: 0.6;
+  }
+
+  /* Floating particles */
+  .particles {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 200px 100px, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 800px 200px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 1200px 150px, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 400px 400px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 1600px 300px, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 100px 600px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 1400px 500px, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 600px 700px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 1700px 650px, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 900px 800px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(2px 2px at 300px 250px, rgba(168,85,247,0.5), transparent),
+      radial-gradient(2px 2px at 1500px 450px, rgba(96,165,250,0.4), transparent);
+  }
+
+  /* Golden accent line */
+  .accent-line {
+    position: absolute;
+    top: 50%;
+    left: 80px;
+    right: 80px;
+    height: 1px;
+    background: linear-gradient(90deg,
+      transparent,
+      rgba(212, 175, 55, 0.3) 20%,
+      rgba(212, 175, 55, 0.5) 50%,
+      rgba(212, 175, 55, 0.3) 80%,
+      transparent
+    );
+    transform: translateY(-50px);
+  }
+
+  /* Content layout */
+  .content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding: 60px 100px;
+  }
+
+  .left {
+    flex: 1.2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-right: 60px;
+  }
+
+  .right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  /* Church name */
+  .church-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 14px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 24px;
+  }
+
+  /* Main title */
+  .title-wrapper {
+    margin-bottom: 20px;
+  }
+
+  .title-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 28px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(168, 85, 247, 0.9);
+    margin-bottom: 8px;
+  }
+
+  .title-main {
+    font-family: 'Playfair Display', serif;
+    font-weight: 900;
+    font-size: 96px;
+    line-height: 0.95;
+    color: #fff;
+    text-shadow:
+      0 0 60px rgba(139, 92, 246, 0.3),
+      0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .title-main span {
+    display: block;
+  }
+
+  .title-main .gold {
+    background: linear-gradient(135deg, #d4af37 0%, #f5e6a3 40%, #d4af37 60%, #b8860b 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .title-main .light {
+    font-weight: 400;
+    font-style: italic;
+    font-size: 72px;
+    color: rgba(255, 255, 255, 0.85);
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.85);
+  }
+
+  /* Verse */
+  .verse {
+    font-family: 'Great Vibes', cursive;
+    font-size: 32px;
+    color: rgba(212, 175, 55, 0.8);
+    margin-top: 16px;
+    margin-bottom: 40px;
+  }
+
+  /* Description */
+  .description {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.55);
+    max-width: 560px;
+  }
+
+  /* Right side — event details */
+  .event-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(168, 85, 247, 0.7);
+    margin-bottom: 16px;
+  }
+
+  .event-date {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 52px;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .event-month-year {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 32px;
+  }
+
+  .event-time {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 8px;
+  }
+
+  .event-time strong {
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 28px;
+  }
+
+  .event-location {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  .event-location .loc-name {
+    font-weight: 600;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Divider dot */
+  .dot-divider {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(212, 175, 55, 0.6);
+    margin: 24px 0 24px auto;
+  }
+
+  /* CTA */
+  .cta {
+    margin-top: 32px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 36px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 50px;
+    background: rgba(212, 175, 55, 0.08);
+    color: rgba(212, 175, 55, 0.9);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .cta::after {
+    content: '\2192';
+    font-size: 18px;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+      #7c3aed,
+      #3b82f6,
+      #d4af37,
+      #3b82f6,
+      #7c3aed
+    );
+  }
+
+  /* Corner ornaments */
+  .corner {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-color: rgba(212, 175, 55, 0.2);
+    border-style: solid;
+  }
+  .corner.tl { top: 40px; left: 40px; border-width: 2px 0 0 2px; }
+  .corner.tr { top: 40px; right: 40px; border-width: 2px 2px 0 0; }
+  .corner.bl { bottom: 40px; left: 40px; border-width: 0 0 2px 2px; }
+  .corner.br { bottom: 40px; right: 40px; border-width: 0 2px 2px 0; }
+
+  /* YouTube tag */
+  .yt-tag {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.35);
+    letter-spacing: 1px;
+  }
+
+  .yt-icon {
+    width: 20px;
+    height: 14px;
+    background: rgba(255, 0, 0, 0.6);
+    border-radius: 4px;
+    position: relative;
+  }
+  .yt-icon::after {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 3px;
+    border-left: 6px solid white;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+  }
+</style>
+</head>
+<body>
+  <div class="poster">
+    <!-- Background layers -->
+    <div class="bg-base"></div>
+    <div class="geo-1"></div>
+    <div class="geo-2"></div>
+    <div class="geo-3"></div>
+    <div class="rays"></div>
+    <div class="particles"></div>
+    <div class="accent-line"></div>
+
+    <!-- Corner ornaments -->
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="left">
+        <p class="church-name">Baranangsiang Evening Church</p>
+        <div class="title-wrapper">
+          <p class="title-sub">Ibadah Raya</p>
+          <h1 class="title-main">
+            <span class="gold">Sunday</span>
+            <span class="light">Service</span>
+          </h1>
+        </div>
+        <p class="verse">Matius 28 : 19-20</p>
+        <p class="description">
+          "Karena itu pergilah, jadikanlah semua bangsa murid-Ku
+          dan baptislah mereka dalam nama Bapa dan Anak dan Roh Kudus."
+        </p>
+      </div>
+
+      <div class="right">
+        <p class="event-label">Jadwal Ibadah</p>
+        <p class="event-date">16</p>
+        <p class="event-month-year">Maret 2026</p>
+
+        <div class="dot-divider"></div>
+
+        <p class="event-time">Pukul <strong>17.00</strong> WIB</p>
+
+        <div class="event-location">
+          <p class="loc-name">GBI Baranangsiang Sukawarna</p>
+          <p>Jl. Baranang Siang No.8</p>
+          <p>Kota Bandung</p>
+        </div>
+
+        <div class="cta">Hadir & Diberkati</div>
+      </div>
+    </div>
+
+    <!-- Bottom gradient bar -->
+    <div class="bottom-bar"></div>
+
+    <!-- YouTube tag -->
+    <div class="yt-tag">
+      <div class="yt-icon"></div>
+      @ GBI Baranangsiang Sukawarna
+    </div>
+  </div>
+</body>
+</html>

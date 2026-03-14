@@ -18,6 +18,7 @@ import {
   Loader2,
   Menu,
   Users,
+  Image,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Konten',
     items: [
       { href: '/admin', label: 'Basis Pengetahuan', icon: FileText, permission: 'page:knowledge-base' },
+      { href: '/admin/posters', label: 'Poster', icon: Image, permission: 'page:posters' },
     ],
   },
   {

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=908, initial-scale=1">
+<title>COOL (Content) - GBI BEC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+  .poster {
+    width: 24cm;
+    height: 15cm;
+    position: relative;
+    overflow: hidden;
+    background: #0e0a07;
+  }
+
+  /* ── Background — warm amber tones ── */
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(180, 100, 30, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(140, 70, 20, 0.12) 0%, transparent 65%),
+      linear-gradient(170deg, #0e0a07 0%, #1a120a 30%, #201508 60%, #100c07 100%);
+  }
+
+  .noise {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px;
+  }
+
+  .vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%);
+  }
+
+  .particles {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 400px 50px, rgba(224,160,80,0.3), transparent),
+      radial-gradient(1px 1px at 700px 120px, rgba(255,255,255,0.25), transparent),
+      radial-gradient(1px 1px at 200px 400px, rgba(255,255,255,0.2), transparent),
+      radial-gradient(1px 1px at 600px 350px, rgba(224,160,80,0.25), transparent),
+      radial-gradient(1px 1px at 850px 450px, rgba(255,255,255,0.25), transparent);
+  }
+
+  .frame {
+    position: absolute;
+    top: 16px; left: 16px; right: 16px; bottom: 16px;
+    border: 1px solid rgba(224,160,80,0.10);
+    pointer-events: none;
+  }
+
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #E0A050 30%, #E0A050 70%, transparent);
+    opacity: 0.3;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #E0A050 30%, #E0A050 70%, transparent);
+    opacity: 0.4;
+  }
+
+  /* ── Content layout ── */
+  .content {
+    position: relative; z-index: 10;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px 28px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(224,160,80,0.10);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-circle {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 22px;
+    background: linear-gradient(135deg, #ffffff 0%, #f0d8b0 60%, #E0A050 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .gratis-badge {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    padding: 4px 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* ── 3x2 grid ── */
+  .grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(224,160,80,0.08);
+    border-radius: 6px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s;
+  }
+
+  .card:hover {
+    border-color: rgba(224,160,80,0.2);
+  }
+
+  .card-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(224,160,80,0.7);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .card-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* ── QR card ── */
+  .card-qr {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .qr-box {
+    background: #fff;
+    border-radius: 6px;
+    padding: 5px;
+    flex-shrink: 0;
+  }
+
+  .qr-box img {
+    width: 80px; height: 80px;
+    display: block;
+    image-rendering: pixelated;
+  }
+
+  .qr-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .qr-text .card-label {
+    margin-bottom: 2px;
+  }
+
+  .qr-url {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+  }
+
+  /* ── Checklist ── */
+  .checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 2px;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+  }
+
+  .checklist-item::before {
+    content: '';
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(224,160,80,0.4);
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(224,160,80,0.10);
+  }
+
+  .contact-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .contact-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(224,160,80,0.7);
+  }
+
+  .contact-info {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .footer-sep {
+    width: 1px;
+    height: 28px;
+    background: rgba(224,160,80,0.15);
+  }
+
+  .footer-note {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .church-tag {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    text-align: right;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="poster">
+    <div class="bg"></div>
+    <div class="noise"></div>
+    <div class="vignette"></div>
+    <div class="particles"></div>
+    <div class="frame"></div>
+    <div class="top-bar"></div>
+
+    <div class="content">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <div class="logo-circle">BEC</div>
+          <div>
+            <div class="header-title">COOL — Community of Love</div>
+            <div class="header-subtitle">GBI Baranangsiang Evening Church</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3x2 Grid -->
+      <div class="grid">
+        <div class="card">
+          <span class="card-label">Apa Itu COOL?</span>
+          <p class="card-title">Kelompok Sel / Komsel</p>
+          <p class="card-desc">Komunitas kecil jemaat yang bertemu secara rutin untuk saling mendukung, berdoa, dan bertumbuh bersama dalam iman.</p>
+        </div>
+
+        <div class="card">
+          <span class="card-label">Cara Bergabung</span>
+          <p class="card-title">Hubungi Call Centre</p>
+          <p class="card-desc">Pendaftaran COOL dilakukan melalui call centre BEC.</p>
+        </div>
+
+        <div class="card">
+          <span class="card-label">Pilihan</span>
+          <p class="card-title">Gabung COOL</p>
+          <p class="card-desc">Cool BEC dilaksanakan setiap hari Selasa di GBI Baranangsiang.</p>
+        </div>
+
+        <div class="card">
+          <span class="card-label">Data Pendaftaran</span>
+          <div class="checklist">
+            <span class="checklist-item">Nama lengkap</span>
+            <span class="checklist-item">No. HP / WhatsApp</span>
+            <span class="checklist-item">Alamat lengkap & daerah</span>
+            <span class="checklist-item">Usia</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <span class="card-label">Keuntungan</span>
+          <p class="card-title">Komunitas yang Peduli</p>
+          <p class="card-desc">Saling mendoakan, berbagi kesaksian, dan bertumbuh bersama dalam kelompok kecil yang penuh kasih.</p>
+        </div>
+
+        <div class="card card-qr">
+          <div class="qr-box">
+            <img src="qr-callcentre.png" alt="QR Call Centre BEC WhatsApp" />
+          </div>
+          <div class="qr-text">
+            <span class="card-label">Call Centre BEC</span>
+            <span class="qr-url">0878-2342-0950<br>(WhatsApp)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="contact-block">
+          <span class="contact-label">Hubungi</span>
+          <span class="contact-info">Call Centre BEC — 0878-2342-0950</span>
+        </div>
+
+        <div class="footer-sep"></div>
+
+        <span class="footer-note">Terbuka untuk semua jemaat</span>
+
+        <div class="footer-sep"></div>
+
+        <span class="church-tag">GBI Baranangsiang Sukawarna</span>
+      </div>
+    </div>
+
+    <div class="bottom-bar"></div>
+  </div>
+
+</body>
+</html>

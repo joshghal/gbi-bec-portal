@@ -36,6 +36,9 @@ yarn-error.log*
 # service account keys
 service-account*.json
 
+# poster exports (generated PNGs)
+public/posters/exports/
+
 # vercel
 .vercel
 

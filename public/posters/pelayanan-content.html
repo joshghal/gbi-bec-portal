@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=908, initial-scale=1">
+<title>Pelayanan Jemaat (Content) - GBI BEC</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+
+  .poster {
+    width: 24cm;
+    height: 15cm;
+    position: relative;
+    overflow: hidden;
+    background: #07080e;
+  }
+
+  /* ── Background ── */
+  .bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(30, 58, 138, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(55, 30, 100, 0.14) 0%, transparent 65%),
+      linear-gradient(170deg, #07080e 0%, #0c0f1e 30%, #10122a 60%, #0a0b16 100%);
+  }
+
+  .noise {
+    position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 200px;
+  }
+
+  .vignette {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(0,0,0,0.5) 100%);
+  }
+
+  .particles {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 400px 50px, rgba(212,175,55,0.25), transparent),
+      radial-gradient(1px 1px at 700px 120px, rgba(255,255,255,0.25), transparent),
+      radial-gradient(1px 1px at 200px 400px, rgba(255,255,255,0.2), transparent),
+      radial-gradient(1px 1px at 600px 350px, rgba(212,175,55,0.2), transparent),
+      radial-gradient(1px 1px at 850px 450px, rgba(255,255,255,0.25), transparent);
+  }
+
+  /* ── Gold border frame ── */
+  .frame {
+    position: absolute;
+    top: 16px; left: 16px; right: 16px; bottom: 16px;
+    border: 1px solid rgba(212,175,55,0.10);
+    pointer-events: none;
+  }
+
+  /* ── Top bar ── */
+  .top-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d4af37 30%, #d4af37 70%, transparent);
+    opacity: 0.3;
+  }
+
+  /* ── Bottom bar ── */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #d4af37 30%, #d4af37 70%, transparent);
+    opacity: 0.4;
+  }
+
+  /* ── Content layout ── */
+  .content {
+    position: relative; z-index: 10;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px 28px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(212,175,55,0.10);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-circle {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 22px;
+    background: linear-gradient(135deg, #ffffff 0%, #d4c5a0 60%, #c9a84c 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .gratis-badge {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.8);
+    padding: 4px 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 50px;
+    background: rgba(255,255,255,0.05);
+  }
+
+  /* ── Services grid ── */
+  .services {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .service {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(212,175,55,0.08);
+    border-radius: 6px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.3s;
+  }
+
+  .service:hover {
+    border-color: rgba(212,175,55,0.2);
+  }
+
+  .service-num {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    color: rgba(212,175,55,0.7);
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  .service-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: rgba(255,255,255,0.95);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .service-desc {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    line-height: 1.5;
+    color: rgba(255,255,255,0.7);
+    flex: 1;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(212,175,55,0.10);
+  }
+
+  .footer-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .contact-block {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .contact-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(212,175,55,0.7);
+  }
+
+  .contact-info {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+  }
+
+  .contact-info .phone {
+    font-weight: 300;
+    font-size: 13px;
+    color: rgba(255,255,255,0.8);
+    margin-left: 6px;
+  }
+
+  .footer-sep {
+    width: 1px;
+    height: 28px;
+    background: rgba(212,175,55,0.15);
+  }
+
+  .url-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border: 1px solid rgba(212,175,55,0.2);
+    border-radius: 4px;
+    background: rgba(212,175,55,0.04);
+  }
+
+  .url-badge .icon {
+    width: 8px; height: 8px;
+    border: 1px solid rgba(212,175,55,0.4);
+    border-radius: 50%;
+    position: relative;
+  }
+  .url-badge .icon::after {
+    content: '\2197';
+    position: absolute;
+    top: -2px; left: 1px;
+    font-size: 11px;
+    color: rgba(212,175,55,0.7);
+  }
+
+  .url-badge span {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    color: rgba(212,175,55,0.75);
+    letter-spacing: 0.3px;
+  }
+
+  .footer-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qr-box {
+    width: 50px; height: 50px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 3px;
+  }
+
+  .qr-box img {
+    width: 100%; height: 100%;
+    border-radius: 2px;
+    display: block;
+  }
+
+  .church-tag {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    text-align: right;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+  <div class="poster">
+    <div class="bg"></div>
+    <div class="noise"></div>
+    <div class="vignette"></div>
+    <div class="particles"></div>
+    <div class="frame"></div>
+    <div class="top-bar"></div>
+
+    <div class="content">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-left">
+          <div class="logo-circle">BEC</div>
+          <div>
+            <div class="header-title">Pelayanan Jemaat</div>
+            <div class="header-subtitle">GBI Baranangsiang Evening Church</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4x2 Service Grid -->
+      <div class="services">
+        <div class="service">
+          <span class="service-num">01</span>
+          <p class="service-name">Pelayanan Kedukaan</p>
+          <p class="service-desc">Pendampingan dan pelayanan ibadah penghiburan bagi keluarga yang berduka.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">02</span>
+          <p class="service-name">Ucapan Syukur</p>
+          <p class="service-desc">Pelayanan peringatan 40 hari, 100 hari, dan 1 tahun almarhum/ah yang telah meninggal.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">03</span>
+          <p class="service-name">Kunjungan Sakit<br>di Rumah Sakit</p>
+          <p class="service-desc">Kunjungan pendoa dan pelayan untuk mendoakan jemaat yang dirawat di rumah sakit.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">04</span>
+          <p class="service-name">Kunjungan Sakit<br>di Rumah</p>
+          <p class="service-desc">Kunjungan dan pendoaan bagi jemaat yang sedang sakit atau dalam pemulihan di rumah.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">05</span>
+          <p class="service-name">Pengudusan</p>
+          <p class="service-desc">Pengudusan rumah, kantor, tempat usaha, atau pabrik untuk penyerahan kepada Tuhan.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">06</span>
+          <p class="service-name">Konseling</p>
+          <p class="service-desc">Konseling pribadi, pernikahan, dan keluarga bersama hamba Tuhan yang berpengalaman.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">07</span>
+          <p class="service-name">Pelayanan Pelepasan</p>
+          <p class="service-desc">Pelayanan pelepasan dari ikatan kutuk dan okultisme melalui doa dan kuasa Tuhan.</p>
+        </div>
+
+        <div class="service">
+          <span class="service-num">08</span>
+          <p class="service-name">Perjamuan Kudus<br>di Rumah</p>
+          <p class="service-desc">Pelayanan perjamuan kudus bagi jemaat lansia atau yang tidak dapat hadir ke gereja.</p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="contact-block">
+          <span class="contact-label">Narahubung</span>
+          <span class="contact-info">Ps. Thomas Lukiman <span class="phone">0815-7309-7720</span></span>
+        </div>
+
+        <div class="footer-sep"></div>
+
+        <div class="url-badge">
+          <span>helpbec.vercel.app</span>
+        </div>
+
+        <div class="footer-sep"></div>
+
+        <span class="church-tag">GBI Baranangsiang Sukawarna</span>
+      </div>
+    </div>
+
+    <div class="bottom-bar"></div>
+  </div>
+
+</body>
+</html>
