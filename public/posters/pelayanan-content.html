@@ -22,8 +22,8 @@
   .bg {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(30, 58, 138, 0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(55, 30, 100, 0.14) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(50, 80, 180, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(80, 50, 140, 0.14) 0%, transparent 65%),
       linear-gradient(170deg, #07080e 0%, #0c0f1e 30%, #10122a 60%, #0a0b16 100%);
   }
 
@@ -43,10 +43,10 @@
     position: absolute; inset: 0;
     background-image:
       radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.3), transparent),
-      radial-gradient(1px 1px at 400px 50px, rgba(212,175,55,0.25), transparent),
+      radial-gradient(1px 1px at 400px 50px, rgba(240,204,80,0.25), transparent),
       radial-gradient(1px 1px at 700px 120px, rgba(255,255,255,0.25), transparent),
       radial-gradient(1px 1px at 200px 400px, rgba(255,255,255,0.2), transparent),
-      radial-gradient(1px 1px at 600px 350px, rgba(212,175,55,0.2), transparent),
+      radial-gradient(1px 1px at 600px 350px, rgba(240,204,80,0.2), transparent),
       radial-gradient(1px 1px at 850px 450px, rgba(255,255,255,0.25), transparent);
   }
 
@@ -54,7 +54,7 @@
   .frame {
     position: absolute;
     top: 16px; left: 16px; right: 16px; bottom: 16px;
-    border: 1px solid rgba(212,175,55,0.10);
+    border: 1px solid rgba(240,204,80,0.18);
     pointer-events: none;
   }
 
@@ -63,8 +63,8 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #d4af37 30%, #d4af37 70%, transparent);
-    opacity: 0.3;
+    background: linear-gradient(90deg, transparent, #f0cc50 30%, #f0cc50 70%, transparent);
+    opacity: 0.55;
   }
 
   /* ── Bottom bar ── */
@@ -72,8 +72,8 @@
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #d4af37 30%, #d4af37 70%, transparent);
-    opacity: 0.4;
+    background: linear-gradient(90deg, transparent, #f0cc50 30%, #f0cc50 70%, transparent);
+    opacity: 0.65;
   }
 
   /* ── Content layout ── */
@@ -92,7 +92,7 @@
     justify-content: space-between;
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(212,175,55,0.10);
+    border-bottom: 1px solid rgba(240,204,80,0.10);
   }
 
   .header-left {
@@ -119,7 +119,7 @@
     font-family: 'Playfair Display', serif;
     font-weight: 700;
     font-size: 22px;
-    background: linear-gradient(135deg, #ffffff 0%, #d4c5a0 60%, #c9a84c 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #ECD8B8 60%, #E0C468 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -158,7 +158,7 @@
 
   .service {
     background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(212,175,55,0.08);
+    border: 1px solid rgba(240,204,80,0.08);
     border-radius: 6px;
     padding: 12px 14px;
     display: flex;
@@ -167,14 +167,14 @@
   }
 
   .service:hover {
-    border-color: rgba(212,175,55,0.2);
+    border-color: rgba(240,204,80,0.2);
   }
 
   .service-num {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: rgba(212,175,55,0.85);
+    color: rgba(240,204,80,0.85);
     margin-bottom: 6px;
     letter-spacing: 1px;
   }
@@ -204,7 +204,7 @@
     justify-content: space-between;
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(212,175,55,0.10);
+    border-top: 1px solid rgba(240,204,80,0.10);
   }
 
   .footer-left {
@@ -225,7 +225,7 @@
     font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(212,175,55,0.85);
+    color: rgba(240,204,80,0.85);
   }
 
   .contact-info {
@@ -245,7 +245,7 @@
   .footer-sep {
     width: 1px;
     height: 28px;
-    background: rgba(212,175,55,0.15);
+    background: rgba(240,204,80,0.15);
   }
 
   .url-badge {
@@ -253,14 +253,14 @@
     align-items: center;
     gap: 5px;
     padding: 4px 10px;
-    border: 1px solid rgba(212,175,55,0.2);
+    border: 1px solid rgba(240,204,80,0.2);
     border-radius: 4px;
-    background: rgba(212,175,55,0.04);
+    background: rgba(240,204,80,0.04);
   }
 
   .url-badge .icon {
     width: 8px; height: 8px;
-    border: 1px solid rgba(212,175,55,0.4);
+    border: 1px solid rgba(240,204,80,0.4);
     border-radius: 50%;
     position: relative;
   }
@@ -269,14 +269,14 @@
     position: absolute;
     top: -2px; left: 1px;
     font-size: 11px;
-    color: rgba(212,175,55,0.85);
+    color: rgba(240,204,80,0.85);
   }
 
   .url-badge span {
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     font-size: 13px;
-    color: rgba(212,175,55,0.85);
+    color: rgba(240,204,80,0.85);
     letter-spacing: 0.3px;
   }
 

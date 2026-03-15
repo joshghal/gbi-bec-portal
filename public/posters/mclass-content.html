@@ -22,8 +22,8 @@
   .bg {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(20, 50, 120, 0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(15, 40, 100, 0.14) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(30, 70, 160, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(25, 60, 140, 0.14) 0%, transparent 65%),
       linear-gradient(170deg, #081020 0%, #0c1830 30%, #101e3a 60%, #0a1224 100%);
   }
 
@@ -43,17 +43,17 @@
     position: absolute; inset: 0;
     background-image:
       radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.3), transparent),
-      radial-gradient(1px 1px at 400px 50px, rgba(212,175,55,0.25), transparent),
+      radial-gradient(1px 1px at 400px 50px, rgba(240,204,80,0.25), transparent),
       radial-gradient(1px 1px at 700px 120px, rgba(255,255,255,0.25), transparent),
       radial-gradient(1px 1px at 200px 400px, rgba(255,255,255,0.2), transparent),
-      radial-gradient(1px 1px at 600px 350px, rgba(212,175,55,0.2), transparent),
+      radial-gradient(1px 1px at 600px 350px, rgba(240,204,80,0.2), transparent),
       radial-gradient(1px 1px at 850px 450px, rgba(255,255,255,0.25), transparent);
   }
 
   .frame {
     position: absolute;
     top: 16px; left: 16px; right: 16px; bottom: 16px;
-    border: 1px solid rgba(212,175,55,0.10);
+    border: 1px solid rgba(240,204,80,0.18);
     pointer-events: none;
   }
 
@@ -61,16 +61,16 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #D4AF37 30%, #D4AF37 70%, transparent);
-    opacity: 0.3;
+    background: linear-gradient(90deg, transparent, #F0CC50 30%, #F0CC50 70%, transparent);
+    opacity: 0.55;
   }
 
   .bottom-bar {
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #D4AF37 30%, #D4AF37 70%, transparent);
-    opacity: 0.4;
+    background: linear-gradient(90deg, transparent, #F0CC50 30%, #F0CC50 70%, transparent);
+    opacity: 0.65;
   }
 
   /* ── Content layout ── */
@@ -89,7 +89,7 @@
     justify-content: space-between;
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(212,175,55,0.10);
+    border-bottom: 1px solid rgba(240,204,80,0.10);
   }
 
   .header-left {
@@ -102,7 +102,7 @@
     height: 36px;
     width: auto;
     object-fit: contain;
-    filter: drop-shadow(0 1px 4px rgba(212,175,55,0.15));
+    filter: drop-shadow(0 1px 4px rgba(240,204,80,0.15));
     flex-shrink: 0;
   }
 
@@ -110,7 +110,7 @@
     font-family: 'Playfair Display', serif;
     font-weight: 700;
     font-size: 22px;
-    background: linear-gradient(135deg, #ffffff 0%, #f0dca0 60%, #D4AF37 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #FFF0C0 60%, #F0CC50 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -149,7 +149,7 @@
 
   .card {
     background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(212,175,55,0.08);
+    border: 1px solid rgba(240,204,80,0.08);
     border-radius: 6px;
     padding: 14px 16px;
     display: flex;
@@ -158,14 +158,14 @@
   }
 
   .card:hover {
-    border-color: rgba(212,175,55,0.2);
+    border-color: rgba(240,204,80,0.2);
   }
 
   .card-label {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: rgba(212,175,55,0.9);
+    color: rgba(240,204,80,0.9);
     letter-spacing: 1px;
     text-transform: uppercase;
     margin-bottom: 6px;
@@ -243,13 +243,13 @@
   .step-num {
     width: 20px; height: 20px;
     border-radius: 50%;
-    background: rgba(212,175,55,0.1);
-    border: 1px solid rgba(212,175,55,0.2);
+    background: rgba(240,204,80,0.1);
+    border: 1px solid rgba(240,204,80,0.2);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     font-size: 11px;
-    color: rgba(212,175,55,0.85);
+    color: rgba(240,204,80,0.85);
     flex-shrink: 0;
   }
 
@@ -267,7 +267,7 @@
     justify-content: space-between;
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(212,175,55,0.10);
+    border-top: 1px solid rgba(240,204,80,0.10);
   }
 
   .contact-block {
@@ -282,7 +282,7 @@
     font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(212,175,55,0.85);
+    color: rgba(240,204,80,0.85);
   }
 
   .contact-info {
@@ -295,7 +295,7 @@
   .footer-sep {
     width: 1px;
     height: 28px;
-    background: rgba(212,175,55,0.15);
+    background: rgba(240,204,80,0.15);
   }
 
   .footer-note {

@@ -6,6 +6,71 @@ import { TextPlugin } from "gsap/TextPlugin";
 
 gsap.registerPlugin(TextPlugin);
 
+// ── Narration script (Indonesian, ~40s total) ──
+const NARRATIONS: Record<string, string> = {
+  intro:
+    "Helpdesk. Asisten digital GBI Baranangsiang Evening Church.",
+  chat:
+    "Tanya apa saja tentang gereja, langsung dijawab oleh AI. Jadwal ibadah, syarat baptisan, pemberkatan nikah, semua informasi tersedia.",
+  knowledge:
+    "Mulai dari jadwal ibadah, pendaftaran baptis, KOM, hingga cara bergabung COOL. Semuanya bisa ditanyakan.",
+  forms:
+    "Mau daftar baptisan, penyerahan anak, atau M-Class? Langsung isi formulir online dari HP.",
+  cta:
+    "Semua informasi dan kebutuhan jemaat, ada di helpbec.vercel.app. Scan QR code untuk mulai.",
+};
+
+function useNarration() {
+  const utterRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const [subtitle, setSubtitle] = useState("");
+  const [muted, setMuted] = useState(false);
+
+  const speak = useCallback(
+    (sceneId: string) => {
+      // Always cancel previous
+      window.speechSynthesis?.cancel();
+
+      const text = NARRATIONS[sceneId];
+      if (!text) return;
+
+      setSubtitle(text);
+
+      if (muted || !window.speechSynthesis) return;
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "id-ID";
+      utter.rate = 0.95;
+      utter.pitch = 1;
+
+      // Try to pick an Indonesian voice
+      const voices = window.speechSynthesis.getVoices();
+      const idVoice = voices.find(
+        (v) => v.lang.startsWith("id") || v.lang.startsWith("in"),
+      );
+      if (idVoice) utter.voice = idVoice;
+
+      utter.onend = () => setSubtitle("");
+      utterRef.current = utter;
+      window.speechSynthesis.speak(utter);
+    },
+    [muted],
+  );
+
+  const stop = useCallback(() => {
+    window.speechSynthesis?.cancel();
+    setSubtitle("");
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    setMuted((prev) => {
+      if (!prev) window.speechSynthesis?.cancel();
+      return !prev;
+    });
+  }, []);
+
+  return { speak, stop, subtitle, muted, toggleMute };
+}
+
 // ── Theme (matches helpbec.vercel.app) ──
 const C = {
   bg: "#f5f0ea",
@@ -442,6 +507,7 @@ const questions = [
   "Syarat nikah apa saja?",
   "Mau serahkan anak",
   "Kontak siapa untuk pelayanan?",
+  "Cara bergabung COOL?",
 ];
 
 function KnowledgeScene({ playing, onDone }: SceneProps) {
@@ -469,7 +535,7 @@ function KnowledgeScene({ playing, onDone }: SceneProps) {
         line,
         { opacity: 0, x: -20 },
         { opacity: 1, x: 0, duration: 0.42, ease: "power2.out" },
-        0.6 + i * 0.3,
+        0.6 + i * 0.5,
       );
     });
 
@@ -477,7 +543,7 @@ function KnowledgeScene({ playing, onDone }: SceneProps) {
       footer,
       { opacity: 0, y: 10 },
       { opacity: 0.6, y: 0, duration: 0.48, ease: "power2.out" },
-      0.6 + questions.length * 0.3,
+      0.6 + questions.length * 0.5,
     );
 
     tl.to({}, { duration: 2.4 });
@@ -550,10 +616,8 @@ function KnowledgeScene({ playing, onDone }: SceneProps) {
 
 const formItems = [
   { name: "Daftar Baptisan", desc: "Langsung dari HP" },
-  { name: "Daftar KOM", desc: "Pilih kelas & jadwal" },
   { name: "Penyerahan Anak", desc: "Isi data lengkap online" },
   { name: "Daftar M-Class", desc: "Kelas membership" },
-  { name: "Kirim Pokok Doa", desc: "Sampaikan pergumulanmu" },
 ];
 
 function FormsScene({ playing, onDone }: SceneProps) {
@@ -580,7 +644,7 @@ function FormsScene({ playing, onDone }: SceneProps) {
         card,
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, duration: 0.48, ease: "power3.out" },
-        0.48 + i * 0.18,
+        0.48 + i * 0.5,
       );
     });
 
@@ -588,7 +652,7 @@ function FormsScene({ playing, onDone }: SceneProps) {
       note,
       { opacity: 0, y: 10 },
       { opacity: 0.6, y: 0, duration: 0.48, ease: "power2.out" },
-      0.48 + formItems.length * 0.18 + 0.24,
+      0.48 + formItems.length * 0.5 + 0.24,
     );
 
     tl.to({}, { duration: 2.4 });
@@ -740,6 +804,7 @@ function CTAScene({ playing, onDone }: SceneProps) {
           inset: 0,
           display: "flex",
           alignItems: "center",
+          flexDirection: "column",
           justifyContent: "center",
           padding: "40px 28px",
           fontSize: 28,
@@ -750,7 +815,7 @@ function CTAScene({ playing, onDone }: SceneProps) {
           opacity: 0,
         }}
       >
-        Seluruh informasi gereja dan semua kebutuhan jemaat,{" "}
+        Semua informasi GBI BEC dan semua kebutuhan jemaat,{" "}
         <span style={{ color: C.accent }}>ada di sini</span>
       </div>
 
@@ -817,12 +882,16 @@ function ControlBar({
   onSelect,
   autoPlay,
   onToggleAuto,
+  muted,
+  onToggleMute,
 }: {
   scenes: typeof SCENES;
   current: number;
   onSelect: (i: number) => void;
   autoPlay: boolean;
   onToggleAuto: () => void;
+  muted: boolean;
+  onToggleMute: () => void;
 }) {
   return (
     <div
@@ -846,11 +915,28 @@ function ControlBar({
           color: autoPlay ? "#fff" : C.muted,
           fontSize: 12,
           fontWeight: 600,
-          marginRight: 8,
+          marginRight: 4,
           transition: "all 0.2s",
         }}
       >
         {autoPlay ? "⏸ Pause" : "▶ Play"}
+      </button>
+      <button
+        onClick={onToggleMute}
+        style={{
+          padding: "6px 10px",
+          borderRadius: 8,
+          border: "none",
+          cursor: "pointer",
+          background: muted ? "rgba(220,50,50,0.1)" : "rgba(0,0,0,0.05)",
+          color: muted ? "#c33" : C.muted,
+          fontSize: 12,
+          fontWeight: 600,
+          marginRight: 8,
+          transition: "all 0.2s",
+        }}
+      >
+        {muted ? "🔇" : "🔊"}
       </button>
       {scenes.map((s, i) => (
         <button
@@ -882,6 +968,7 @@ export default function PromoPage() {
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [autoPlay, setAutoPlay] = useState(true);
+  const { speak, stop, subtitle, muted, toggleMute } = useNarration();
 
   const sceneComponents = [
     IntroScene,
@@ -890,6 +977,23 @@ export default function PromoPage() {
     FormsScene,
     CTAScene,
   ];
+
+  // Trigger narration when scene changes and is playing
+  useEffect(() => {
+    if (playing) {
+      speak(SCENES[current].id);
+    }
+    return () => stop();
+  }, [current, playing, speak, stop]);
+
+  // Load voices (some browsers load async)
+  useEffect(() => {
+    window.speechSynthesis?.getVoices();
+    const handler = () => window.speechSynthesis?.getVoices();
+    window.speechSynthesis?.addEventListener?.("voiceschanged", handler);
+    return () =>
+      window.speechSynthesis?.removeEventListener?.("voiceschanged", handler);
+  }, []);
 
   const next = useCallback(() => {
     setCurrent((prev) => {
@@ -911,20 +1015,26 @@ export default function PromoPage() {
     }
   }, [autoPlay, next]);
 
-  const goToScene = useCallback((i: number) => {
-    setCurrent(i);
-    setPlaying(true);
-  }, []);
+  const goToScene = useCallback(
+    (i: number) => {
+      stop();
+      setCurrent(i);
+      setPlaying(true);
+    },
+    [stop],
+  );
 
   const toggleAuto = useCallback(() => {
     setAutoPlay((prev) => {
       const newVal = !prev;
       if (newVal) {
         setPlaying(true);
+      } else {
+        stop();
       }
       return newVal;
     });
-  }, []);
+  }, [stop]);
 
   // Keyboard nav
   useEffect(() => {
@@ -973,6 +1083,37 @@ export default function PromoPage() {
         }}
       >
         <SceneComponent playing={playing} onDone={handleDone} />
+
+        {/* Subtitle overlay */}
+        {subtitle && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: 40,
+              left: 16,
+              right: 16,
+              textAlign: "center",
+              zIndex: 50,
+              pointerEvents: "none",
+            }}
+          >
+            <span
+              style={{
+                display: "inline-block",
+                background: "rgba(0,0,0,0.65)",
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 500,
+                padding: "6px 14px",
+                borderRadius: 8,
+                lineHeight: 1.5,
+                maxWidth: "90%",
+              }}
+            >
+              {subtitle}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Controls below the canvas */}
@@ -982,6 +1123,8 @@ export default function PromoPage() {
         onSelect={goToScene}
         autoPlay={autoPlay}
         onToggleAuto={toggleAuto}
+        muted={muted}
+        onToggleMute={toggleMute}
       />
     </div>
   );

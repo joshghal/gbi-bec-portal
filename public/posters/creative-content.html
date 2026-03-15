@@ -21,8 +21,8 @@
   .bg {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(200, 150, 50, 0.16) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(220, 170, 60, 0.10) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(240, 190, 70, 0.16) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 70% at 85% 70%, rgba(250, 200, 80, 0.10) 0%, transparent 65%),
       linear-gradient(170deg, #141008 0%, #1c1610 30%, #242010 60%, #161008 100%);
   }
 
@@ -42,17 +42,17 @@
     position: absolute; inset: 0;
     background-image:
       radial-gradient(1px 1px at 120px 80px, rgba(255,255,255,0.3), transparent),
-      radial-gradient(1px 1px at 400px 50px, rgba(224,160,64,0.3), transparent),
+      radial-gradient(1px 1px at 400px 50px, rgba(248,196,90,0.3), transparent),
       radial-gradient(1px 1px at 700px 120px, rgba(255,255,255,0.25), transparent),
       radial-gradient(1px 1px at 200px 400px, rgba(255,255,255,0.2), transparent),
-      radial-gradient(1px 1px at 600px 350px, rgba(224,160,64,0.25), transparent),
+      radial-gradient(1px 1px at 600px 350px, rgba(248,196,90,0.25), transparent),
       radial-gradient(1px 1px at 850px 450px, rgba(255,255,255,0.25), transparent);
   }
 
   .frame {
     position: absolute;
     top: 16px; left: 16px; right: 16px; bottom: 16px;
-    border: 1px solid rgba(224,160,64,0.10);
+    border: 1px solid rgba(248,196,90,0.18);
     pointer-events: none;
   }
 
@@ -60,16 +60,16 @@
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #E0A040 30%, #E0A040 70%, transparent);
-    opacity: 0.3;
+    background: linear-gradient(90deg, transparent, #F8BE58 30%, #F8BE58 70%, transparent);
+    opacity: 0.55;
   }
 
   .bottom-bar {
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #E0A040 30%, #E0A040 70%, transparent);
-    opacity: 0.4;
+    background: linear-gradient(90deg, transparent, #F8BE58 30%, #F8BE58 70%, transparent);
+    opacity: 0.65;
   }
 
   /* ── Content layout ── */
@@ -88,7 +88,7 @@
     justify-content: space-between;
     margin-bottom: 20px;
     padding-bottom: 16px;
-    border-bottom: 1px solid rgba(224,160,64,0.10);
+    border-bottom: 1px solid rgba(248,196,90,0.10);
   }
 
   .header-left {
@@ -100,13 +100,13 @@
   .logo-circle {
     width: 30px; height: 30px;
     border-radius: 50%;
-    background: rgba(224,160,64,0.08);
-    border: 1px solid rgba(224,160,64,0.15);
+    background: rgba(248,196,90,0.08);
+    border: 1px solid rgba(248,196,90,0.15);
     display: flex; align-items: center; justify-content: center;
     font-family: 'Inter', sans-serif;
     font-weight: 800;
     font-size: 11px;
-    color: rgba(224,160,64,0.85);
+    color: rgba(248,196,90,0.85);
     letter-spacing: 0.5px;
     flex-shrink: 0;
   }
@@ -115,7 +115,7 @@
     font-family: 'Playfair Display', serif;
     font-weight: 700;
     font-size: 22px;
-    background: linear-gradient(135deg, #ffffff 0%, #f0e0b0 60%, #E0A040 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #FFF0C8 60%, #F8BE58 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -136,11 +136,11 @@
     font-size: 10px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(224,160,64,0.9);
+    color: rgba(248,196,90,0.9);
     padding: 4px 12px;
-    border: 1px solid rgba(224,160,64,0.15);
+    border: 1px solid rgba(248,196,90,0.15);
     border-radius: 50px;
-    background: rgba(224,160,64,0.05);
+    background: rgba(248,196,90,0.05);
   }
 
   /* ── 3x2 grid ── */
@@ -154,7 +154,7 @@
 
   .card {
     background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(224,160,64,0.08);
+    border: 1px solid rgba(248,196,90,0.08);
     border-radius: 6px;
     padding: 14px 16px;
     display: flex;
@@ -163,14 +163,14 @@
   }
 
   .card:hover {
-    border-color: rgba(224,160,64,0.2);
+    border-color: rgba(248,196,90,0.2);
   }
 
   .card-label {
     font-family: 'Inter', sans-serif;
     font-weight: 700;
     font-size: 13px;
-    color: rgba(224,160,64,0.85);
+    color: rgba(248,196,90,0.85);
     letter-spacing: 1px;
     text-transform: uppercase;
     margin-bottom: 6px;
@@ -197,7 +197,7 @@
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     font-size: 13px;
-    color: rgba(224,160,64,0.85);
+    color: rgba(248,196,90,0.85);
     margin-top: auto;
     padding-top: 6px;
   }
@@ -209,7 +209,7 @@
     justify-content: space-between;
     margin-top: 18px;
     padding-top: 14px;
-    border-top: 1px solid rgba(224,160,64,0.10);
+    border-top: 1px solid rgba(248,196,90,0.10);
   }
 
   .contact-block {
@@ -224,7 +224,7 @@
     font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    color: rgba(224,160,64,0.85);
+    color: rgba(248,196,90,0.85);
   }
 
   .contact-info {
@@ -244,7 +244,7 @@
   .footer-sep {
     width: 1px;
     height: 28px;
-    background: rgba(224,160,64,0.15);
+    background: rgba(248,196,90,0.15);
   }
 
   .church-tag {

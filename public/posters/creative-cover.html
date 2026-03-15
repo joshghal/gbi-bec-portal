@@ -21,8 +21,8 @@
   .bg {
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 80% 70% at 50% 50%, rgba(200, 150, 50, 0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 60% at 50% 40%, rgba(220, 170, 60, 0.12) 0%, transparent 65%),
+      radial-gradient(ellipse 80% 70% at 50% 50%, rgba(240, 190, 70, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 60% at 50% 40%, rgba(250, 200, 80, 0.12) 0%, transparent 65%),
       linear-gradient(170deg, #141008 0%, #1c1610 30%, #242010 60%, #161008 100%);
   }
 
@@ -37,7 +37,7 @@
     position: absolute;
     width: 500px; height: 500px;
     left: 50%; top: 50%; transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(224,160,64,0.06) 0%, rgba(224,160,64,0.02) 40%, transparent 70%);
+    background: radial-gradient(circle, rgba(248,196,90,0.06) 0%, rgba(248,196,90,0.02) 40%, transparent 70%);
   }
 
   .vignette {
@@ -49,12 +49,12 @@
     position: absolute; inset: 0;
     background-image:
       radial-gradient(1px 1px at 100px 70px, rgba(255,255,255,0.3), transparent),
-      radial-gradient(1px 1px at 350px 50px, rgba(224,160,64,0.3), transparent),
+      radial-gradient(1px 1px at 350px 50px, rgba(248,196,90,0.3), transparent),
       radial-gradient(1px 1px at 600px 90px, rgba(255,255,255,0.25), transparent),
       radial-gradient(1px 1px at 800px 180px, rgba(255,255,255,0.2), transparent),
-      radial-gradient(1px 1px at 150px 400px, rgba(224,160,64,0.25), transparent),
+      radial-gradient(1px 1px at 150px 400px, rgba(248,196,90,0.25), transparent),
       radial-gradient(1px 1px at 700px 420px, rgba(255,255,255,0.2), transparent),
-      radial-gradient(1px 1px at 450px 500px, rgba(224,160,64,0.2), transparent);
+      radial-gradient(1px 1px at 450px 500px, rgba(248,196,90,0.2), transparent);
   }
 
   .cross {
@@ -63,7 +63,7 @@
     opacity: 0.03;
   }
   .cross::before, .cross::after {
-    content: ''; position: absolute; background: #E0A040;
+    content: ''; position: absolute; background: #F8BE58;
   }
   .cross::before { width: 2px; height: 160px; left: 50%; transform: translateX(-50%); top: -80px; }
   .cross::after { width: 100px; height: 2px; top: -20px; left: 50%; transform: translateX(-50%); }
@@ -71,7 +71,7 @@
   .frame {
     position: absolute;
     top: 16px; left: 16px; right: 16px; bottom: 16px;
-    border: 1px solid rgba(224,160,64,0.10);
+    border: 1px solid rgba(248,196,90,0.18);
     pointer-events: none;
   }
 
@@ -79,8 +79,8 @@
     position: absolute;
     bottom: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #E0A040 30%, #E0A040 70%, transparent);
-    opacity: 0.4;
+    background: linear-gradient(90deg, transparent, #F8BE58 30%, #F8BE58 70%, transparent);
+    opacity: 0.65;
   }
 
   .content {
@@ -116,7 +116,7 @@
     font-size: 64px;
     line-height: 1.2;
     margin-top: -12px;
-    background: linear-gradient(175deg, #ffffff 0%, #f0e0b0 40%, #E0A040 70%, #a07020 100%);
+    background: linear-gradient(175deg, #ffffff 0%, #FFF0C8 40%, #F8BE58 70%, #C09038 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -144,7 +144,7 @@
     font-size: 11px;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: rgba(224,160,64,1);
+    color: rgba(248,196,90,1);
     margin-bottom: 12px;
   }
 
@@ -193,7 +193,7 @@
   .divider {
     width: 60px;
     height: 1px;
-    background: rgba(224,160,64,0.2);
+    background: rgba(248,196,90,0.2);
   }
 </style>
 </head>
