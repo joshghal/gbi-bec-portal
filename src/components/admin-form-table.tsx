@@ -5,6 +5,7 @@ import {
   RefreshCw,
   Loader2,
   Eye,
+  Pencil,
   Save,
   Trash2,
   Sheet,
@@ -42,6 +43,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { FORM_TYPE_LABELS, FORM_STATUS_LABELS, getFormConfig } from '@/lib/form-config';
 import { normalizePhoneForWhatsApp } from '@/lib/search-utils';
 import type { FormSubmission } from '@/lib/form-types';
@@ -95,6 +97,10 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
 
   const [selected, setSelected] = useState<FormSubmission | null>(null);
   const [editStatus, setEditStatus] = useState('');
+
+  const [editing, setEditing] = useState<FormSubmission | null>(null);
+  const [editData, setEditData] = useState<Record<string, string>>({});
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const fetchSubmissions = useCallback(async (cursor?: string) => {
     if (!user) return;
@@ -192,6 +198,34 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
     setEditStatus(sub.status);
   };
 
+  const openEdit = (sub: FormSubmission) => {
+    setEditing(sub);
+    setEditData({ ...sub.data });
+  };
+
+  const handleEditSave = async () => {
+    if (!editing) return;
+    setSavingEdit(true);
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch(`/api/forms/${editing.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ type: editing.type, data: editData }),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      setEditing(null);
+      await fetchSubmissions();
+    } catch (error) {
+      console.error('Edit save failed:', error);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   const getDisplayName = (sub: FormSubmission): string => {
     if (sub.type === 'child-dedication') {
       return sub.data.namaAnak || '-';
@@ -283,7 +317,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                     <TableHead>Nama</TableHead>
                     <TableHead className="w-[120px]">Status</TableHead>
                     <TableHead className="w-[120px]">Tanggal</TableHead>
-                    <TableHead className="w-[60px] text-right">Aksi</TableHead>
+                    <TableHead className="w-[90px] text-right">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -305,14 +339,26 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                         {new Date(sub.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => openDetail(sub)}
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </Button>
+                        <div className="flex items-center justify-end gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => openDetail(sub)}
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </Button>
+                          {!isReadOnly && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => openEdit(sub)}
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -429,6 +475,77 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                 </Button>
               )}
             </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={!!editing} onOpenChange={open => !open && setEditing(null)}>
+        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Edit — {editing && (FORM_TYPE_LABELS[editing.type] || editing.type)}
+            </DialogTitle>
+            <DialogDescription>
+              {editing && getDisplayName(editing)}
+            </DialogDescription>
+          </DialogHeader>
+
+          {editing && (() => {
+            const config = getFormConfig(editing.type);
+            const steps = config?.steps ?? [];
+            return (
+              <div className="space-y-3">
+                {steps.filter(s => !s.hidden).map(step => (
+                  <div key={step.field}>
+                    <Label className="text-xs text-muted-foreground">{step.label}</Label>
+                    {step.type === 'textarea' ? (
+                      <Textarea
+                        className="mt-1 text-sm"
+                        rows={3}
+                        value={editData[step.field] || ''}
+                        onChange={e => setEditData(prev => ({ ...prev, [step.field]: e.target.value }))}
+                      />
+                    ) : step.type === 'select' && step.options ? (
+                      <Select
+                        value={editData[step.field] || ''}
+                        onValueChange={v => setEditData(prev => ({ ...prev, [step.field]: v ?? '' }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Pilih..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {step.options.map(opt => (
+                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        className="mt-1 text-sm"
+                        type={step.type === 'date' ? 'date' : step.type === 'tel' ? 'tel' : step.type === 'email' ? 'email' : 'text'}
+                        value={editData[step.field] || ''}
+                        onChange={e => setEditData(prev => ({ ...prev, [step.field]: e.target.value }))}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+          <DialogFooter className="flex-row justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditing(null)}>
+              Batal
+            </Button>
+            <Button onClick={handleEditSave} disabled={savingEdit}>
+              {savingEdit ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+              ) : (
+                <Save className="w-4 h-4 mr-1.5" />
+              )}
+              Simpan
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
