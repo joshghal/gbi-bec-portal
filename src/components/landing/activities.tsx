@@ -290,7 +290,7 @@ export default function ActivitiesSection() {
                           color: 'rgba(255,255,255,0.90)',
                         }}
                       >
-                        <WaIcon className="w-4 h-4 shrink-0" style={{ color: '#4ade80' }} />
+                        <WaIcon className="w-4 h-4 shrink-0 text-green-400" />
                         Hubungi {activity.contact.name}
                       </a>
                     )}
