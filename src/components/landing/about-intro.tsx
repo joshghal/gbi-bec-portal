@@ -145,8 +145,14 @@ export default function AboutIntro() {
 
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
 
+    // Mobile: no scroll effects — show content immediately, no sticky trap
+    if (!isDesktop) {
+      wrapperRef.current.style.opacity = "1";
+      return;
+    }
+
+    // Desktop only: fade + parallax via GSAP ScrollTrigger
     const ctx = gsap.context(() => {
-      // Section fade in → hold → fade out
       gsap
         .timeline({
           scrollTrigger: {
@@ -164,37 +170,29 @@ export default function AboutIntro() {
         .to(wrapperRef.current, { opacity: 1, ease: "none", duration: 0.7 })
         .to(wrapperRef.current, { opacity: 0, ease: "none", duration: 0.15 });
 
-      if (isDesktop) {
-        // Animate a single CSS custom property on the section element (1 style write/frame).
-        // Each image div reads var(--sp) in its transform via CSS calc() — the browser
-        // computes per-image translateY natively with zero extra JS per frame.
-        gsap.fromTo(
-          sectionRef.current,
-          { "--sp": 0 },
-          {
-            "--sp": 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true,
-            },
+      gsap.fromTo(
+        sectionRef.current,
+        { "--sp": 0 },
+        {
+          "--sp": 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
           },
-        );
-      } else {
-        // Mobile: no JS-driven transform — static collage, removes per-frame
-        // main-thread work during scroll. Opacity fade above is compositor-only.
-      }
+        },
+      );
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} id="tentang" className="relative h-[200vh]">
+    <section ref={sectionRef} id="tentang" className="relative h-screen md:h-[200vh]">
       <style dangerouslySetInnerHTML={{ __html: STYLES }} />
-      <div className="sticky top-0 h-screen overflow-hidden">
+      <div className="h-full md:sticky md:top-0 md:h-screen overflow-hidden">
         <div
           ref={wrapperRef}
           className="relative w-full h-full"
