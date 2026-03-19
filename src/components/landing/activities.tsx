@@ -248,7 +248,7 @@ export default function ActivitiesSection() {
 
                     {/* Description — mobile only */}
                     <p
-                      className="lg:hidden mt-3 text-sm leading-relaxed line-clamp-2"
+                      className="lg:hidden mt-3 text-sm leading-relaxed"
                       style={{ color: 'rgba(255,255,255,0.60)' }}
                     >
                       {activity.description}
