@@ -123,8 +123,8 @@ export default function ScheduleSection() {
               viewport={viewportOnce}
               className="mt-6 text-sm text-muted-foreground"
             >
-              <span className="font-semibold text-foreground">Ibadah Minggu</span> terbuka
-              untuk umum setiap Minggu pukul 17:00 WIB.
+              <span className="font-semibold text-foreground">Ibadah Minggu sore</span> terbuka
+              untuk umum setiap Minggu pukul 17:00 WIB di Kota Bandung.
             </motion.p>
           </div>
 

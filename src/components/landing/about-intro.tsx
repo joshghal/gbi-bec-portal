@@ -270,8 +270,8 @@ export default function AboutIntro() {
                 Satu Keluarga dalam Kristus
               </h2>
               <p className="mt-6 text-base sm:text-lg text-muted-foreground leading-relaxed">
-                Komunitas yang saling menguatkan melalui ibadah, pelayanan, dan
-                kehidupan sehari-hari bersama.
+                Komunitas gereja di Bandung yang saling menguatkan melalui
+                ibadah, pelayanan, dan kehidupan sehari-hari bersama.
               </p>
               <div className="mt-6 mx-auto w-[80px] h-px bg-primary/40" />
               <p className="mt-5 font-serif italic text-base text-muted-foreground">
