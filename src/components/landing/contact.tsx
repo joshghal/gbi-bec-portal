@@ -225,7 +225,7 @@ export default function ContactSection() {
                 rel="noopener noreferrer"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-green-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition-colors hover:bg-green-400"
+                className="inline-flex items-center gap-2.5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
               >
                 <WhatsAppIcon className="h-4.5 w-4.5" />
                 Hubungi via WhatsApp
@@ -264,7 +264,7 @@ export default function ContactSection() {
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-green-500/30 bg-green-500/10 px-5 py-2.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/20 shrink-0"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-white/75 transition-colors hover:bg-white/[0.12] hover:text-white shrink-0"
                   >
                     <WhatsAppIcon className="h-4 w-4" />
                     WhatsApp
