@@ -22,13 +22,24 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bec.church';
+
 export const metadata: Metadata = {
-  title: "Helpdesk | Baranangsiang Evening Church (BEC)",
-  description: "Helpdesk - Baranangsiang Evening Church (BEC)",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'GBI Baranangsiang Evening Church',
+    template: '%s | GBI BEC',
+  },
+  description: 'Gereja Bethel Indonesia Baranangsiang Evening Church (BEC) — ibadah setiap Minggu pukul 17:00 WIB di Bandung.',
+  openGraph: {
+    siteName: 'GBI Baranangsiang Evening Church',
+    locale: 'id_ID',
+    type: 'website',
+  },
   icons: {
     icon: [
       { url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/favicon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/favicon-16.png', sizes: '16x32', type: 'image/png' },
     ],
     apple: '/apple-touch-icon.png',
   },

@@ -4,6 +4,16 @@ import SmoothScroll from '@/components/smooth-scroll';
 export const metadata: Metadata = {
   title: 'GBI Baranangsiang Evening Church',
   description: 'Gereja Bethel Indonesia Baranangsiang Evening Church (BEC) — ibadah setiap Minggu pukul 17:00 WIB di Jl. Baranang Siang No.8, Bandung.',
+  keywords: ['GBI BEC', 'Baranangsiang Evening Church', 'gereja Bandung', 'GBI Bandung', 'ibadah Bandung', 'gereja Bethel Indonesia'],
+  openGraph: {
+    title: 'GBI Baranangsiang Evening Church',
+    description: 'Ibadah setiap Minggu pukul 17:00 WIB. Bergabunglah bersama komunitas BEC di Bandung.',
+    url: '/',
+    type: 'website',
+  },
+  alternates: {
+    canonical: '/',
+  },
 };
 import Nav from '@/components/landing/nav';
 import Hero from '@/components/landing/hero';

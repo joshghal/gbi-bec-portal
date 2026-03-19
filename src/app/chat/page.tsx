@@ -3,8 +3,18 @@ import { Suspense } from 'react';
 import ChatClient from './_chat-client';
 
 export const metadata: Metadata = {
-  title: 'Helpdesk | GBI Baranangsiang Evening Church',
+  title: 'Helpdesk | GBI BEC',
   description: 'Tanya langsung seputar jadwal ibadah, baptisan, KOM, penyerahan anak, dan layanan GBI Baranangsiang Evening Church (BEC).',
+  keywords: ['helpdesk gereja', 'GBI BEC', 'jadwal ibadah', 'baptisan GBI', 'KOM gereja', 'chatbot gereja'],
+  openGraph: {
+    title: 'Helpdesk GBI Baranangsiang Evening Church',
+    description: 'Tanya AI kami 24/7 — jadwal ibadah, baptisan, KOM, penyerahan anak, dan layanan lainnya.',
+    url: '/chat',
+    type: 'website',
+  },
+  alternates: {
+    canonical: '/chat',
+  },
 };
 
 export default function ChatPage() {
