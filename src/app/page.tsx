@@ -1,5 +1,14 @@
 import type { Metadata } from 'next';
 import SmoothScroll from '@/components/smooth-scroll';
+import Nav from '@/components/landing/nav';
+import Hero from '@/components/landing/hero';
+import AboutIntro from '@/components/landing/about-intro';
+import ActivitiesSection from '@/components/landing/activities';
+import ServicesSection from '@/components/landing/services';
+import ScheduleSection from '@/components/landing/schedule';
+import UpdatesSection from '@/components/landing/updates';
+import ContactSection from '@/components/landing/contact';
+import Footer from '@/components/landing/footer';
 
 export const metadata: Metadata = {
   title: 'GBI Baranangsiang Evening Church',
@@ -14,31 +23,64 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GBI Baranangsiang Evening Church',
+    description: 'Ibadah setiap Minggu pukul 17:00 WIB. Bergabunglah bersama komunitas BEC di Bandung.',
+  },
 };
-import Nav from '@/components/landing/nav';
-import Hero from '@/components/landing/hero';
-import AboutIntro from '@/components/landing/about-intro';
-import ActivitiesSection from '@/components/landing/activities';
-import ServicesSection from '@/components/landing/services';
-import ScheduleSection from '@/components/landing/schedule';
-import UpdatesSection from '@/components/landing/updates';
-import ContactSection from '@/components/landing/contact';
-import Footer from '@/components/landing/footer';
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Church',
+  name: 'GBI Baranangsiang Evening Church',
+  alternateName: 'GBI BEC',
+  url: 'https://gbibec.id',
+  telephone: '+6287823420950',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Jl. Baranang Siang No.8',
+    addressLocality: 'Sumur Bandung',
+    addressRegion: 'Bandung',
+    postalCode: '40113',
+    addressCountry: 'ID',
+  },
+  openingHoursSpecification: {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: 'Sunday',
+    opens: '17:00',
+    closes: '19:00',
+  },
+  sameAs: [
+    'https://www.instagram.com/sukawarna.bec/',
+    'https://www.youtube.com/@GBIBaranangsiangEveningChurch',
+  ],
+};
 
 export default function LandingPage() {
   return (
-    <SmoothScroll>
-      <Nav />
-      <main>
-        <Hero />
-        <AboutIntro />
-        <ActivitiesSection />
-        <ServicesSection />
-        <ScheduleSection />
-        <UpdatesSection />
-        <ContactSection />
-      </main>
-      <Footer />
-    </SmoothScroll>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <SmoothScroll>
+        <Nav />
+        <main>
+          <Hero />
+          <AboutIntro />
+          <ActivitiesSection />
+          <ServicesSection />
+          <ScheduleSection />
+          <UpdatesSection />
+          <ContactSection />
+        </main>
+        <Footer />
+      </SmoothScroll>
+    </>
   );
 }

@@ -20,9 +20,10 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: 'cover',
+  themeColor: '#f5f0e8',
 };
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://bec.church';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -35,6 +36,9 @@ export const metadata: Metadata = {
     siteName: 'GBI Baranangsiang Evening Church',
     locale: 'id_ID',
     type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
   },
   icons: {
     icon: [

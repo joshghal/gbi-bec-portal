@@ -15,6 +15,15 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/chat',
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Helpdesk GBI Baranangsiang Evening Church',
+    description: 'Tanya AI kami 24/7 — jadwal ibadah, baptisan, KOM, penyerahan anak, dan layanan lainnya.',
+  },
 };
 
 export default function ChatPage() {
