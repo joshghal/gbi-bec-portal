@@ -264,10 +264,10 @@ export default function ContactSection() {
                     rel="noopener noreferrer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-white/75 transition-colors hover:bg-white/[0.12] hover:text-white shrink-0"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-white/75 transition-colors hover:bg-white/[0.12] hover:text-white w-full sm:w-auto"
                   >
                     <WhatsAppIcon className="h-4 w-4" />
-                    WhatsApp
+                    Hubungi via WhatsApp
                   </motion.a>
                 </div>
 

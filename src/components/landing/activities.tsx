@@ -176,7 +176,7 @@ export default function ActivitiesSection() {
           {ACTIVITIES.map((activity, i) => (
             <div
               key={activity.title}
-              className="mb-4 last:mb-0 lg:sticky"
+              className="sticky mb-4 last:mb-0"
               style={{
                 top: `${CARD_TOP_START + i * CARD_TOP_STEP}px`,
               }}
@@ -290,7 +290,7 @@ export default function ActivitiesSection() {
                           color: 'rgba(255,255,255,0.90)',
                         }}
                       >
-                        <WaIcon className="w-4 h-4 shrink-0 text-green-400" />
+                        <WaIcon className="w-4 h-4 shrink-0 text-white/90" />
                         Hubungi {activity.contact.name}
                       </a>
                     )}
