@@ -1,11 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Judson } from "next/font/google";
 import "./globals.css";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
+});
+
+const judson = Judson({
+  variable: "--font-judson",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
 });
 
 export const viewport: Viewport = {
@@ -35,7 +42,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body
-        className={`${plusJakarta.variable} antialiased`}
+        className={`${plusJakarta.variable} ${judson.variable} antialiased`}
       >
         <AnalyticsProvider>{children}</AnalyticsProvider>
       </body>

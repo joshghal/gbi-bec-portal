@@ -46,7 +46,7 @@ interface HighlightDef {
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════
 
-const NOISE_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 500'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E")`;
+const NOISE_PNG = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z8BQDwAEgAF/QualIQAAAABJRU5ErkJggg==")`;
 
 // ═══════════════════════════════════════════════════════════════
 // DATA — 8 HIGHLIGHTS
@@ -264,7 +264,7 @@ function Bg({ rgb, intensity = 0.12 }: { rgb: string; intensity?: number }) {
   return (
     <>
       <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse 80% 50% at 50% 30%, rgba(${rgb}, ${intensity}) 0%, transparent 70%)` }} />
-      <div style={{ position: "absolute", inset: 0, backgroundImage: NOISE_SVG, backgroundRepeat: "repeat", backgroundSize: 200 }} />
+      {/* <div style={{ position: "absolute", inset: 0, backgroundImage: NOISE_PNG, backgroundRepeat: "repeat", backgroundSize: 200 }} /> */}
       <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 85% 85% at 50% 50%, transparent 40%, rgba(0,0,0,0.45) 100%)" }} />
     </>
   );
