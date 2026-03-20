@@ -73,6 +73,10 @@ export default function KabarPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Section toggle
+  const [sectionEnabled, setSectionEnabled] = useState(true);
+  const [togglingSection, setTogglingSection] = useState(false);
+
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -90,12 +94,14 @@ export default function KabarPage() {
     setError('');
     try {
       const token = await user.getIdToken();
-      const res = await fetch('/api/updates?all=1', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error('Gagal memuat data');
-      const data: Update[] = await res.json();
+      const [updatesRes, settingsRes] = await Promise.all([
+        fetch('/api/updates?all=1', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/updates/settings'),
+      ]);
+      if (!updatesRes.ok) throw new Error('Gagal memuat data');
+      const [data, settings] = await Promise.all([updatesRes.json(), settingsRes.json()]);
       setUpdates(data);
+      setSectionEnabled(settings.sectionEnabled ?? true);
     } catch (err) {
       console.error('Failed to fetch updates:', err);
       setError('Gagal memuat kabar terbaru.');
@@ -107,6 +113,24 @@ export default function KabarPage() {
   useEffect(() => {
     fetchUpdates();
   }, [fetchUpdates]);
+
+  async function handleToggleSection(enabled: boolean) {
+    setTogglingSection(true);
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch('/api/updates/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ sectionEnabled: enabled }),
+      });
+      if (!res.ok) throw new Error('Gagal menyimpan');
+      setSectionEnabled(enabled);
+    } catch (err) {
+      console.error('Toggle section failed:', err);
+    } finally {
+      setTogglingSection(false);
+    }
+  }
 
   function openAdd() {
     setEditingId(null);
@@ -212,7 +236,7 @@ export default function KabarPage() {
       <div className="min-h-0 flex-1">
         {/* Header */}
         <header className="border-b bg-card px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
               <h1 className="font-semibold text-lg">Kabar Terbaru</h1>
               {!loading && (
@@ -221,10 +245,23 @@ export default function KabarPage() {
                 </span>
               )}
             </div>
-            <Button onClick={openAdd} size="sm">
-              <Plus className="w-4 h-4 mr-1.5" />
-              Tambah
-            </Button>
+            <div className="flex items-center gap-4">
+              {/* Section visibility toggle */}
+              <div className="flex items-center gap-2.5">
+                <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:block">
+                  Tampilkan di halaman utama
+                </span>
+                <Switch
+                  checked={sectionEnabled}
+                  onCheckedChange={handleToggleSection}
+                  disabled={togglingSection || loading}
+                />
+              </div>
+              <Button onClick={openAdd} size="sm">
+                <Plus className="w-4 h-4 mr-1.5" />
+                Tambah
+              </Button>
+            </div>
           </div>
         </header>
 
