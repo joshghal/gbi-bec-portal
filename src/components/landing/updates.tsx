@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   fadeUp,
@@ -8,43 +9,49 @@ import {
   viewportOnce,
 } from '@/components/landing/animations';
 
-/* ── Data ─────────────────────────────────────────────────────── */
+/* ── Types ─────────────────────────────────────────────────────── */
 
 interface Update {
+  id?: string;
   title: string;
   excerpt: string;
   category: string;
-  date: string;
+  date: string;       // YYYY-MM-DD from API
   color: string;
   image?: string;
-  video?: string; // thumbnail src — renders with play overlay
+  video?: string;     // thumbnail src — renders with play overlay
 }
 
-const UPDATES: Update[] = [
-  {
-    title: 'Ibadah Paskah 2026',
-    excerpt: 'Perayaan Paskah bersama seluruh jemaat BEC dengan tema "Kebangkitan dan Pengharapan Baru."',
-    category: 'Ibadah',
-    date: '16 Mar 2026',
-    color: 'oklch(0.35 0.04 175)',
-    image: '/about/worship.webp',
-  },
-  {
-    title: 'Pendaftaran KOM 100 Gelombang 2',
-    excerpt: 'Pendaftaran KOM 100 gelombang kedua tahun 2026 telah dibuka. Daftar sebelum kuota penuh.',
-    category: 'Pengumuman',
-    date: '10 Mar 2026',
-    color: 'oklch(0.30 0.04 260)',
-  },
-  {
-    title: 'Retreat Pemuda BEC 2026',
-    excerpt: 'Retreat tahunan pemuda BEC di Lembang — dua hari penuh ibadah, games, dan kebersamaan.',
-    category: 'Kegiatan',
-    date: '5 Mar 2026',
-    color: 'oklch(0.32 0.04 55)',
-    video: '/about/youth.webp',
-  },
-];
+interface ApiUpdate {
+  id?: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  date: string;       // YYYY-MM-DD
+  color: string;
+  imageUrl?: string | null;
+  isVideo?: boolean;
+  published: boolean;
+}
+
+function toDisplayDate(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-');
+  return new Date(Number(year), Number(month) - 1, Number(day))
+    .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function mapApiUpdate(u: ApiUpdate): Update {
+  return {
+    id: u.id,
+    title: u.title,
+    excerpt: u.excerpt,
+    category: u.category,
+    date: toDisplayDate(u.date),
+    color: u.color,
+    image: !u.isVideo && u.imageUrl ? u.imageUrl : undefined,
+    video: u.isVideo && u.imageUrl ? u.imageUrl : undefined,
+  };
+}
 
 /* ── Arrow icon ───────────────────────────────────────────────── */
 
@@ -63,6 +70,18 @@ function ArrowIcon() {
 /* ── Section ──────────────────────────────────────────────────── */
 
 export default function UpdatesSection() {
+  const [updates, setUpdates] = useState<Update[]>([]);
+
+  useEffect(() => {
+    fetch('/api/updates')
+      .then(res => res.ok ? res.json() : [])
+      .then((data: ApiUpdate[]) => setUpdates(data.map(mapApiUpdate)))
+      .catch(() => { /* silent — section stays hidden */ });
+  }, []);
+
+  // Show nothing until data is loaded (avoids flash of empty section)
+  if (updates.length === 0) return null;
+
   return (
     <section id="update" className="py-16 lg:py-24 px-6 lg:px-12">
       <div className="max-w-6xl mx-auto">
@@ -84,7 +103,7 @@ export default function UpdatesSection() {
               </h2>
             </div>
             <span className="hidden sm:block text-sm text-muted-foreground/35 pb-0.5 font-mono">
-              {UPDATES.length} kabar
+              {updates.length} kabar
             </span>
           </div>
         </motion.div>
@@ -96,11 +115,11 @@ export default function UpdatesSection() {
           whileInView="visible"
           viewport={viewportOnce}
         >
-          {UPDATES.map((update, i) => {
+          {updates.map((update, i) => {
             const featured = i === 0;
             return (
               <motion.article
-                key={i}
+                key={update.id ?? i}
                 variants={fadeUpSmall}
                 className="group cursor-pointer border-b border-border"
               >

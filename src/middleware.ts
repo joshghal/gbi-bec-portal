@@ -8,6 +8,7 @@ const requests = new Map<string, number[]>();
 const RATE_LIMITS: Record<string, [number, number]> = {
   '/api/chat': [15, 60],        // 15 req/min — AI calls are expensive
   '/api/forms': [30, 60],       // 30 req/min — admin browsing needs headroom
+  '/api/updates': [30, 60],     // 30 req/min — public reads + admin writes
   '/api/documents': [2, 5],     // 2 req/5s
   '/api/analytics': [2, 5],     // 2 req/5s
   '/api/monitor': [2, 5],       // 2 req/5s

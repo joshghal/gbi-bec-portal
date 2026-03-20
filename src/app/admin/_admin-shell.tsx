@@ -20,6 +20,7 @@ import {
   Users,
   Image,
   MessageCircleQuestion,
+  Newspaper,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -48,6 +49,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin', label: 'Basis Pengetahuan', icon: FileText, permission: 'page:knowledge-base' },
       { href: '/admin/posters', label: 'Poster', icon: Image, permission: 'page:posters' },
+      { href: '/admin/kabar', label: 'Kabar Terbaru', icon: Newspaper, permission: 'page:kabar' },
     ],
   },
   {

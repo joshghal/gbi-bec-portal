@@ -35,7 +35,7 @@ export const DEFAULT_ROLES: Record<string, Role> = {
   content_editor: {
     label: 'Editor Konten',
     description: 'Mengelola basis pengetahuan chatbot',
-    permissions: ['page:knowledge-base'],
+    permissions: ['page:knowledge-base', 'page:kabar'],
     isSystem: true,
   },
   viewer: {
@@ -67,6 +67,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin/monitor': 'page:monitor',
   '/admin/chat-misses': 'page:chat-misses',
   '/admin/users': 'page:admin-users',
+  '/admin/kabar': 'page:kabar',
 };
 
 // All assignable permissions with labels (for the role editor UI)
@@ -83,6 +84,7 @@ export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:monitor', label: 'Monitor' },
   { id: 'page:chat-misses', label: 'Pertanyaan Tak Terjawab' },
   { id: 'page:admin-users', label: 'Kelola Admin' },
+  { id: 'page:kabar', label: 'Kabar Terbaru' },
 ];
 
 /**
