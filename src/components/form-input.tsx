@@ -20,14 +20,18 @@ export function FormInput({ step, value, error, onChange, onSubmit, onSkip }: Fo
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (step.type !== 'select') {
+    if (step.type !== 'select' || step.chainType) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [step]);
 
-  if (step.type === 'select') {
+  if (step.type === 'select' && !step.chainType) {
     return <p className="flex-1 text-sm text-muted-foreground py-2">Pilih salah satu opsi di atas</p>;
   }
+
+  const placeholderText = step.chainType
+    ? `Cari ${step.label?.toLowerCase() || 'wilayah'}...`
+    : (step.placeholder || 'Ketik jawaban...');
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -50,11 +54,11 @@ export function FormInput({ step, value, error, onChange, onSubmit, onSkip }: Fo
         ) : (
           <Input
             ref={inputRef}
-            type={step.type}
+            type={step.type === 'select' ? 'text' : step.type}
             value={value}
             onChange={e => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={step.placeholder || 'Ketik jawaban...'}
+            placeholder={placeholderText}
             className="border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-transparent"
           />
         )}

@@ -65,6 +65,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin/analytics': 'page:analytics',
   '/admin/posters': 'page:posters',
   '/admin/monitor': 'page:monitor',
+  '/admin/chat-misses': 'page:chat-misses',
   '/admin/users': 'page:admin-users',
 };
 
@@ -80,6 +81,7 @@ export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:settings', label: 'Pengaturan Formulir' },
   { id: 'page:analytics', label: 'Analitik' },
   { id: 'page:monitor', label: 'Monitor' },
+  { id: 'page:chat-misses', label: 'Pertanyaan Tak Terjawab' },
   { id: 'page:admin-users', label: 'Kelola Admin' },
 ];
 

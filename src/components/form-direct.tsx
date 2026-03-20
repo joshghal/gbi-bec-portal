@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Loader2, Check, ExternalLink, ArrowLeft, Copy, CheckCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -101,18 +100,16 @@ function loadWilayah(): Promise<WilayahData> {
 
 const PILL_THRESHOLD = 5;
 
-const GLASS_MAP: Record<string, string> = {
-  kom: '/glass-one.webp',
-  baptism: '/glass-second.webp',
-  'child-dedication': '/glass-third.webp',
-  prayer: '/glass-fourth.webp',
-  mclass: '/glass-one.webp',
-};
-
 /* ─── Main Component ─── */
 
 export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
-  const [values, setValues] = useState<Record<string, string>>({});
+  const [values, setValues] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    for (const step of formConfig.steps) {
+      if (step.defaultValue) init[step.field] = step.defaultValue;
+    }
+    return init;
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -293,7 +290,6 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
   const churchPhone = '6287823420950';
   const userPhone = values.noTelepon ? formatPhone(values.noTelepon) : '';
   const userName = values.namaLengkap || values.namaAnak || '';
-  const glassImage = GLASS_MAP[formConfig.type] || '/glass-one.webp';
 
   /* ─── Success ─── */
   if (submissionResult) {
@@ -356,41 +352,32 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
   return (
     <div className="min-h-dvh bg-muted/50">
       {/* ── Header ── */}
-      <div className="relative overflow-hidden bg-primary text-primary-foreground">
-        <Image
-          src={glassImage}
-          alt=""
-          width={160}
-          height={160}
-          className="absolute -top-4 -right-4 w-28 h-28 opacity-15 rotate-12 pointer-events-none"
-        />
-        <div className="relative z-10 max-w-2xl mx-auto px-4">
-          <div className="pt-3 pb-1">
-            <Link
-              href="/forms"
-              className="inline-flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Kembali
-            </Link>
+      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-foreground/[0.05]">
+        <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
+          <Link
+            href="/forms"
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground ring-1 ring-foreground/[0.08] hover:text-foreground hover:bg-foreground/[0.04] transition-colors shrink-0"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Kembali
+          </Link>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate">{formConfig.title}</p>
           </div>
-          <div className="pb-4">
-            <h1 className="text-lg font-bold leading-tight">{formConfig.title}</h1>
-            <p className="text-sm text-primary-foreground/70 mt-0.5">{formConfig.description}</p>
-          </div>
-          {/* Progress */}
           {totalFields > 4 && (
-            <div className="pb-3">
-              <div className="h-1 bg-primary-foreground/20 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary-foreground/60 rounded-full transition-all duration-300"
-                  style={{ width: `${(filledCount / totalFields) * 100}%` }}
-                />
-              </div>
-              <p className="text-xs text-primary-foreground/50 mt-1.5">{filledCount}/{totalFields} terisi</p>
-            </div>
+            <p className="text-[11px] text-muted-foreground shrink-0">{filledCount}/{totalFields} terisi</p>
           )}
         </div>
+        {totalFields > 4 && (
+          <div className="max-w-2xl mx-auto px-4 pb-2.5">
+            <div className="h-0.5 bg-foreground/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full bg-foreground/25 rounded-full transition-all duration-300"
+                style={{ width: `${(filledCount / totalFields) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Form Body ── */}

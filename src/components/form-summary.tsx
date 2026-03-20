@@ -83,7 +83,7 @@ export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProp
                   />
                 ) : (
                   <Input
-                    type={row.type === 'text' ? 'text' : row.type}
+                    type={row.type === 'text' || row.type === 'select' ? 'text' : row.type}
                     value={draft[row.field] || ''}
                     onChange={e => setDraft(d => ({ ...d, [row.field]: e.target.value }))}
                     className="text-xs h-7 py-1 px-2"

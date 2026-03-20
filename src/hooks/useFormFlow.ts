@@ -3,6 +3,40 @@ import { FORM_CONFIGS } from '@/lib/form-config';
 import type { ChatMessage } from '@/lib/types';
 import type { FormConfig, FormStep } from '@/lib/form-types';
 
+// === Wilayah (Indonesian administrative hierarchy) ===
+interface WilayahEntry { id: string; name: string }
+interface WilayahRegency extends WilayahEntry { province_id: string }
+interface WilayahDistrict extends WilayahEntry { regency_id: string }
+interface WilayahVillage extends WilayahEntry { district_id: string }
+interface WilayahData {
+  provinces: WilayahEntry[];
+  regencies: WilayahRegency[];
+  districts: WilayahDistrict[];
+  villages: WilayahVillage[];
+}
+
+function toTitleCase(str: string): string {
+  return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+}
+
+let wilayahCache: WilayahData | null = null;
+let wilayahPromise: Promise<WilayahData> | null = null;
+
+function loadWilayah(): Promise<WilayahData> {
+  if (wilayahCache) return Promise.resolve(wilayahCache);
+  if (wilayahPromise) return wilayahPromise;
+  wilayahPromise = Promise.all([
+    fetch('/data/wilayah/provinces.json').then(r => r.json()),
+    fetch('/data/wilayah/regencies.json').then(r => r.json()),
+    fetch('/data/wilayah/districts.json').then(r => r.json()),
+    fetch('/data/wilayah/villages.json').then(r => r.json()),
+  ]).then(([provinces, regencies, districts, villages]) => {
+    wilayahCache = { provinces, regencies, districts, villages };
+    return wilayahCache;
+  });
+  return wilayahPromise;
+}
+
 function formatPhone(raw: string): string {
   const digits = raw.replace(/[\s\-()]/g, '');
   if (digits.startsWith('0')) return '62' + digits.slice(1);
@@ -43,6 +77,10 @@ export function useFormFlow(addMessage: AddMessageFn) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [dynamicOptionsCache, setDynamicOptionsCache] = useState<Record<string, string[]>>({});
 
+  // Wilayah state — loaded lazily when a chainType form is activated
+  const [wilayah, setWilayah] = useState<WilayahData | null>(wilayahCache);
+  const [wilayahLoading, setWilayahLoading] = useState(false);
+
   // Filter out hidden steps for the chat flow
   const visibleSteps = activeForm?.steps.filter(s => !s.hidden) ?? [];
   const isActive = activeForm !== null && formStep >= 0;
@@ -50,6 +88,47 @@ export function useFormFlow(addMessage: AddMessageFn) {
     ? visibleSteps[formStep]
     : null;
   const isSummary = activeForm !== null && formStep === visibleSteps.length;
+
+  // Load wilayah data when the active form has chain fields
+  useEffect(() => {
+    const hasChainFields = activeForm?.steps.some(s => s.chainType) ?? false;
+    if (!hasChainFields || wilayah) return;
+    setWilayahLoading(true);
+    loadWilayah().then(data => {
+      setWilayah(data);
+      setWilayahLoading(false);
+    });
+  }, [activeForm, wilayah]);
+
+  const getChainOptions = useCallback((step: FormStep): string[] => {
+    if (!wilayah || !step.chainType) return [];
+    switch (step.chainType) {
+      case 'province':
+        return wilayah.provinces.map(p => toTitleCase(p.name));
+      case 'regency': {
+        const provName = formAnswers[step.chainParent!];
+        if (!provName) return [];
+        const prov = wilayah.provinces.find(p => toTitleCase(p.name) === provName);
+        if (!prov) return [];
+        return wilayah.regencies.filter(r => r.province_id === prov.id).map(r => toTitleCase(r.name));
+      }
+      case 'district': {
+        const regName = formAnswers[step.chainParent!];
+        if (!regName) return [];
+        const reg = wilayah.regencies.find(r => toTitleCase(r.name) === regName);
+        if (!reg) return [];
+        return wilayah.districts.filter(d => d.regency_id === reg.id).map(d => toTitleCase(d.name));
+      }
+      case 'village': {
+        const distName = formAnswers[step.chainParent!];
+        if (!distName) return [];
+        const dist = wilayah.districts.find(d => toTitleCase(d.name) === distName);
+        if (!dist) return [];
+        return wilayah.villages.filter(v => v.district_id === dist.id).map(v => toTitleCase(v.name));
+      }
+      default: return [];
+    }
+  }, [wilayah, formAnswers]);
 
   const fetchDynamicOptions = useCallback(async (url: string): Promise<string[]> => {
     if (dynamicOptionsCache[url]) return dynamicOptionsCache[url];
@@ -104,7 +183,12 @@ export function useFormFlow(addMessage: AddMessageFn) {
     }
 
     setActiveForm(config);
-    setFormAnswers({});
+    // Pre-populate fields that have default values (e.g., hidden provinsi → Jawa Barat)
+    const defaults: Record<string, string> = {};
+    for (const step of config.steps) {
+      if (step.defaultValue) defaults[step.field] = step.defaultValue;
+    }
+    setFormAnswers(defaults);
     setFormStep(0);
     setFormError('');
 
@@ -112,7 +196,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
       const visible = config.steps.filter(s => !s.hidden);
       const first = visible[0];
       if (!first) return;
-      let options = first.type === 'select' ? first.options : undefined;
+      let options = (first.type === 'select' && !first.chainType) ? first.options : undefined;
       if (first.dynamicOptionsUrl) {
         options = await fetchDynamicOptions(first.dynamicOptionsUrl);
       }
@@ -147,7 +231,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
       if (next < visibleSteps.length) {
         setFormStep(next);
         const nextStep = visibleSteps[next];
-        let options = nextStep.type === 'select' ? nextStep.options : undefined;
+        let options = (nextStep.type === 'select' && !nextStep.chainType) ? nextStep.options : undefined;
         if (nextStep.dynamicOptionsUrl) {
           options = await fetchDynamicOptions(nextStep.dynamicOptionsUrl);
         }
@@ -159,11 +243,12 @@ export function useFormFlow(addMessage: AddMessageFn) {
       } else {
         setFormStep(next);
         const summaryRows = visibleSteps.map(s => ({
-          label: s.question.replace(/\?$/, '').replace(/\s*\(opsional\)$/i, ''),
+          label: s.label || s.question.replace(/\?$/, '').replace(/\.$/, '').replace(/\s*\(opsional\)$/i, ''),
           field: s.field,
           value: s.field === step.field ? value.trim() : (newAnswers[s.field] || ''),
-          type: s.type,
-          options: s.options,
+          // chainType fields have no static options — treat as text in summary edit
+          type: s.chainType ? 'text' : s.type,
+          options: s.chainType ? undefined : s.options,
         }));
         addMessage({
           role: 'assistant',
@@ -292,5 +377,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
     skipStep,
     cancelForm,
     updateAnswer,
+    getChainOptions,
+    wilayahLoading,
   };
 }

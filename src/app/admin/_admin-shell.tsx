@@ -19,6 +19,7 @@ import {
   Menu,
   Users,
   Image,
+  MessageCircleQuestion,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/settings', label: 'Pengaturan Formulir', icon: Settings, permission: 'page:settings' },
       { href: '/admin/analytics', label: 'Analitik', icon: BarChart3, permission: 'page:analytics' },
       { href: '/admin/monitor', label: 'Monitor', icon: Activity, permission: 'page:monitor' },
+      { href: '/admin/chat-misses', label: 'Tak Terjawab', icon: MessageCircleQuestion, permission: 'page:chat-misses' },
       { href: '/admin/users', label: 'Kelola Admin', icon: Users, permission: 'page:admin-users' },
     ],
   },

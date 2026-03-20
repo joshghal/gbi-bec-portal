@@ -16,8 +16,10 @@ export interface FormStep {
   dynamicOptionsUrl?: string;
   /** Render at half width in 2-col grid (pairs with next half field) */
   half?: boolean;
-  /** Hidden from public form — auto-generated server-side */
+  /** Hidden from public form — auto-generated server-side or pre-filled by defaultValue */
   hidden?: boolean;
+  /** Pre-filled value — used when the field is hidden or to suggest a default */
+  defaultValue?: string;
   /** Chained address select: which level of the Indonesian administrative hierarchy */
   chainType?: 'province' | 'regency' | 'district' | 'village';
   /** Field name of the parent in the chain (e.g., kecamatan's parent is kota) */

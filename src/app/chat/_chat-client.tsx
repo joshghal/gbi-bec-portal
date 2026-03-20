@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Send, Loader2, BookOpen, ClipboardList, X } from 'lucide-react';
+import type { FormStep } from '@/lib/form-types';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,60 @@ const WELCOME_MESSAGE: ChatMessageType = {
   ],
   timestamp: Date.now(),
 };
+
+function ChainSelectPanel({
+  step,
+  options,
+  loading,
+  filter,
+  onSelect,
+}: {
+  step: FormStep;
+  options: string[];
+  loading: boolean;
+  filter: string;
+  onSelect: (value: string) => void;
+}) {
+  const filtered = useMemo(() => {
+    const q = filter.trim().toLowerCase();
+    return q ? options.filter(o => o.toLowerCase().includes(q)) : options;
+  }, [options, filter]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+        <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+        Memuat data wilayah...
+      </div>
+    );
+  }
+
+  // No data available for this region — user types manually
+  if (options.length === 0) return null;
+
+  return (
+    <div className="border rounded-xl bg-card shadow-sm overflow-hidden">
+      <div className="overflow-y-auto max-h-48">
+        {filtered.length === 0 ? (
+          <p className="px-3 py-2 text-sm text-muted-foreground">
+            Tidak ditemukan. Ketik nama {step.label?.toLowerCase()} lainnya.
+          </p>
+        ) : (
+          filtered.map(option => (
+            <button
+              key={option}
+              type="button"
+              onMouseDown={e => { e.preventDefault(); onSelect(option); }}
+              className="w-full text-left px-3 py-2 text-sm hover:bg-muted/60 transition-colors border-b last:border-b-0"
+            >
+              {option}
+            </button>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function ChatClient() {
   const searchParams = useSearchParams();
@@ -201,8 +256,15 @@ export default function ChatClient() {
       return;
     }
     if (form.isSummary) { form.submitForm(); return; }
-    if (form.isActive && form.currentStep?.type !== 'select') {
-      form.advanceStep(input);
+    if (form.isActive && (form.currentStep?.type !== 'select' || form.currentStep?.chainType)) {
+      let submitValue = input;
+      // For chainType steps: if typed text exactly matches an option, use the normalized option value
+      if (form.currentStep?.chainType && input.trim()) {
+        const opts = form.getChainOptions(form.currentStep);
+        const exact = opts.find(o => o.toLowerCase() === input.toLowerCase().trim());
+        if (exact) submitValue = exact;
+      }
+      form.advanceStep(submitValue);
       setInput('');
       return;
     }
@@ -219,25 +281,28 @@ export default function ChatClient() {
   return (
     <div className="flex flex-col h-dvh bg-background overflow-hidden fixed inset-0 overscroll-none">
       {/* Header */}
-      <header className="border-b bg-card px-4 py-3 flex items-center gap-3 shrink-0">
-        <Image src="/logo.png" alt="BEC" width={40} height={40} className="w-10 h-10 object-contain" />
-        <div className="flex-1">
-          <h1 className="font-semibold text-lg leading-tight">Helpdesk</h1>
-          <p className="text-xs text-muted-foreground">Baranangsiang Evening Church (BEC)</p>
+      <header className="px-4 py-2.5 flex items-center gap-3 shrink-0 border-b border-foreground/[0.05]">
+        <Link href="/" className="shrink-0">
+          <Image src="/logo.png" alt="BEC" width={32} height={32} className="w-8 h-8 object-contain" />
+        </Link>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold leading-tight">Helpdesk BEC</p>
+          <p className="text-[11px] text-muted-foreground/70 hidden sm:block">Baranangsiang Evening Church</p>
         </div>
-        <Button
-          variant="outline" size="sm" className="gap-1.5"
+        <button
           onClick={form.showFormCards}
           disabled={form.isActive || form.isSummary}
+          className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium ring-1 ring-foreground/[0.08] hover:bg-foreground/[0.04] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          <ClipboardList className="w-4 h-4" />
+          <ClipboardList className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Formulir</span>
-        </Button>
-        <Link href="/kom">
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <BookOpen className="w-4 h-4" />
-            <span className="hidden sm:inline">Materi KOM</span>
-          </Button>
+        </button>
+        <Link
+          href="/kom"
+          className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium ring-1 ring-foreground/[0.08] hover:bg-foreground/[0.04] transition-colors"
+        >
+          <BookOpen className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Materi KOM</span>
         </Link>
       </header>
 
@@ -268,6 +333,19 @@ export default function ChatClient() {
 
       {/* Input */}
       <div className="bg-background p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shrink-0">
+        {/* Chain select panel — shown above input when on a chainType step */}
+        {form.isActive && form.currentStep?.chainType && (
+          <div className="max-w-2xl mx-auto mb-2">
+            <ChainSelectPanel
+              step={form.currentStep}
+              options={form.getChainOptions(form.currentStep)}
+              loading={form.wilayahLoading}
+              filter={input}
+              onSelect={(value) => { form.advanceStep(value); setInput(''); }}
+            />
+          </div>
+        )}
+
         {(form.isActive || form.isSummary) && form.totalSteps > 0 && (
           <div className="max-w-2xl mx-auto mb-3">
             <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">

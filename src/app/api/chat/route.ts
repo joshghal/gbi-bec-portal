@@ -19,6 +19,36 @@ async function getDisabledForms(): Promise<string[]> {
   }
 }
 
+async function getLiveSchedule(): Promise<string> {
+  try {
+    const db = getAdminFirestore();
+    const today = new Date().toISOString().split('T')[0];
+
+    const [baptismDoc, mclassDoc] = await Promise.all([
+      db.collection('settings').doc('baptism-dates').get(),
+      db.collection('settings').doc('mclass-dates').get(),
+    ]);
+
+    const fmt = (dates: Array<{ date: string; label: string }>) =>
+      dates
+        .filter(d => d.date >= today)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .map(d => d.label || d.date)
+        .join(', ');
+
+    const baptismDates = fmt((baptismDoc.data()?.dates || []) as Array<{ date: string; label: string }>);
+    const mclassDates = fmt((mclassDoc.data()?.dates || []) as Array<{ date: string; label: string }>);
+
+    const lines: string[] = [];
+    if (baptismDates) lines.push(`[jadwal] Jadwal Baptisan Air yang tersedia: ${baptismDates}. Pendaftaran melalui formulir di website.`);
+    if (mclassDates) lines.push(`[jadwal] Jadwal M-Class yang tersedia: ${mclassDates}. Pendaftaran melalui formulir di website.`);
+
+    return lines.join('\n\n');
+  } catch {
+    return '';
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { message, history } = await request.json();
@@ -27,17 +57,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    // 1. Embed the user query + fetch form settings in parallel
-    const [queryEmbedding, disabledForms] = await Promise.all([
+    // 1. Embed query + fetch form settings + fetch live dates in parallel
+    const [queryEmbedding, disabledForms, liveSchedule] = await Promise.all([
       generateEmbedding(message, 'query'),
       getDisabledForms(),
+      getLiveSchedule(),
     ]);
 
     // 2. Search Pinecone for relevant documents
-    const results = await searchDocuments(queryEmbedding, { topK: 5 });
+    // topK: how many chunks to retrieve. KB has 24 chunks — 7 covers ~30% which is
+    // the right balance between recall and context noise. Raise if KB grows past ~50 chunks.
+    const results = await searchDocuments(queryEmbedding, { topK: 7 });
 
-    // 3. Build the prompt with document context
-    const documentContext = formatDocumentsForContext(results);
+    // 3. Build the prompt — live dates always prepended so they're never missed
+    const vectorContext = formatDocumentsForContext(results);
+    const documentContext = liveSchedule
+      ? `${liveSchedule}\n\n---\n\n${vectorContext}`
+      : vectorContext;
     const sources = [...new Set(results.map(r => r.metadata.source).filter(Boolean))] as string[];
 
     const userPrompt = buildUserPrompt(message, documentContext, history || []);
@@ -66,6 +102,16 @@ export async function POST(request: NextRequest) {
     }>(aiResult.content!);
 
     if (parsed) {
+      // Log unanswered questions (fire-and-forget)
+      if (parsed.response.includes('belum memiliki informasi')) {
+        getAdminFirestore().collection('chat_misses').add({
+          question: message,
+          response: parsed.response,
+          sources,
+          timestamp: new Date(),
+        }).catch(() => {});
+      }
+
       return NextResponse.json({
         response: parsed.response,
         suggestedQuestions: parsed.suggestedQuestions || [],
@@ -75,8 +121,18 @@ export async function POST(request: NextRequest) {
     }
 
     // Fallback: return raw content if JSON parsing fails
+    const rawContent = aiResult.content ?? '';
+    if (rawContent.includes('belum memiliki informasi')) {
+      getAdminFirestore().collection('chat_misses').add({
+        question: message,
+        response: rawContent,
+        sources,
+        timestamp: new Date(),
+      }).catch(() => {});
+    }
+
     return NextResponse.json({
-      response: aiResult.content,
+      response: rawContent,
       suggestedQuestions: [],
       sources,
     });
