@@ -33,8 +33,15 @@ const RESOURCE_LABELS: Record<string, string> = {
   'kabar-settings': 'Pengaturan Kabar',
   'document': 'Basis Pengetahuan',
   'admin-user': 'Kelola Admin',
+  'admin-role': 'Peran Admin',
   'form-status': 'Status Formulir',
   'form-submission': 'Data Formulir',
+  'form-settings': 'Pengaturan Formulir',
+  'baptism-dates': 'Jadwal Baptisan',
+  'baptism-dates-legacy': 'Jadwal Baptisan',
+  'mclass-dates': 'Jadwal M-Class',
+  'chat-misses': 'Pertanyaan Tak Terjawab',
+  'poster-export': 'Export Poster',
 };
 
 const FILTER_OPTIONS = [

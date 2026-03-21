@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 const POSTERS_DIR = path.join(process.cwd(), 'public/posters');
 const EXPORTS_DIR = path.join(POSTERS_DIR, 'exports');
@@ -78,5 +79,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  logAdminAction(request, 'create', 'poster-export', { resourceTitle: `${results.length} poster` });
   return NextResponse.json({ results, errors, total: toExport.length });
 }

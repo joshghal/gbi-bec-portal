@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 export async function DELETE(
   request: NextRequest,
@@ -12,6 +13,7 @@ export async function DELETE(
     const { id } = await params;
     const db = getAdminFirestore();
     await db.collection('chat_misses').doc(id).delete();
+    logAdminAction(request, 'delete', 'chat-misses', { resourceId: id });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('chat-misses [id] DELETE error:', error);

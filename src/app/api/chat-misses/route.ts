@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 export async function GET(request: NextRequest) {
   const authError = await verifyAuthToken(request);
@@ -51,6 +52,7 @@ export async function DELETE(request: NextRequest) {
     batches.push(batch.commit());
     await Promise.all(batches);
 
+    logAdminAction(request, 'delete', 'chat-misses', { resourceTitle: `${count} pertanyaan` });
     return NextResponse.json({ ok: true, deleted: count });
   } catch (error) {
     console.error('chat-misses DELETE error:', error);

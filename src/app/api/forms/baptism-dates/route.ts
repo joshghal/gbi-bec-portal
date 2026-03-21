@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 interface BaptismDate {
   date: string;
@@ -38,7 +39,7 @@ export async function PUT(request: NextRequest) {
 
     const db = getAdminFirestore();
     await db.collection('settings').doc('baptism-dates').set({ dates });
-
+    logAdminAction(request, 'update', 'baptism-dates', { resourceTitle: `${dates.length} tanggal` });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update baptism dates error:', error);

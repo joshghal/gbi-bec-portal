@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAuthToken, getAdminFirestore, getRoles, invalidateRolesCache, getVerifiedEmail, getAdminUser } from '@/lib/firebase-admin';
 import { hasPermission, type Role } from '@/lib/permissions';
+import { logAdminAction } from '@/lib/admin-logger';
 
 export async function GET(request: NextRequest) {
   const authError = await verifyAuthToken(request, 'page:admin-users');
@@ -45,7 +46,7 @@ export async function PUT(request: NextRequest) {
 
   await ref.set({ roles });
   invalidateRolesCache();
-
+  logAdminAction(request, 'update', 'admin-role', { resourceId: key, resourceTitle: role.label });
   return NextResponse.json({ success: true, role: roles[key] });
 }
 
@@ -84,9 +85,10 @@ export async function DELETE(request: NextRequest) {
     }, { status: 400 });
   }
 
+  const deletedLabel = roles[key].label;
   delete roles[key];
   await ref.set({ roles });
   invalidateRolesCache();
-
+  logAdminAction(request, 'delete', 'admin-role', { resourceId: key, resourceTitle: deletedLabel });
   return NextResponse.json({ success: true });
 }

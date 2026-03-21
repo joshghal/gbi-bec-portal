@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 // Public — no auth required (form availability is public info)
 export async function GET() {
@@ -22,6 +23,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const db = getAdminFirestore();
     await db.collection('settings').doc('forms').set(body, { merge: true });
+    logAdminAction(request, 'update', 'form-settings', { resourceTitle: JSON.stringify(body.disabledForms ?? body) });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update form settings error:', error);

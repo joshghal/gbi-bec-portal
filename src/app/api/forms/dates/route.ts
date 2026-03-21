@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncScheduleToKB } from '@/lib/kb-sync';
+import { logAdminAction } from '@/lib/admin-logger';
 
 interface FormDate {
   date: string;
@@ -81,6 +82,7 @@ export async function PUT(request: NextRequest) {
       console.error(`Failed to sync ${formType} schedule to KB:`, error);
     }
 
+    logAdminAction(request, 'update', `${formType}-dates`, { resourceTitle: `${dates.length} tanggal` });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update form dates error:', error);
