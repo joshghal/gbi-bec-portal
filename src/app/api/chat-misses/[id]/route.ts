@@ -12,8 +12,12 @@ export async function DELETE(
   try {
     const { id } = await params;
     const db = getAdminFirestore();
+    const doc = await db.collection('chat_misses').doc(id).get();
+    const question: string = doc.data()?.question ?? '';
     await db.collection('chat_misses').doc(id).delete();
-    logAdminAction(request, 'delete', 'chat-misses', { resourceId: id });
+    logAdminAction(request, 'delete', 'chat-misses', {
+      resourceTitle: question.length > 80 ? question.slice(0, 77) + '…' : question || id,
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('chat-misses [id] DELETE error:', error);

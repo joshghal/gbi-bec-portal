@@ -53,7 +53,7 @@ export async function PUT(
       throw new Error(`Pinecone upsert error: ${error}`);
     }
 
-    logAdminAction(request, 'update', 'document', { resourceId: id });
+    logAdminAction(request, 'update', 'document', { resourceId: id, resourceTitle: `${id}${category ? ` (${category})` : ''}` });
     return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error('Update document error:', error);
@@ -89,7 +89,7 @@ export async function DELETE(
       throw new Error(`Pinecone delete error: ${error}`);
     }
 
-    logAdminAction(request, 'delete', 'document', { resourceId: id });
+    logAdminAction(request, 'delete', 'document', { resourceId: id, resourceTitle: id });
     return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error('Delete document error:', error);
