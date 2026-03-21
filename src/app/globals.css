@@ -92,3 +92,21 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+/* Rich-text HTML output — used in landing Kabar Terbaru excerpts */
+.excerpt-html strong { font-weight: 600; color: inherit; }
+.excerpt-html em { font-style: italic; }
+.excerpt-html s { text-decoration: line-through; }
+.excerpt-html ul { list-style: disc; padding-left: 1.25em; margin-top: 0.25em; }
+.excerpt-html ol { list-style: decimal; padding-left: 1.25em; margin-top: 0.25em; }
+.excerpt-html li { margin-top: 0.15em; }
+.excerpt-html p + p { margin-top: 0.4em; }
+
+/* Tiptap editor — prose inside the admin RichTextEditor */
+.tiptap ul { list-style: disc; padding-left: 1.25em; margin: 0.25em 0; }
+.tiptap ol { list-style: decimal; padding-left: 1.25em; margin: 0.25em 0; }
+.tiptap li { margin-top: 0.15em; }
+.tiptap p + p { margin-top: 0.25em; }
+.tiptap strong { font-weight: 600; }
+.tiptap em { font-style: italic; }
+.tiptap s { text-decoration: line-through; }

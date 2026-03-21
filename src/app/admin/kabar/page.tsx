@@ -7,7 +7,7 @@ import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Switch } from '@/components/ui/switch';
 import {
   Select,
@@ -382,13 +382,11 @@ export default function KabarPage() {
 
             {/* Excerpt */}
             <div className="space-y-1.5">
-              <Label htmlFor="kabar-excerpt">Ringkasan <span className="text-destructive">*</span></Label>
-              <Textarea
-                id="kabar-excerpt"
+              <Label>Ringkasan <span className="text-destructive">*</span></Label>
+              <RichTextEditor
                 value={form.excerpt}
-                onChange={e => setForm(prev => ({ ...prev, excerpt: e.target.value }))}
+                onChange={val => setForm(prev => ({ ...prev, excerpt: val }))}
                 placeholder="Deskripsi singkat kabar ini..."
-                rows={3}
               />
             </div>
 

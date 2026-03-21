@@ -214,13 +214,12 @@ export default function UpdatesSection() {
                       {update.title}
                     </h3>
 
-                    <p
-                      className={`mt-3 text-muted-foreground leading-relaxed ${
-                        featured ? 'text-base lg:text-[17px] max-w-2xl' : 'text-sm line-clamp-2'
+                    <div
+                      className={`mt-3 text-muted-foreground leading-relaxed excerpt-html ${
+                        featured ? 'text-base lg:text-[17px] max-w-2xl' : 'text-sm line-clamp-3'
                       }`}
-                    >
-                      {update.excerpt}
-                    </p>
+                      dangerouslySetInnerHTML={{ __html: update.excerpt }}
+                    />
 
                     <div className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground/35 group-hover:text-foreground/65 transition-colors duration-200">
                       <span>Selengkapnya</span>
