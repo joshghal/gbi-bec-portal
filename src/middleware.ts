@@ -13,6 +13,7 @@ const RATE_LIMITS: Record<string, [number, number]> = {
   '/api/analytics': [2, 5],     // 2 req/5s
   '/api/monitor': [2, 5],       // 2 req/5s
   '/api/chat-misses': [2, 5],   // 2 req/5s
+  '/api/logs': [10, 60],        // 10 req/min — admin log browsing
 };
 
 // Stricter limits for specific methods (public submission abuse prevention)

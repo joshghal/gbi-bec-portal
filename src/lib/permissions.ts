@@ -68,6 +68,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin/chat-misses': 'page:chat-misses',
   '/admin/users': 'page:admin-users',
   '/admin/kabar': 'page:kabar',
+  '/admin/log': 'page:log',
 };
 
 // All assignable permissions with labels (for the role editor UI)
@@ -85,6 +86,7 @@ export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:chat-misses', label: 'Pertanyaan Tak Terjawab' },
   { id: 'page:admin-users', label: 'Kelola Admin' },
   { id: 'page:kabar', label: 'Kabar Terbaru' },
+  { id: 'page:log', label: 'Log Aktivitas' },
 ];
 
 /**

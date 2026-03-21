@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateEmbedding } from '@/lib/embeddings';
 import { verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY!;
 const PINECONE_HOST = process.env.PINECONE_HOST!;
@@ -52,6 +53,7 @@ export async function PUT(
       throw new Error(`Pinecone upsert error: ${error}`);
     }
 
+    logAdminAction(request, 'update', 'document', { resourceId: id });
     return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error('Update document error:', error);
@@ -87,6 +89,7 @@ export async function DELETE(
       throw new Error(`Pinecone delete error: ${error}`);
     }
 
+    logAdminAction(request, 'delete', 'document', { resourceId: id });
     return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error('Delete document error:', error);

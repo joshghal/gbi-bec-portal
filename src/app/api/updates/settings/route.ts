@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 const SETTINGS_DOC = 'settings/kabar';
 
@@ -22,6 +23,7 @@ export async function PUT(request: NextRequest) {
     const { sectionEnabled } = await request.json();
     const db = getAdminFirestore();
     await db.doc(SETTINGS_DOC).set({ sectionEnabled }, { merge: true });
+    logAdminAction(request, 'update', 'kabar-settings', { resourceTitle: sectionEnabled ? 'Aktifkan seksi' : 'Nonaktifkan seksi' });
     return NextResponse.json({ sectionEnabled });
   } catch (error) {
     console.error('Update kabar settings error:', error);

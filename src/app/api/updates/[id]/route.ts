@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 // PUT /api/updates/[id] — requires auth, update fields
 export async function PUT(
@@ -26,6 +27,7 @@ export async function PUT(
     delete update.id;
 
     await ref.update(update);
+    logAdminAction(request, 'update', 'kabar', { resourceId: id, resourceTitle: existing.data()?.title });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update update error:', error);
@@ -52,7 +54,9 @@ export async function DELETE(
       return NextResponse.json({ error: 'Not found' }, { status: 404 });
     }
 
+    const title = existing.data()?.title;
     await ref.delete();
+    logAdminAction(request, 'delete', 'kabar', { resourceId: id, resourceTitle: title });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete update error:', error);

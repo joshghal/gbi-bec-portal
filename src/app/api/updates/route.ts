@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 // GET /api/updates          — public, returns published updates ordered by date DESC, limit 10
 // GET /api/updates?all=1    — requires auth, returns all updates
@@ -53,6 +54,7 @@ export async function POST(request: NextRequest) {
 
     const db = getAdminFirestore();
     const ref = await db.collection('updates').add(doc);
+    logAdminAction(request, 'create', 'kabar', { resourceId: ref.id, resourceTitle: doc.title });
     return NextResponse.json({ id: ref.id, ...doc }, { status: 201 });
   } catch (error) {
     console.error('Create update error:', error);

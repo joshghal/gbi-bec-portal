@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncToSheets } from '@/lib/google-sheets';
+import { logAdminAction } from '@/lib/admin-logger';
 
 const VALID_STATUSES = ['pending', 'reviewed', 'completed', 'hadir', 'tidak-hadir'];
 
@@ -33,7 +34,7 @@ export async function PATCH(
     });
 
     await syncToSheets('update', doc.data()!.type, id, { status, updatedAt: now });
-
+    logAdminAction(request, 'update', 'form-status', { resourceId: id, resourceTitle: `${doc.data()!.type} → ${status}` });
     return NextResponse.json({ id, status, updatedAt: now });
   } catch (error) {
     console.error('Update status error:', error);

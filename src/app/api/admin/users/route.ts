@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAuthToken, getAdminFirestore, getRoles, getVerifiedEmail, getAdminUser } from '@/lib/firebase-admin';
 import { hasPermission, type AdminUser } from '@/lib/permissions';
+import { logAdminAction } from '@/lib/admin-logger';
 
 export async function GET(request: NextRequest) {
   const authError = await verifyAuthToken(request, 'page:admin-users');
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
   };
 
   await ref.set({ users }, { merge: true });
-
+  logAdminAction(request, 'create', 'admin-user', { resourceTitle: email });
   return NextResponse.json({ success: true, user: users[email] });
 }
 
@@ -82,6 +83,6 @@ export async function DELETE(request: NextRequest) {
 
   delete users[email];
   await ref.set({ users });
-
+  logAdminAction(request, 'delete', 'admin-user', { resourceTitle: email });
   return NextResponse.json({ success: true });
 }

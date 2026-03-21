@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -21,6 +21,9 @@ import {
   Image,
   MessageCircleQuestion,
   Newspaper,
+  ScrollText,
+  Search,
+  X,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -70,6 +73,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/monitor', label: 'Monitor', icon: Activity, permission: 'page:monitor' },
       { href: '/admin/chat-misses', label: 'Tak Terjawab', icon: MessageCircleQuestion, permission: 'page:chat-misses' },
       { href: '/admin/users', label: 'Kelola Admin', icon: Users, permission: 'page:admin-users' },
+      { href: '/admin/log', label: 'Log Aktivitas', icon: ScrollText, permission: 'page:log' },
     ],
   },
 ];
@@ -96,13 +100,25 @@ function SidebarContent({
   email: string | null;
   hasPermission: (perm: string) => boolean;
 }) {
-  // Filter nav groups to only show items the user can access
-  const filteredGroups = NAV_GROUPS.map(group => ({
+  const [search, setSearch] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  // Filter to accessible items, then apply search
+  const accessibleGroups = NAV_GROUPS.map(group => ({
     ...group,
     items: group.items.filter(item =>
       hasPermission(item.permission) || hasPermission(item.permission + ':read')
     ),
   })).filter(group => group.items.length > 0);
+
+  const query = search.trim().toLowerCase();
+  const isSearching = query.length > 0;
+
+  const searchResults = isSearching
+    ? accessibleGroups.flatMap(g => g.items).filter(item =>
+        item.label.toLowerCase().includes(query)
+      )
+    : [];
 
   return (
     <div className="flex flex-col h-full">
@@ -114,20 +130,43 @@ function SidebarContent({
         )}
       </div>
 
+      {/* Search */}
+      <div className="px-3 pt-3 pb-1">
+        <div className="relative flex items-center">
+          <Search className="absolute left-2.5 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+          <input
+            ref={searchRef}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyDown={e => e.key === 'Escape' && setSearch('')}
+            placeholder="Cari menu..."
+            className="w-full pl-8 pr-7 py-1.5 text-sm rounded-md border bg-muted/40 placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          {search && (
+            <button
+              onClick={() => { setSearch(''); searchRef.current?.focus(); }}
+              className="absolute right-2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-4">
-        {filteredGroups.map(group => (
-          <div key={group.label}>
-            <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {group.label}
-            </p>
+      <nav className="flex-1 px-2 py-2 overflow-y-auto">
+        {isSearching ? (
+          searchResults.length === 0 ? (
+            <p className="px-3 py-4 text-xs text-muted-foreground text-center">Tidak ditemukan</p>
+          ) : (
             <div className="space-y-0.5">
-              {group.items.map(({ href, label, icon: Icon }) => {
+              {searchResults.map(({ href, label, icon: Icon }) => {
                 const active = pathname === href;
                 return (
                   <Link
                     key={href}
                     href={href}
+                    onClick={() => setSearch('')}
                     className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
                       active
                         ? 'bg-accent text-accent-foreground font-medium'
@@ -140,8 +179,37 @@ function SidebarContent({
                 );
               })}
             </div>
+          )
+        ) : (
+          <div className="space-y-4 pt-1">
+            {accessibleGroups.map(group => (
+              <div key={group.label}>
+                <p className="px-3 mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {group.label}
+                </p>
+                <div className="space-y-0.5">
+                  {group.items.map(({ href, label, icon: Icon }) => {
+                    const active = pathname === href;
+                    return (
+                      <Link
+                        key={href}
+                        href={href}
+                        className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
+                          active
+                            ? 'bg-accent text-accent-foreground font-medium'
+                            : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        {label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        )}
       </nav>
 
       {/* Bottom */}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateEmbedding } from '@/lib/embeddings';
 import { verifyAuthToken } from '@/lib/firebase-admin';
+import { logAdminAction } from '@/lib/admin-logger';
 
 const PINECONE_API_KEY = process.env.PINECONE_API_KEY!;
 const PINECONE_HOST = process.env.PINECONE_HOST!;
@@ -117,6 +118,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`Pinecone upsert error: ${error}`);
     }
 
+    logAdminAction(request, 'create', 'document', { resourceId: id, resourceTitle: id });
     return NextResponse.json({ success: true, id });
   } catch (error) {
     console.error('Add document error:', error);
