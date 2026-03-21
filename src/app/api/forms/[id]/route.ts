@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncToSheets } from '@/lib/google-sheets';
 import { generateSearchTerms } from '@/lib/search-utils';
+import { logAdminAction } from '@/lib/admin-logger';
 
 async function authorize(request: NextRequest, docData: { editToken: string }) {
   const { searchParams } = new URL(request.url);
@@ -69,6 +70,8 @@ export async function PUT(
     });
 
     await syncToSheets('update', existing.type, id, { data, updatedAt: now });
+    // Only logs when authorized via admin JWT; editToken requests have no Bearer → logger exits silently
+    logAdminAction(request, 'update', 'form-submission', { resourceId: id, resourceTitle: `${existing.type} — ${data.namaLengkap ?? id}` });
 
     return NextResponse.json({ id, updatedAt: now });
   } catch (error) {
@@ -97,6 +100,7 @@ export async function DELETE(
     await db.collection('form_submissions').doc(id).delete();
 
     await syncToSheets('delete', docType, id);
+    logAdminAction(request, 'delete', 'form-submission', { resourceId: id, resourceTitle: `${docType} — ${doc.data()!.data?.namaLengkap ?? id}` });
 
     return NextResponse.json({ success: true });
   } catch (error) {

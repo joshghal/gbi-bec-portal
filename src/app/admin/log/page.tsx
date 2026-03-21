@@ -34,6 +34,7 @@ const RESOURCE_LABELS: Record<string, string> = {
   'document': 'Basis Pengetahuan',
   'admin-user': 'Kelola Admin',
   'form-status': 'Status Formulir',
+  'form-submission': 'Data Formulir',
 };
 
 const FILTER_OPTIONS = [
