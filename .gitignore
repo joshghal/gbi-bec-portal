@@ -46,3 +46,4 @@ public/posters/exports/
 *.tsbuildinfo
 next-env.d.ts
 test-results/
+package-lock.json
