@@ -5,6 +5,7 @@ import { Plus, X, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DateInput } from '@/components/ui/date-input';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -145,12 +146,12 @@ export function FormDateManager({ formType, dateLabel = 'Tanggal Tersedia' }: Fo
       )}
 
       <div className="flex items-center gap-2">
-        <Input
-          type="date"
-          value={newDate}
-          onChange={e => setNewDate(e.target.value)}
-          className="w-[180px]"
-        />
+        <div className="w-[220px]">
+          <DateInput
+            value={newDate}
+            onChange={val => setNewDate(val)}
+          />
+        </div>
         <Button
           type="button"
           variant="outline"

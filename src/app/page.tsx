@@ -72,11 +72,11 @@ export default function LandingPage() {
         <Nav />
         <main>
           <Hero />
+          <UpdatesSection />
           <AboutIntro />
           <ActivitiesSection />
           <ServicesSection />
           <ScheduleSection />
-          <UpdatesSection />
           <ContactSection />
         </main>
         <Footer />

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { logAdminAction } from '@/lib/admin-logger';
+import { generateUniqueSlug } from '@/lib/slug';
 
 // GET /api/updates          — public, returns published updates ordered by date DESC, limit 10
 // GET /api/updates?all=1    — requires auth, returns all updates
@@ -38,10 +39,14 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const now = new Date().toISOString();
+    const db = getAdminFirestore();
+    const slug = await generateUniqueSlug(body.title, db);
 
     const doc = {
       title: body.title,
+      slug,
       excerpt: body.excerpt,
+      content: body.content ?? '',
       category: body.category,
       date: body.date,
       color: body.color,
@@ -52,7 +57,6 @@ export async function POST(request: NextRequest) {
       updatedAt: now,
     };
 
-    const db = getAdminFirestore();
     const ref = await db.collection('updates').add(doc);
     logAdminAction(request, 'create', 'kabar', { resourceId: ref.id, resourceTitle: doc.title });
     return NextResponse.json({ id: ref.id, ...doc }, { status: 201 });

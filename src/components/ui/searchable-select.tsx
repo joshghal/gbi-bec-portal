@@ -85,7 +85,7 @@ export function SearchableSelect({
     }
   };
 
-  const showSearch = options.length > 8;
+  const showSearch = options.length > 3;
 
   return (
     <div ref={containerRef} className="relative">

@@ -34,13 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { RequirePermission } from '@/components/require-permission';
 
 interface Document {
@@ -323,7 +317,7 @@ export default function AdminPage() {
 
         {/* Edit / Add Dialog */}
         <Dialog open={!!editDoc} onOpenChange={open => !open && setEditDoc(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>{isNew ? 'Tambah Dokumen Baru' : 'Edit Dokumen'}</DialogTitle>
               <DialogDescription>
@@ -364,46 +358,23 @@ export default function AdminPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
+                  <div className="space-y-1.5">
                     <Label>Kategori</Label>
-                    <Select
+                    <SearchableSelect
+                      options={CATEGORIES}
                       value={editDoc.category}
-                      onValueChange={v =>
-                        setEditDoc({ ...editDoc, category: v ?? '' })
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Pilih kategori" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CATEGORIES.map(c => (
-                          <SelectItem key={c} value={c}>
-                            {c}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={v => setEditDoc({ ...editDoc, category: v })}
+                      placeholder="Pilih kategori"
+                    />
                   </div>
-
-                  <div>
+                  <div className="space-y-1.5">
                     <Label>Tipe</Label>
-                    <Select
+                    <SearchableSelect
+                      options={TYPES}
                       value={editDoc.type}
-                      onValueChange={v =>
-                        setEditDoc({ ...editDoc, type: v ?? '' })
-                      }
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Pilih tipe" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TYPES.map(t => (
-                          <SelectItem key={t} value={t}>
-                            {t}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      onChange={v => setEditDoc({ ...editDoc, type: v })}
+                      placeholder="Pilih tipe"
+                    />
                   </div>
                 </div>
 

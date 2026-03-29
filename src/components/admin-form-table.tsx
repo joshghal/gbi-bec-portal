@@ -35,13 +35,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
+import { DateInput } from '@/components/ui/date-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FORM_TYPE_LABELS, FORM_STATUS_LABELS, getFormConfig } from '@/lib/form-config';
@@ -280,19 +275,14 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
               onChange={e => handleSearchInput(e.target.value)}
             />
           </div>
-          <Select value={statusFilter} onValueChange={v => setStatusFilter(v ?? '')}>
-            <SelectTrigger className="w-full sm:w-[180px]">
-              <SelectValue placeholder="Semua status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Semua status</SelectItem>
-              <SelectItem value="pending">Menunggu</SelectItem>
-              <SelectItem value="reviewed">Ditinjau</SelectItem>
-              <SelectItem value="completed">Selesai</SelectItem>
-              <SelectItem value="hadir">Hadir</SelectItem>
-              <SelectItem value="tidak-hadir">Tidak Hadir</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="w-full sm:w-[180px]">
+            <SearchableSelect
+              options={['all', 'pending', 'reviewed', 'completed', 'hadir', 'tidak-hadir']}
+              value={statusFilter}
+              onChange={v => setStatusFilter(v || 'all')}
+              placeholder="Semua status"
+            />
+          </div>
         </div>
 
         {loading ? (
@@ -385,7 +375,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       </main>
 
       <Dialog open={!!selected} onOpenChange={open => !open && setSelected(null)}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>
               {selected && (FORM_TYPE_LABELS[selected.type] || selected.type)}
@@ -436,18 +426,11 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
               {!isReadOnly && (
                 <div className="border-t pt-4">
                   <Label>Status</Label>
-                  <Select value={editStatus} onValueChange={v => setEditStatus(v ?? '')}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Menunggu</SelectItem>
-                      <SelectItem value="reviewed">Ditinjau</SelectItem>
-                      <SelectItem value="completed">Selesai</SelectItem>
-                      <SelectItem value="hadir">Hadir</SelectItem>
-                      <SelectItem value="tidak-hadir">Tidak Hadir</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <SearchableSelect
+                    options={['pending', 'reviewed', 'completed', 'hadir', 'tidak-hadir']}
+                    value={editStatus}
+                    onChange={v => setEditStatus(v || 'pending')}
+                  />
                 </div>
               )}
             </div>
@@ -481,7 +464,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
 
       {/* Edit Modal */}
       <Dialog open={!!editing} onOpenChange={open => !open && setEditing(null)}>
-        <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>
               Edit — {editing && (FORM_TYPE_LABELS[editing.type] || editing.type)}
@@ -507,23 +490,21 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                         onChange={e => setEditData(prev => ({ ...prev, [step.field]: e.target.value }))}
                       />
                     ) : step.type === 'select' && step.options ? (
-                      <Select
+                      <SearchableSelect
+                        options={step.options}
                         value={editData[step.field] || ''}
-                        onValueChange={v => setEditData(prev => ({ ...prev, [step.field]: v ?? '' }))}
-                      >
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Pilih..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {step.options.map(opt => (
-                            <SelectItem key={opt} value={opt}>{opt}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                        onChange={v => setEditData(prev => ({ ...prev, [step.field]: v }))}
+                        placeholder="Pilih..."
+                      />
+                    ) : step.type === 'date' ? (
+                      <DateInput
+                        value={editData[step.field] || ''}
+                        onChange={v => setEditData(prev => ({ ...prev, [step.field]: v }))}
+                      />
                     ) : (
                       <Input
                         className="mt-1 text-sm"
-                        type={step.type === 'date' ? 'date' : step.type === 'tel' ? 'tel' : step.type === 'email' ? 'email' : 'text'}
+                        type={step.type === 'tel' ? 'tel' : step.type === 'email' ? 'email' : 'text'}
                         value={editData[step.field] || ''}
                         onChange={e => setEditData(prev => ({ ...prev, [step.field]: e.target.value }))}
                       />

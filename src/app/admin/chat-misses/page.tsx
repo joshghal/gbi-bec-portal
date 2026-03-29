@@ -233,7 +233,7 @@ export default function ChatMissesPage() {
 
         {/* Detail modal */}
         <Dialog open={!!selected} onOpenChange={open => !open && setSelected(null)}>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="sm:max-w-2xl">
             <DialogHeader>
               <DialogTitle>Detail Percakapan</DialogTitle>
               {selected && (

@@ -129,7 +129,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
                 <button
                   key={card.type}
                   onClick={() => onFormCardClick?.(card.type)}
-                  className="relative overflow-hidden flex flex-col items-start gap-1 p-3 rounded-xl border border-primary/20 bg-card hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer text-left pt-[60px]"
+                  className="relative overflow-hidden flex flex-col items-start gap-1 p-3 rounded-xl border border-primary/20 bg-card hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer text-left"
                 >
                   <img
                     src={getFormGlass(card.type)}

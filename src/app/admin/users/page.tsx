@@ -32,13 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import { RequirePermission } from '@/components/require-permission';
 import { AdminTabs } from '@/components/admin-tabs';
 import { ALL_PERMISSIONS, type Role, type AdminUser } from '@/lib/permissions';
@@ -440,20 +434,12 @@ export default function AdminUsersPage() {
                         <TableCell className="font-medium text-sm">{adminUser.name || '-'}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{email}</TableCell>
                         <TableCell>
-                          <Select
+                          <SearchableSelect
+                            options={assignableRoles.map(([key]) => key)}
                             value={adminUser.role}
-                            onValueChange={v => v && handleRoleChange(email, v)}
+                            onChange={v => v && handleRoleChange(email, v)}
                             disabled={saving || (!isSuperAdmin && adminUser.role === 'super_admin')}
-                          >
-                            <SelectTrigger className="h-8 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {assignableRoles.map(([key, role]) => (
-                                <SelectItem key={key} value={key}>{role.label}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          />
                         </TableCell>
                         <TableCell className="text-right">
                           {(isSuperAdmin || adminUser.role !== 'super_admin') && (
@@ -555,18 +541,14 @@ export default function AdminUsersPage() {
                 <Label htmlFor="add-name">Nama</Label>
                 <Input id="add-name" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nama lengkap" className="mt-1" />
               </div>
-              <div>
+              <div className="space-y-1.5">
                 <Label>Peran</Label>
-                <Select value={newRole} onValueChange={v => setNewRole(v ?? '')}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Pilih peran" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {assignableRoles.map(([key, role]) => (
-                      <SelectItem key={key} value={key}>{role.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SearchableSelect
+                  options={assignableRoles.map(([key]) => key)}
+                  value={newRole}
+                  onChange={v => setNewRole(v)}
+                  placeholder="Pilih peran"
+                />
               </div>
             </div>
             <DialogFooter>

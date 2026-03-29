@@ -1,21 +1,18 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ExternalLink } from 'lucide-react';
+import { generateSlug, stripHtml } from '@/lib/slug';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { DateInput } from '@/components/ui/date-input';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { Label } from '@/components/ui/label';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Switch } from '@/components/ui/switch';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/searchable-select';
 import {
   Dialog,
   DialogContent,
@@ -28,7 +25,9 @@ import {
 interface Update {
   id?: string;
   title: string;
+  slug?: string;
   excerpt: string;
+  content?: string;
   category: string;
   date: string;
   color: string;
@@ -39,7 +38,7 @@ interface Update {
   updatedAt: string;
 }
 
-const CATEGORIES = ['Ibadah', 'Pengumuman', 'Kegiatan', 'Pelayanan', 'Lainnya'] as const;
+const CATEGORIES = ['Ibadah', 'Pengumuman', 'Kegiatan', 'Pelayanan', 'M-Class', 'Penyerahan Anak', 'Lainnya'] as const;
 
 const COLOR_SWATCHES = [
   { label: 'Hijau', value: 'oklch(0.35 0.04 175)' },
@@ -53,6 +52,7 @@ const COLOR_SWATCHES = [
 const EMPTY_FORM: Omit<Update, 'createdAt' | 'updatedAt'> = {
   title: '',
   excerpt: '',
+  content: '',
   category: 'Ibadah',
   date: new Date().toISOString().slice(0, 10),
   color: COLOR_SWATCHES[0].value,
@@ -144,6 +144,7 @@ export default function KabarPage() {
     setForm({
       title: update.title,
       excerpt: update.excerpt,
+      content: update.content ?? '',
       category: update.category,
       date: update.date,
       color: update.color,
@@ -160,6 +161,10 @@ export default function KabarPage() {
       setFormError('Judul, ringkasan, dan tanggal wajib diisi.');
       return;
     }
+    if (stripHtml(form.excerpt).length > 150) {
+      setFormError('Ringkasan terlalu panjang. Maksimal 150 karakter.');
+      return;
+    }
     setSaving(true);
     setFormError('');
     try {
@@ -167,6 +172,7 @@ export default function KabarPage() {
       const body = {
         ...form,
         imageUrl: form.imageUrl?.trim() || null,
+        content: form.content ?? '',
       };
 
       const url = editingId ? `/api/updates/${editingId}` : '/api/updates';
@@ -306,9 +312,23 @@ export default function KabarPage() {
                             className="w-2 h-2 rounded-full shrink-0"
                             style={{ backgroundColor: update.color }}
                           />
-                          <span className="truncate max-w-[200px] font-medium" title={update.title}>
-                            {update.title}
-                          </span>
+                          <div className="min-w-0">
+                            <span className="truncate block max-w-[200px] font-medium" title={update.title}>
+                              {update.title}
+                            </span>
+                            {update.slug && (
+                              <a
+                                href={`/kabar/${update.slug}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-muted-foreground font-mono hover:text-primary flex items-center gap-0.5 mt-0.5"
+                                onClick={e => e.stopPropagation()}
+                              >
+                                /kabar/{update.slug}
+                                <ExternalLink className="w-2.5 h-2.5" />
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
@@ -358,7 +378,7 @@ export default function KabarPage() {
 
       {/* Add / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editingId ? 'Edit Kabar' : 'Tambah Kabar Terbaru'}</DialogTitle>
             <DialogDescription>
@@ -378,15 +398,38 @@ export default function KabarPage() {
                 onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
                 placeholder="Ibadah Paskah 2026"
               />
+              {form.title.trim() && (
+                <p className="text-xs text-muted-foreground font-mono mt-1">
+                  /kabar/{generateSlug(form.title)}
+                </p>
+              )}
             </div>
 
             {/* Excerpt */}
             <div className="space-y-1.5">
-              <Label>Ringkasan <span className="text-destructive">*</span></Label>
+              <div className="flex items-center justify-between">
+                <Label>Ringkasan <span className="text-destructive">*</span></Label>
+                <span className={`text-xs font-mono tabular-nums ${stripHtml(form.excerpt).length > 150 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {stripHtml(form.excerpt).length}/150
+                </span>
+              </div>
               <RichTextEditor
                 value={form.excerpt}
                 onChange={val => setForm(prev => ({ ...prev, excerpt: val }))}
                 placeholder="Deskripsi singkat kabar ini..."
+              />
+              {stripHtml(form.excerpt).length > 150 && (
+                <p className="text-xs text-destructive">Ringkasan terlalu panjang. Maksimal 150 karakter.</p>
+              )}
+            </div>
+
+            {/* Content (full body) */}
+            <div className="space-y-1.5">
+              <Label>Konten Lengkap <span className="text-muted-foreground text-xs font-normal">(opsional — untuk halaman detail)</span></Label>
+              <RichTextEditor
+                value={form.content ?? ''}
+                onChange={val => setForm(prev => ({ ...prev, content: val }))}
+                placeholder="Tulis konten lengkap artikel..."
               />
             </div>
 
@@ -394,60 +437,31 @@ export default function KabarPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="kabar-category">Kategori <span className="text-destructive">*</span></Label>
-                <Select
+                <SearchableSelect
+                  options={[...CATEGORIES]}
                   value={form.category}
-                  onValueChange={val => { if (val) setForm(prev => ({ ...prev, category: val })); }}
-                >
-                  <SelectTrigger id="kabar-category">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={val => setForm(prev => ({ ...prev, category: val || 'Ibadah' }))}
+                  placeholder="Pilih kategori..."
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="kabar-date">Tanggal <span className="text-destructive">*</span></Label>
-                <Input
+                <DateInput
                   id="kabar-date"
-                  type="date"
                   value={form.date}
-                  onChange={e => setForm(prev => ({ ...prev, date: e.target.value }))}
+                  onChange={val => setForm(prev => ({ ...prev, date: val }))}
                 />
               </div>
             </div>
 
-            {/* Color swatches */}
-            <div className="space-y-1.5">
-              <Label>Warna Aksen</Label>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                {COLOR_SWATCHES.map(swatch => (
-                  <button
-                    key={swatch.value}
-                    type="button"
-                    title={swatch.label}
-                    onClick={() => setForm(prev => ({ ...prev, color: swatch.value }))}
-                    className={`w-6 h-6 rounded-full border-2 transition-all ${
-                      form.color === swatch.value
-                        ? 'border-foreground scale-110 shadow-sm'
-                        : 'border-transparent opacity-70 hover:opacity-100'
-                    }`}
-                    style={{ backgroundColor: swatch.value }}
-                  />
-                ))}
-              </div>
-            </div>
 
-            {/* Image URL */}
+
+            {/* Image */}
             <div className="space-y-1.5">
-              <Label htmlFor="kabar-image">URL Gambar <span className="text-muted-foreground text-xs font-normal">(opsional)</span></Label>
-              <Input
-                id="kabar-image"
+              <Label>Gambar <span className="text-muted-foreground text-xs font-normal">(opsional)</span></Label>
+              <ImageUpload
                 value={form.imageUrl ?? ''}
-                onChange={e => setForm(prev => ({ ...prev, imageUrl: e.target.value }))}
-                placeholder="https://..."
+                onChange={url => setForm(prev => ({ ...prev, imageUrl: url }))}
               />
             </div>
 

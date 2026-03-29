@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { logAdminAction } from '@/lib/admin-logger';
+import { generateUniqueSlug } from '@/lib/slug';
 
 // PUT /api/updates/[id] — requires auth, update fields
 export async function PUT(
@@ -25,6 +26,11 @@ export async function PUT(
     const update = { ...body, updatedAt: new Date().toISOString() };
     // Remove id if accidentally included in body
     delete update.id;
+
+    // Regenerate slug if title changed
+    if (body.title && body.title !== existing.data()?.title) {
+      update.slug = await generateUniqueSlug(body.title, db, id);
+    }
 
     await ref.update(update);
     logAdminAction(request, 'update', 'kabar', { resourceId: id, resourceTitle: existing.data()?.title });

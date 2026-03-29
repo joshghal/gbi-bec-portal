@@ -47,18 +47,28 @@ function DialogContent({
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
 }) {
+  // Separate footer from scrollable content by matching the DialogFooter component
+  const childArray = React.Children.toArray(children)
+  const isFooter = (child: React.ReactNode): boolean =>
+    React.isValidElement(child) && child.type === DialogFooter
+  const footer = childArray.filter(isFooter)
+  const content = childArray.filter((child) => !isFooter(child))
+
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-background p-4 text-sm ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 flex flex-col w-full max-w-[calc(100%-2rem)] max-h-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-background text-sm ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-lg data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
       >
-        {children}
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 gap-4 flex flex-col">
+          {content}
+        </div>
+        {footer}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
@@ -102,7 +112,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "-mx-4 -mb-4 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:flex-row sm:justify-end",
+        "shrink-0 flex flex-col-reverse gap-2 rounded-b-xl border-t bg-background p-4 sm:flex-row sm:justify-end",
         className
       )}
       {...props}
