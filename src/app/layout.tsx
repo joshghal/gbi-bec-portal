@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Judson } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { AnalyticsProvider } from "@/components/analytics-provider";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -60,6 +61,7 @@ export default function RootLayout({
         className={`${plusJakarta.variable} ${judson.variable} antialiased`}
       >
         <AnalyticsProvider>{children}</AnalyticsProvider>
+        <Toaster position="top-right" richColors closeButton />
       </body>
     </html>
   );

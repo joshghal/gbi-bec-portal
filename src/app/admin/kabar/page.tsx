@@ -13,6 +13,8 @@ import { Label } from '@/components/ui/label';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Switch } from '@/components/ui/switch';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { toastApiError } from '@/lib/api-toast';
+import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
@@ -103,7 +105,7 @@ export default function KabarPage() {
       setUpdates(data);
       setSectionEnabled(settings.sectionEnabled ?? true);
     } catch (err) {
-      console.error('Failed to fetch updates:', err);
+      toastApiError(err, 'Gagal memuat kabar terbaru.');
       setError('Gagal memuat kabar terbaru.');
     } finally {
       setLoading(false);
@@ -126,7 +128,7 @@ export default function KabarPage() {
       if (!res.ok) throw new Error('Gagal menyimpan');
       setSectionEnabled(enabled);
     } catch (err) {
-      console.error('Toggle section failed:', err);
+      toastApiError(err, 'Gagal mengubah pengaturan.');
     } finally {
       setTogglingSection(false);
     }
@@ -191,7 +193,7 @@ export default function KabarPage() {
       setDialogOpen(false);
       await fetchUpdates();
     } catch (err) {
-      console.error('Save failed:', err);
+      toastApiError(err, 'Gagal menyimpan kabar.');
       setFormError('Gagal menyimpan. Silakan coba lagi.');
     } finally {
       setSaving(false);
@@ -214,7 +216,7 @@ export default function KabarPage() {
         prev.map(u => u.id === update.id ? { ...u, published: !u.published } : u)
       );
     } catch (err) {
-      console.error('Toggle published failed:', err);
+      toastApiError(err, 'Gagal mengubah status publikasi.');
     }
   }
 
@@ -231,7 +233,7 @@ export default function KabarPage() {
       setDeleteId(null);
       await fetchUpdates();
     } catch (err) {
-      console.error('Delete failed:', err);
+      toastApiError(err, 'Gagal menghapus kabar.');
     } finally {
       setDeleting(false);
     }

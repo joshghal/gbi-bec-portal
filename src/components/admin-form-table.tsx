@@ -36,6 +36,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { toastApiError } from '@/lib/api-toast';
 import { DateInput } from '@/components/ui/date-input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -127,7 +128,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
         setSheetUrl(data.sheetUrl);
       }
     } catch (error) {
-      console.error('Failed to fetch submissions:', error);
+      toastApiError(error, 'Gagal memuat data formulir.');
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -163,7 +164,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       setSelected(null);
       await fetchSubmissions();
     } catch (error) {
-      console.error('Status update failed:', error);
+      toastApiError(error, 'Gagal mengubah status.');
     } finally {
       setSaving(false);
     }
@@ -182,7 +183,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       setSelected(null);
       await fetchSubmissions();
     } catch (error) {
-      console.error('Delete failed:', error);
+      toastApiError(error, 'Gagal menghapus data.');
     } finally {
       setSaving(false);
     }
@@ -215,7 +216,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       setEditing(null);
       await fetchSubmissions();
     } catch (error) {
-      console.error('Edit save failed:', error);
+      toastApiError(error, 'Gagal menyimpan perubahan.');
     } finally {
       setSavingEdit(false);
     }
@@ -278,6 +279,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           <div className="w-full sm:w-[180px]">
             <SearchableSelect
               options={['all', 'pending', 'reviewed', 'completed', 'hadir', 'tidak-hadir']}
+              labels={{ all: 'Semua status', pending: 'Menunggu', reviewed: 'Ditinjau', completed: 'Selesai', hadir: 'Hadir', 'tidak-hadir': 'Tidak Hadir' }}
               value={statusFilter}
               onChange={v => setStatusFilter(v || 'all')}
               placeholder="Semua status"
@@ -428,6 +430,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                   <Label>Status</Label>
                   <SearchableSelect
                     options={['pending', 'reviewed', 'completed', 'hadir', 'tidak-hadir']}
+                    labels={{ pending: 'Menunggu', reviewed: 'Ditinjau', completed: 'Selesai', hadir: 'Hadir', 'tidak-hadir': 'Tidak Hadir' }}
                     value={editStatus}
                     onChange={v => setEditStatus(v || 'pending')}
                   />

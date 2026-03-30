@@ -35,6 +35,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { toastApiError } from '@/lib/api-toast';
+import { toast } from 'sonner';
 import { RequirePermission } from '@/components/require-permission';
 
 interface Document {
@@ -102,7 +104,7 @@ export default function AdminPage() {
         setDocuments(data.documents);
       }
     } catch (error) {
-      console.error('Failed to fetch documents:', error);
+      toastApiError(error, 'Gagal memuat dokumen.');
     } finally {
       setLoading(false);
     }
@@ -137,7 +139,7 @@ export default function AdminPage() {
       setEditDoc(null);
       await fetchDocuments();
     } catch (error) {
-      console.error('Save failed:', error);
+      toastApiError(error, 'Gagal menyimpan dokumen.');
     } finally {
       setSaving(false);
     }
@@ -157,7 +159,7 @@ export default function AdminPage() {
       setDeleteDoc(null);
       await fetchDocuments();
     } catch (error) {
-      console.error('Delete failed:', error);
+      toastApiError(error, 'Gagal menghapus dokumen.');
     } finally {
       setSaving(false);
     }
@@ -174,7 +176,7 @@ export default function AdminPage() {
       if (!res.ok) throw new Error('Failed to sync');
       await fetchDocuments();
     } catch (error) {
-      console.error('Sync dates failed:', error);
+      toastApiError(error, 'Gagal sinkronisasi tanggal.');
     } finally {
       setSyncing(false);
     }

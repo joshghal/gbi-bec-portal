@@ -33,6 +33,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { SearchableSelect } from '@/components/ui/searchable-select';
+import { toastApiError } from '@/lib/api-toast';
+import { toast } from 'sonner';
 import { RequirePermission } from '@/components/require-permission';
 import { AdminTabs } from '@/components/admin-tabs';
 import { ALL_PERMISSIONS, type Role, type AdminUser } from '@/lib/permissions';
@@ -242,7 +244,7 @@ export default function AdminUsersPage() {
       setUsers(data.users || {});
       setRoles(data.roles || {});
     } catch (error) {
-      console.error('Failed to fetch admin users:', error);
+      toastApiError(error, 'Gagal memuat data pengguna.');
     } finally {
       setLoading(false);
     }
@@ -268,7 +270,7 @@ export default function AdminUsersPage() {
       setNewRole('');
       await fetchData();
     } catch (error) {
-      console.error('Add failed:', error);
+      toastApiError(error, 'Gagal menambah pengguna.');
     } finally {
       setSaving(false);
     }
@@ -288,7 +290,7 @@ export default function AdminUsersPage() {
       setDeleteEmail(null);
       await fetchData();
     } catch (error) {
-      console.error('Delete failed:', error);
+      toastApiError(error, 'Gagal menghapus pengguna.');
     } finally {
       setSaving(false);
     }
@@ -307,7 +309,7 @@ export default function AdminUsersPage() {
       if (!res.ok) throw new Error('Failed to update');
       await Promise.all([fetchData(), refreshPermissions()]);
     } catch (error) {
-      console.error('Role update failed:', error);
+      toastApiError(error, 'Gagal mengubah peran.');
     } finally {
       setSaving(false);
     }
@@ -436,6 +438,7 @@ export default function AdminUsersPage() {
                         <TableCell>
                           <SearchableSelect
                             options={assignableRoles.map(([key]) => key)}
+                            labels={Object.fromEntries(assignableRoles.map(([key, role]) => [key, role.label]))}
                             value={adminUser.role}
                             onChange={v => v && handleRoleChange(email, v)}
                             disabled={saving || (!isSuperAdmin && adminUser.role === 'super_admin')}
@@ -545,6 +548,7 @@ export default function AdminUsersPage() {
                 <Label>Peran</Label>
                 <SearchableSelect
                   options={assignableRoles.map(([key]) => key)}
+                  labels={Object.fromEntries(assignableRoles.map(([key, role]) => [key, role.label]))}
                   value={newRole}
                   onChange={v => setNewRole(v)}
                   placeholder="Pilih peran"

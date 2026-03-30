@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DateInput } from '@/components/ui/date-input';
+import { toastApiError } from '@/lib/api-toast';
 import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
@@ -52,7 +53,7 @@ export function FormDateManager({ formType, dateLabel = 'Tanggal Tersedia' }: Fo
       const data = await res.json();
       setDates(data.dates || []);
     } catch (error) {
-      console.error(`Failed to fetch ${formType} dates:`, error);
+      toastApiError(error, `Gagal memuat tanggal ${formType}.`);
     } finally {
       setLoading(false);
     }
@@ -77,7 +78,7 @@ export function FormDateManager({ formType, dateLabel = 'Tanggal Tersedia' }: Fo
       });
       if (!res.ok) throw new Error('Failed to save');
     } catch (error) {
-      console.error(`Save ${formType} dates failed:`, error);
+      toastApiError(error, `Gagal menyimpan tanggal ${formType}.`);
       fetchDates();
     } finally {
       setSaving(false);
