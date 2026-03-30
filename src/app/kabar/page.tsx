@@ -13,7 +13,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 
 export const metadata: Metadata = {
   title: 'Kabar Terbaru',
-  description: 'Kabar terbaru dan pengumuman dari GBI Baranangsiang Evening Church (BEC) Sukawarna, Bandung.',
+  description: 'Kabar gereja dan pengumuman GBI BEC — berita gereja Bandung terbaru dari GBI Baranangsiang Evening Church Sukawarna. Update gereja, jadwal ibadah, dan kegiatan.',
+  keywords: ['kabar gereja', 'pengumuman GBI BEC', 'berita gereja Bandung', 'GBI Baranangsiang', 'update gereja'],
   alternates: { canonical: '/kabar' },
   openGraph: {
     title: 'Kabar Terbaru | GBI BEC',
@@ -21,6 +22,8 @@ export const metadata: Metadata = {
     url: `${siteUrl}/kabar`,
     type: 'website',
   },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true },
 };
 
 interface Update {

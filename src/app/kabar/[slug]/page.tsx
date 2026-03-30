@@ -96,6 +96,7 @@ export async function generateMetadata(
   return {
     title: update.title,
     description,
+    keywords: [update.category, 'GBI BEC', 'kabar gereja', 'Baranangsiang Evening Church'],
     alternates: { canonical: `/kabar/${update.slug}` },
     openGraph: {
       title: update.title,
@@ -111,6 +112,7 @@ export async function generateMetadata(
       title: update.title,
       description,
     },
+    robots: { index: true, follow: true },
   };
 }
 
@@ -145,8 +147,22 @@ export default async function KabarDetailPage(
     },
   };
 
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Beranda', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Kabar Terbaru', item: `${siteUrl}/kabar` },
+      { '@type': 'ListItem', position: 3, name: update.title },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

@@ -1,9 +1,24 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowLeft, Phone, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+
+export const metadata: Metadata = {
+  title: 'Materi KOM',
+  description: 'Program Kehidupan Orientasi Melayani (KOM) — pengajaran Firman Tuhan berjenjang di GBI BEC. 4 level, 82 sesi, sertifikat resmi GBI.',
+  keywords: ['KOM', 'Kehidupan Orientasi Melayani', 'GBI BEC', 'materi gereja', 'kurikulum GBI', 'kelas rohani Bandung'],
+  alternates: { canonical: '/kom' },
+  openGraph: {
+    title: 'Materi KOM | GBI BEC',
+    description: 'Program pengajaran Firman Tuhan berjenjang — 4 level, 82 sesi total. Kurikulum nasional GBI.',
+    type: 'website',
+  },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true },
+};
 
 export default function KomPage() {
   return (
@@ -48,8 +63,8 @@ export default function KomPage() {
 
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">
-            Program pengajaran Firman Tuhan berjenjang di GBI — 4 level, 82 sesi total.
-            Kurikulum nasional ditetapkan oleh GBI pusat Jakarta.
+            Materi KOM (Kehidupan Orientasi Melayani) adalah program pengajaran Firman Tuhan berjenjang di GBI BEC — 4 level, 82 sesi total.
+            Kurikulum nasional GBI ini merupakan kelas rohani di Bandung dengan sertifikat resmi yang berlaku di seluruh GBI Indonesia.
           </p>
         </div>
 

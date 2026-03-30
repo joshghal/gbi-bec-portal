@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Download, Clock } from 'lucide-react';
@@ -192,6 +193,27 @@ const KOM_DATA: Record<string, KomData> = {
 
 export function generateStaticParams() {
   return [{ level: '100' }, { level: '200' }, { level: '300' }, { level: '400' }];
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ level: string }> }): Promise<Metadata> {
+  const { level } = await params;
+  const kom = KOM_DATA[level];
+  if (!kom) return { title: 'Tidak Ditemukan' };
+
+  const description = `Materi KOM ${level} — ${kom.title} (${kom.subtitle}). ${kom.sessions} sesi kurikulum gereja di GBI BEC Bandung. Kelas rohani berjenjang dengan sertifikat resmi GBI.`;
+  return {
+    title: `KOM ${level} — ${kom.title}`,
+    description,
+    keywords: [`KOM ${level}`, kom.title, 'GBI BEC', 'materi KOM', 'kurikulum gereja', 'kelas rohani Bandung'],
+    alternates: { canonical: `/kom/${level}` },
+    openGraph: {
+      title: `KOM ${level} — ${kom.title} | GBI BEC`,
+      description,
+      type: 'article',
+    },
+    twitter: { card: 'summary_large_image' },
+    robots: { index: true, follow: true },
+  };
 }
 
 export default async function KomLevelPage({ params }: { params: Promise<{ level: string }> }) {

@@ -24,6 +24,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.7,
     },
+    {
+      url: `${siteUrl}/kom`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    ...['100', '200', '300', '400'].map((level) => ({
+      url: `${siteUrl}/kom/${level}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    })),
   ];
 
   // Dynamic kabar pages

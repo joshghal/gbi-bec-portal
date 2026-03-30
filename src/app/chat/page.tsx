@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import ChatClient from './_chat-client';
 
 export const metadata: Metadata = {
-  title: 'Helpdesk | GBI BEC',
+  title: 'Helpdesk',
   description: 'Tanya langsung seputar jadwal ibadah, baptisan, KOM, penyerahan anak, dan layanan GBI Baranangsiang Evening Church (BEC).',
   keywords: ['helpdesk gereja', 'GBI BEC', 'jadwal ibadah', 'baptisan GBI', 'KOM gereja', 'chatbot gereja'],
   openGraph: {
