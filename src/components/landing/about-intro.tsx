@@ -151,8 +151,15 @@ export default function AboutIntro() {
       return;
     }
 
+    // Delay GSAP setup so sections above (kabar) finish async rendering first.
+    // In production builds, kabar loads data async and shifts the layout —
+    // GSAP must measure AFTER that shift is painted.
+    let ctx: gsap.Context;
+    const timer = setTimeout(() => {
+      if (!sectionRef.current || !wrapperRef.current) return;
+
     // Desktop only: fade + parallax via GSAP ScrollTrigger
-    const ctx = gsap.context(() => {
+    ctx = gsap.context(() => {
       gsap
         .timeline({
           scrollTrigger: {
@@ -160,6 +167,7 @@ export default function AboutIntro() {
             start: "top 95%",
             end: "bottom 5%",
             scrub: true,
+            invalidateOnRefresh: true,
           },
         })
         .fromTo(
@@ -181,12 +189,17 @@ export default function AboutIntro() {
             start: "top bottom",
             end: "bottom top",
             scrub: true,
+            invalidateOnRefresh: true,
           },
         },
       );
     }, sectionRef);
+    }, 800); // Wait for kabar section to finish loading and painting
 
-    return () => ctx.revert();
+    return () => {
+      clearTimeout(timer);
+      ctx?.revert();
+    };
   }, []);
 
   return (
