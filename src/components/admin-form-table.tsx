@@ -377,8 +377,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       </main>
 
       <Dialog open={!!selected} onOpenChange={open => !open && setSelected(null)}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-2xl" style={{ maxHeight: '85vh', gridTemplateRows: 'auto 1fr auto' }}>
+          <DialogHeader className="p-4 pb-2">
             <DialogTitle>
               {selected && (FORM_TYPE_LABELS[selected.type] || selected.type)}
               {selected && ` - ${getDisplayName(selected)}`}
@@ -389,7 +389,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           </DialogHeader>
 
           {selected && (
-            <div className="space-y-4 overflow-hidden">
+            <div className="space-y-4 overflow-y-auto px-4 py-2">
               <div className="space-y-3">
                 {Object.entries(selected.data).map(([key, value]) => (
                   <div key={key}>
@@ -467,8 +467,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
 
       {/* Edit Modal */}
       <Dialog open={!!editing} onOpenChange={open => !open && setEditing(null)}>
-        <DialogContent className="sm:max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-2xl" style={{ maxHeight: '85vh', gridTemplateRows: 'auto 1fr auto' }}>
+          <DialogHeader className="p-4 pb-2">
             <DialogTitle>
               Edit — {editing && (FORM_TYPE_LABELS[editing.type] || editing.type)}
             </DialogTitle>
@@ -481,7 +481,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
             const config = getFormConfig(editing.type);
             const steps = config?.steps ?? [];
             return (
-              <div className="space-y-3">
+              <div className="space-y-3 overflow-y-auto px-4 py-2">
                 {steps.filter(s => !s.hidden).map(step => (
                   <div key={step.field}>
                     <Label className="text-xs text-muted-foreground">{step.label}</Label>
