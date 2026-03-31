@@ -111,7 +111,7 @@ export function SearchableSelect({
     }
   };
 
-  const showSearch = options.length > 3;
+  const showSearch = true;
 
   const dropdown = open && !disabled && dropdownPos && (
     <div
@@ -133,6 +133,7 @@ export function SearchableSelect({
           <input
             ref={inputRef}
             type="text"
+            autoFocus
             value={search}
             onChange={e => setSearch(e.target.value)}
             onKeyDown={handleKeyDown}

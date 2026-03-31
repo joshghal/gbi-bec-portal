@@ -46,6 +46,9 @@ function getTabName(formType: FormType, data: Record<string, unknown>, createdAt
   if (formType === 'mclass') {
     return String(data.tanggalMClass);
   }
+  if (formType === 'child-dedication') {
+    return String(data.tanggalPenyerahan);
+  }
   return getMonthlyTabName(new Date(createdAt));
 }
 

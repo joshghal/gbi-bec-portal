@@ -4,6 +4,7 @@ import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 const DATE_FIELD_MAP: Record<string, string> = {
   mclass: 'tanggalMClass',
   baptism: 'tanggalBaptis',
+  'child-dedication': 'tanggalPenyerahan',
 };
 
 export async function GET(request: NextRequest) {
@@ -29,7 +30,9 @@ export async function GET(request: NextRequest) {
       const d = doc.data();
       return {
         id: doc.id,
-        registrationNo: d.data?.noMClass || '',
+        registrationNo: formType === 'child-dedication'
+          ? (d.data?.namaAnak || '')
+          : (d.data?.noMClass || ''),
         namaLengkap: d.data?.namaLengkap || '',
         noTelepon: d.data?.noTelepon || '',
         dateValue: dateField ? (d.data?.[dateField] || '') : '',
