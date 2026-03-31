@@ -4,12 +4,11 @@ import { useState, useCallback } from 'react';
 import { Download } from 'lucide-react';
 import { AdminFormTable } from '@/components/admin-form-table';
 import { AdminTabs } from '@/components/admin-tabs';
-import { FormDateManager } from '@/components/form-date-manager';
 import { FormReport } from '@/components/form-report';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
 
-type Tab = 'submissions' | 'dates' | 'report';
+type Tab = 'submissions' | 'report';
 
 export default function AdminChildDedicationPage() {
   const [tab, setTab] = useState<Tab>('submissions');
@@ -35,7 +34,6 @@ export default function AdminChildDedicationPage() {
           <AdminTabs
             tabs={[
               { id: 'submissions' as Tab, label: 'Pendaftaran' },
-              { id: 'dates' as Tab, label: 'Tanggal Penyerahan' },
               { id: 'report' as Tab, label: 'Laporan' },
             ]}
             active={tab}
@@ -46,10 +44,7 @@ export default function AdminChildDedicationPage() {
         {tab === 'submissions' && (
           <AdminFormTable formType="child-dedication" title="Penyerahan Anak" />
         )}
-        {tab === 'dates' && (
-          <FormDateManager formType="child-dedication" dateLabel="Tanggal Penyerahan Tersedia" />
-        )}
-        {tab === 'report' && (
+{tab === 'report' && (
           <FormReport
             formType="child-dedication"
             title="Penyerahan Anak"

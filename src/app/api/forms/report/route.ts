@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 
+/** Format raw date (YYYY-MM-DD) to Indonesian display format (Sabtu, 14 Maret 2026) */
+function formatDateValue(raw: string): string {
+  if (!raw) return '';
+  // Already formatted (contains a comma or Indonesian month) — return as-is
+  if (raw.includes(',') || /[A-Za-z]/.test(raw)) return raw;
+  // Raw ISO date
+  const [y, m, d] = raw.split('-').map(Number);
+  if (!y || !m || !d) return raw;
+  return new Date(y, m - 1, d).toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+}
+
 const DATE_FIELD_MAP: Record<string, string> = {
   mclass: 'tanggalMClass',
   baptism: 'tanggalBaptis',
@@ -35,7 +48,7 @@ export async function GET(request: NextRequest) {
           : (d.data?.noMClass || ''),
         namaLengkap: d.data?.namaLengkap || '',
         noTelepon: d.data?.noTelepon || '',
-        dateValue: dateField ? (d.data?.[dateField] || '') : '',
+        dateValue: dateField ? formatDateValue(d.data?.[dateField] || '') : '',
         status: d.status || 'pending',
         createdAt: d.createdAt || '',
       };

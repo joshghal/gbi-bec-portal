@@ -13,6 +13,7 @@ import {
   MessageCircle,
   Link as LinkIcon,
   Copy,
+  Printer,
   CheckCheck,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +36,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { PrintFormChildDedication } from '@/components/print-form-child-dedication';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { toastApiError } from '@/lib/api-toast';
 import { DateInput } from '@/components/ui/date-input';
@@ -309,7 +311,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                     <TableHead>Nama</TableHead>
                     <TableHead className="w-[120px]">Status</TableHead>
                     <TableHead className="w-[120px]">Tanggal</TableHead>
-                    <TableHead className="w-[90px] text-right">Aksi</TableHead>
+                    <TableHead className="w-[90px] text-left">Aksi</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -330,8 +332,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                         {new Date(sub.createdAt).toLocaleDateString('id-ID')}{' '}
                         {new Date(sub.createdAt).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-0.5">
+                      <TableCell className="text-left">
+                        <div className="flex items-center justify-start gap-0.5">
                           <Button
                             variant="ghost"
                             size="icon"
@@ -348,6 +350,28 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                               onClick={() => openEdit(sub)}
                             >
                               <Pencil className="w-3.5 h-3.5" />
+                            </Button>
+                          )}
+                          {formType === 'child-dedication' && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => {
+                                const printWin = window.open('', '_blank', 'width=800,height=1000');
+                                if (!printWin) return;
+                                printWin.document.write(`<!DOCTYPE html><html><head><title>Formulir Penyerahan Anak - ${sub.data?.namaAnak || ''}</title></head><body><div id="root"></div></body></html>`);
+                                printWin.document.close();
+                                import('react-dom/client').then(({ createRoot }) => {
+                                  const root = createRoot(printWin.document.getElementById('root')!);
+                                  root.render(
+                                    <PrintFormChildDedication data={sub.data as Record<string, string>} />
+                                  );
+                                  setTimeout(() => { printWin.print(); }, 500);
+                                });
+                              }}
+                            >
+                              <Printer className="w-3.5 h-3.5" />
                             </Button>
                           )}
                         </div>
@@ -440,12 +464,14 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           )}
 
           <DialogFooter className="flex-row justify-between sm:justify-between">
-            {isSuperAdmin && !isReadOnly ? (
-              <Button variant="destructive" onClick={handleDelete} disabled={saving}>
-                <Trash2 className="w-4 h-4 mr-1.5" />
-                Hapus
-              </Button>
-            ) : <div />}
+            <div className="flex gap-2">
+              {isSuperAdmin && !isReadOnly && (
+                <Button variant="destructive" onClick={handleDelete} disabled={saving}>
+                  <Trash2 className="w-4 h-4 mr-1.5" />
+                  Hapus
+                </Button>
+              )}
+            </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setSelected(null)}>
                 {isReadOnly ? 'Tutup' : 'Batal'}
