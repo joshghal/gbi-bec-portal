@@ -3,11 +3,10 @@
 import { forwardRef } from 'react';
 
 interface FormData {
-  namaAnak?: string;
-  namaPanggilan?: string;
-  jenisKelaminAnak?: string;
-  tempatLahirAnak?: string;
-  tanggalLahirAnak?: string;
+  namaLengkap?: string;
+  jenisKelamin?: string;
+  tempatLahir?: string;
+  tanggalLahir?: string;
   alamat?: string;
   rtRw?: string;
   kelurahan?: string;
@@ -15,11 +14,10 @@ interface FormData {
   kota?: string;
   kodePos?: string;
   noTelepon?: string;
-  cabangIbadah?: string;
   namaAyah?: string;
   namaIbu?: string;
-  tanggalPenyerahan?: string;
-  penyerahanDilakukanOleh?: string;
+  tanggalBaptis?: string;
+  [key: string]: string | undefined;
 }
 
 interface Props {
@@ -39,17 +37,17 @@ function formatDate(raw?: string): string {
 
 function gender(val?: string): string {
   if (!val) return '';
-  return val === 'Laki-laki' ? 'L' : 'P';
+  return val === 'Pria' ? 'L' : 'P';
 }
 
-const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
-  function PrintFormChildDedication({ data, nomor }, ref) {
+const PrintFormBaptism = forwardRef<HTMLDivElement, Props>(
+  function PrintFormBaptism({ data, nomor }, ref) {
     const d = data;
 
     return (
-      <div ref={ref} className="print-form-pa">
+      <div ref={ref} className="print-form-baptis">
         <style>{`
-          .print-form-pa {
+          .print-form-baptis {
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
             color: #000;
@@ -60,21 +58,11 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
             box-sizing: border-box;
             line-height: 1.6;
           }
-
-          /* Header */
           .pf-header {
             text-align: center;
             border-bottom: 2px solid #000;
             padding-bottom: 8px;
-            margin-bottom: 16px;
-            position: relative;
-          }
-          .pf-header-logo {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 64px;
-            height: 64px;
+            margin-bottom: 4px;
           }
           .pf-header h1 {
             font-size: 18pt;
@@ -87,21 +75,24 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
             line-height: 1.3;
             margin: 0;
           }
-          .pf-header .pf-addr {
-            font-size: 7.5pt;
-            line-height: 1.3;
-            margin: 2px 0 0;
-          }
           .pf-header .pf-branch {
             font-size: 10pt;
             font-weight: bold;
             margin: 2px 0 0;
           }
-
-          /* Title */
+          .pf-header .pf-addr {
+            font-size: 7.5pt;
+            line-height: 1.3;
+            margin: 2px 0 0;
+          }
+          .pf-subtitle {
+            font-size: 9pt;
+            font-style: italic;
+            margin: 4px 0 8px;
+          }
           .pf-title {
             text-align: center;
-            margin: 16px 0 20px;
+            margin: 12px 0 20px;
           }
           .pf-title h2 {
             font-size: 14pt;
@@ -109,11 +100,6 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
             border: 2px solid #000;
             display: inline-block;
             padding: 4px 16px;
-          }
-
-          /* Fields */
-          .pf-fields {
-            margin: 0;
           }
           .pf-row {
             display: flex;
@@ -163,23 +149,31 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
             min-height: 16px;
             font-size: 10pt;
           }
-
-          /* Footer sections */
-          .pf-footer {
-            margin-top: 24px;
-            display: flex;
-            gap: 32px;
+          .pf-declaration {
+            margin-top: 20px;
+            border: 2px solid #000;
+            padding: 8px 12px;
+            font-size: 10pt;
+            font-weight: bold;
+            font-style: italic;
+            text-align: center;
+            line-height: 1.4;
           }
-          .pf-requirements {
+          .pf-footer {
+            margin-top: 16px;
+            display: flex;
+            gap: 24px;
+          }
+          .pf-notes {
             flex: 1;
           }
-          .pf-requirements h3, .pf-notes h3 {
+          .pf-notes h3 {
             font-size: 10pt;
             font-weight: bold;
             text-decoration: underline;
             margin: 0 0 4px;
           }
-          .pf-requirements ul, .pf-notes ul {
+          .pf-notes ul {
             font-size: 9pt;
             margin: 0;
             padding-left: 16px;
@@ -191,7 +185,7 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
           }
           .pf-signature .pf-date {
             font-size: 10pt;
-            margin-bottom: 60px;
+            margin-bottom: 50px;
           }
           .pf-signature .pf-line {
             border-top: 1px solid #000;
@@ -200,13 +194,10 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
           }
           .pf-signature .pf-sig-label {
             font-size: 9pt;
+            text-transform: uppercase;
           }
-          .pf-notes {
-            margin-top: 12px;
-          }
-
           @media print {
-            .print-form-pa {
+            .print-form-baptis {
               margin: 0;
               padding: 10mm 14mm;
             }
@@ -222,19 +213,21 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
           </p>
           <p className="pf-branch">Jl. Sukawarna, Komp. Istana Regensi I Kav. C3/1 Bandung</p>
           <p className="pf-addr">
-            Sekretariat : Jl. Aruna No. 19, Bandung 40174 - Telp. (62 22) 6003808, 6007166, 6011218, 6012013<br />
-            Fax. (62 22) 6012394 (Sekum), 6009231 (Cool) - Email. gbisukawarna@gbisukawarna.org<br />
-            Website. www.gbisukawarna.org
+            Sekretariat : Jl. Aruna No. 19 Bandung - 40174<br />
+            Telp. (022) 6003808 / 6007166 / 6011218 / 6012013 &nbsp; Fax. (022) 6012394 (SEKUM) / 6009231 (COOL)<br />
+            Official website : www.gbisukawarna.org &nbsp; e-mail : gbisukawarna@gbisukawarna.org
           </p>
         </div>
 
+        <p className="pf-subtitle">Mohon diisi sesuai dengan akte lahir</p>
+
         {/* Title */}
         <div className="pf-title">
-          <h2>FORMULIR PENYERAHAN ANAK</h2>
+          <h2>FORMULIR BAPTISAN</h2>
         </div>
 
         {/* Form fields */}
-        <div className="pf-fields">
+        <div>
           <div className="pf-row">
             <span className="pf-label">Nomor (Diisi Sekretariat)</span>
             <span className="pf-colon">:</span>
@@ -242,24 +235,18 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="pf-row">
-            <span className="pf-label">Nama Lengkap (Anak)</span>
+            <span className="pf-label">Nama Lengkap</span>
             <span className="pf-colon">:</span>
-            <span className="pf-value">{d.namaAnak || ''}</span>
-          </div>
-
-          <div className="pf-row">
-            <span className="pf-label">Nama Panggilan</span>
-            <span className="pf-colon">:</span>
-            <span className="pf-value">
-              {d.namaPanggilan || ''}
-              <span style={{ float: 'right' }}>({gender(d.jenisKelaminAnak) || 'L/P'})</span>
-            </span>
+            <span className="pf-value">{d.namaLengkap || ''}</span>
           </div>
 
           <div className="pf-row">
             <span className="pf-label">Alamat Lengkap</span>
             <span className="pf-colon">:</span>
-            <span className="pf-value">{d.alamat || ''}</span>
+            <span className="pf-value">
+              {d.alamat || ''}
+              <span style={{ float: 'right' }}>({gender(d.jenisKelamin) || 'L/P'})</span>
+            </span>
           </div>
 
           <div className="pf-sub-row">
@@ -288,22 +275,16 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
             <span className="pf-sub-value">{d.kodePos || ''}</span>
           </div>
           <div className="pf-sub-row">
-            <span className="pf-sub-label">HP</span>
+            <span className="pf-sub-label">Telp.</span>
             <span className="pf-sub-colon">:</span>
             <span className="pf-sub-value">{d.noTelepon || ''}</span>
           </div>
 
           <div className="pf-row" style={{ marginTop: 8 }}>
-            <span className="pf-label">Cabang Ibadah</span>
-            <span className="pf-colon">:</span>
-            <span className="pf-value">{d.cabangIbadah || ''}</span>
-          </div>
-
-          <div className="pf-row">
             <span className="pf-label">Tempat/Tanggal Lahir</span>
             <span className="pf-colon">:</span>
             <span className="pf-value">
-              {[d.tempatLahirAnak, formatDate(d.tanggalLahirAnak)].filter(Boolean).join(', ')}
+              {[d.tempatLahir, formatDate(d.tanggalLahir)].filter(Boolean).join(', ')}
             </span>
           </div>
 
@@ -320,46 +301,42 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
           </div>
 
           <div className="pf-row">
-            <span className="pf-label">Tanggal Penyerahan</span>
+            <span className="pf-label">Tanggal Baptisan</span>
             <span className="pf-colon">:</span>
-            <span className="pf-value">{formatDate(d.tanggalPenyerahan)}</span>
+            <span className="pf-value">{d.tanggalBaptis || ''}</span>
           </div>
 
           <div className="pf-row">
-            <span className="pf-label">Penyerahan Dilakukan Oleh</span>
+            <span className="pf-label">Baptisan Ini Dilakukan Oleh</span>
             <span className="pf-colon">:</span>
-            <span className="pf-value">{d.penyerahanDilakukanOleh || ''}</span>
+            <span className="pf-value" />
           </div>
+        </div>
+
+        {/* Declaration */}
+        <div className="pf-declaration">
+          DENGAN INI SAYA MENYATAKAN BERSEDIA DIBAPTIS ATAS KEMAUAN SENDIRI DAN
+          BERJANJI MENGIKUTI KOM (KEHIDUPAN ORIENTASI MELAYANI) SETELAH DIBAPTIS
         </div>
 
         {/* Footer */}
         <div className="pf-footer">
-          <div>
-            <div className="pf-requirements">
-              <h3>Persyaratan:</h3>
-              <ul>
-                <li>Phas Foto Anak ukr. 3x4 dua lembar.</li>
-                <li>Foto Copy Akta Lahir Anak.</li>
-                <li>Foto Copy Surat Baptisan Ayah dan Ibu.</li>
-                <li>Foto Copy Akta Nikah / Pemberkatan Nikah.</li>
-              </ul>
-            </div>
-            <div className="pf-notes">
-              <h3>Catatan:</h3>
-              <ul>
-                <li>Harap Diisi dengan huruf cetak dan jelas.</li>
-                <li>Ayah dan ibu harus hadir pada waktu penyerahan anak.</li>
-                <li>Pada saat pengambilan Surat Penyerahan Anak harap membawa copy Formulir Penyerahan Anak.</li>
-              </ul>
-            </div>
+          <div className="pf-notes">
+            <h3>CATATAN :</h3>
+            <ul>
+              <li>Harap diisi dengan huruf cetak dan jelas.</li>
+              <li>Disertai 2 buah pas photo uk. 3 X 4 Cm.</li>
+              <li>Surat Baptisan dapat diambil setelah menyelesaikan Kelas KOM 100.</li>
+              <li>Pada saat pengambilan Surat Baptisan harap membawa copy Formulir Baptisan.</li>
+            </ul>
           </div>
 
           <div className="pf-signature">
             <p className="pf-date">
-              Bandung, {formatDate(d.tanggalPenyerahan) || '............................'}
+              BANDUNG, {d.tanggalBaptis || '............................'}
             </p>
             <div style={{ height: 60 }} />
-            <p className="pf-sig-label">Tanda Tangan dan Nama Jelas</p>
+            <p style={{ fontSize: '11pt' }}>{d.namaLengkap || ''}</p>
           </div>
         </div>
       </div>
@@ -367,4 +344,4 @@ const PrintFormChildDedication = forwardRef<HTMLDivElement, Props>(
   }
 );
 
-export { PrintFormChildDedication };
+export { PrintFormBaptism };

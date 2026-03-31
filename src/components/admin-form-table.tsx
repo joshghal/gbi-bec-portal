@@ -37,6 +37,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { PrintFormChildDedication } from '@/components/print-form-child-dedication';
+import { PrintFormBaptism } from '@/components/print-form-baptism';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { toastApiError } from '@/lib/api-toast';
 import { DateInput } from '@/components/ui/date-input';
@@ -352,21 +353,26 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                               <Pencil className="w-3.5 h-3.5" />
                             </Button>
                           )}
-                          {formType === 'child-dedication' && (
+                          {(formType === 'child-dedication' || formType === 'baptism') && (
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
                               onClick={() => {
+                                const title = formType === 'child-dedication'
+                                  ? `Formulir Penyerahan Anak - ${sub.data?.namaAnak || ''}`
+                                  : `Formulir Baptisan - ${sub.data?.namaLengkap || ''}`;
                                 const printWin = window.open('', '_blank', 'width=800,height=1000');
                                 if (!printWin) return;
-                                printWin.document.write(`<!DOCTYPE html><html><head><title>Formulir Penyerahan Anak - ${sub.data?.namaAnak || ''}</title></head><body><div id="root"></div></body></html>`);
+                                printWin.document.write(`<!DOCTYPE html><html><head><title>${title}</title></head><body><div id="root"></div></body></html>`);
                                 printWin.document.close();
                                 import('react-dom/client').then(({ createRoot }) => {
                                   const root = createRoot(printWin.document.getElementById('root')!);
-                                  root.render(
-                                    <PrintFormChildDedication data={sub.data as Record<string, string>} />
-                                  );
+                                  if (formType === 'child-dedication') {
+                                    root.render(<PrintFormChildDedication data={sub.data as Record<string, string>} />);
+                                  } else {
+                                    root.render(<PrintFormBaptism data={sub.data as Record<string, string>} />);
+                                  }
                                   setTimeout(() => { printWin.print(); }, 500);
                                 });
                               }}
