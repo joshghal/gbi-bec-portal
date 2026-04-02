@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/table';
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -330,7 +331,7 @@ export default function AdminPage() {
             </DialogHeader>
 
             {editDoc && (
-              <div className="space-y-4">
+              <DialogBody className="space-y-4">
                 <div>
                   <Label htmlFor="doc-id">ID</Label>
                   <Input
@@ -392,7 +393,7 @@ export default function AdminPage() {
                     className="mt-1"
                   />
                 </div>
-              </div>
+              </DialogBody>
             )}
 
             <DialogFooter>

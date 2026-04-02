@@ -7,6 +7,7 @@ import ActivitiesSection from '@/components/landing/activities';
 import ServicesSection from '@/components/landing/services';
 import ScheduleSection from '@/components/landing/schedule';
 import UpdatesSection from '@/components/landing/updates';
+import VideoParallaxSection from '@/components/landing/video-parallax';
 import ContactSection from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
 
@@ -72,6 +73,7 @@ export default function LandingPage() {
         <Nav />
         <main>
           <Hero />
+          <VideoParallaxSection />
           <UpdatesSection />
           <AboutIntro />
           <ActivitiesSection />

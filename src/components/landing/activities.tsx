@@ -1,155 +1,286 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { LandingButton } from '@/components/landing/landing-button';
 import {
   fadeUp,
   viewportOnce,
 } from '@/components/landing/animations';
 
-/* ── Activity data ────────────────────────────────────────────── */
+/* ── Types ────────────────────────────────────────────────────── */
+
+interface Contact {
+  name: string;
+  waLink: string;
+}
 
 interface Activity {
   title: string;
   subtitle: string;
   day: string;
   description: string;
+  longDescription?: string;
   tags?: string[];
-  contact?: { name: string; waLink: string };
+  contacts?: Contact[];
   cta?: { label: string; href: string; external?: boolean };
   aiQuestion: string;
-  gradient: string;
-  bg: string;
-  accent: string;
 }
 
-const ACTIVITIES: Activity[] = [
+interface ApiActivity {
+  id?: string;
+  title: string;
+  subtitle: string;
+  day: string;
+  description: string;
+  longDescription?: string;
+  tags?: string[];
+  contacts?: Contact[];
+  // legacy single-contact fields
+  contactName?: string;
+  contactWaLink?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  ctaExternal?: boolean;
+  aiQuestion: string;
+  enabled: boolean;
+  order: number;
+}
+
+function mapApiActivity(a: ApiActivity): Activity {
+  // Support both new `contacts` array and legacy single-contact fields
+  let contacts: Contact[] | undefined = a.contacts?.filter(c => c.name && c.waLink);
+  if ((!contacts || contacts.length === 0) && a.contactName && a.contactWaLink) {
+    contacts = [{ name: a.contactName, waLink: a.contactWaLink }];
+  }
+
+  return {
+    title: a.title,
+    subtitle: a.subtitle,
+    day: a.day,
+    description: a.description,
+    longDescription: a.longDescription || undefined,
+    tags: a.tags,
+    contacts: contacts && contacts.length > 0 ? contacts : undefined,
+    cta: a.ctaLabel && a.ctaHref ? { label: a.ctaLabel, href: a.ctaHref, external: a.ctaExternal } : undefined,
+    aiQuestion: a.aiQuestion,
+  };
+}
+
+const FALLBACK_ACTIVITIES: Activity[] = [
   {
     title: 'Ibadah Raya',
     subtitle: 'Kebaktian Utama',
     day: 'Minggu · 17:00 WIB',
-    description:
-      'Ibadah utama GBI BEC setiap Minggu sore dengan pujian penyembahan dan pemberitaan Firman Tuhan. Terbuka untuk umum.',
-    contact: { name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' },
+    description: 'Ibadah utama GBI BEC setiap Minggu sore dengan pujian penyembahan dan pemberitaan Firman Tuhan. Terbuka untuk umum.',
+    contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
     aiQuestion: 'Kapan jadwal Ibadah Raya GBI BEC dan bagaimana cara menghadirinya?',
-    gradient: 'linear-gradient(140deg, oklch(0.24 0.022 68) 0%, oklch(0.17 0.016 62) 100%)',
-    bg: 'oklch(0.20 0.018 65)',
-    accent: 'oklch(0.82 0.035 72)',
   },
   {
     title: 'KOM',
     subtitle: 'Kehidupan Orientasi Melayani',
     day: 'Rabu & Kamis · 18:30 WIB',
-    description:
-      'Program pengajaran Firman Tuhan berjenjang — 4 level, 82 sesi total. Kurikulum nasional GBI, sertifikat resmi setiap level.',
+    description: 'Program pengajaran Firman Tuhan berjenjang — 4 level, 82 sesi total. Kurikulum nasional GBI, sertifikat resmi setiap level.',
     tags: ['KOM 100 · Pencari', 'KOM 200 · Pelayan', 'KOM 300 · Prajurit', 'KOM 400 · Penilik'],
-    contact: { name: 'Henny', waLink: 'https://wa.me/6285860060050' },
+    contacts: [{ name: 'Henny', waLink: 'https://wa.me/6285860060050' }],
     cta: { label: 'Lihat Materi KOM', href: '/kom' },
     aiQuestion: 'Apa itu program KOM di GBI BEC dan bagaimana cara mendaftar?',
-    gradient: 'linear-gradient(150deg, oklch(0.22 0.042 252) 0%, oklch(0.16 0.030 262) 100%)',
-    bg: 'oklch(0.19 0.035 257)',
-    accent: 'oklch(0.80 0.055 252)',
   },
   {
     title: 'Creative Ministry',
     subtitle: 'Seni & Pujian',
     day: 'Sabtu',
-    description:
-      'Enam cabang pelayanan seni — dari paduan suara hingga tarian modern. Latihan setiap Sabtu di Baranangsiang.',
+    description: 'Enam cabang pelayanan seni — dari paduan suara hingga tarian modern. Latihan setiap Sabtu di Baranangsiang.',
     tags: ['Choir Dewasa', 'Choir Anak', 'Balet', 'Tamborine', 'Banner', 'Modern Dance'],
-    contact: { name: 'Ibu Fera', waLink: 'https://wa.me/6282119749869' },
+    contacts: [{ name: 'Ibu Fera', waLink: 'https://wa.me/6282119749869' }],
     aiQuestion: 'Bagaimana cara bergabung dengan Creative Ministry GBI BEC?',
-    gradient: 'linear-gradient(135deg, oklch(0.23 0.025 55) 0%, oklch(0.17 0.018 50) 100%)',
-    bg: 'oklch(0.20 0.020 52)',
-    accent: 'oklch(0.83 0.045 68)',
   },
   {
     title: 'COOL',
     subtitle: 'Community of Love',
     day: 'Selasa',
-    description:
-      'Kelompok sel untuk saling mendukung dan bertumbuh bersama dalam komunitas kecil yang hangat.',
-    contact: { name: 'Ps. Agus Sulistyono', waLink: 'https://wa.me/6281910238170' },
+    description: 'Kelompok sel untuk saling mendukung dan bertumbuh bersama dalam komunitas kecil yang hangat.',
+    contacts: [{ name: 'Ps. Agus Sulistyono', waLink: 'https://wa.me/6281910238170' }],
     aiQuestion: 'Apa itu COOL di GBI BEC dan bagaimana cara bergabung dengan kelompok sel?',
-    gradient: 'linear-gradient(145deg, oklch(0.21 0.038 245) 0%, oklch(0.15 0.028 252) 100%)',
-    bg: 'oklch(0.18 0.032 248)',
-    accent: 'oklch(0.79 0.050 245)',
   },
   {
     title: 'M-Class',
     subtitle: 'Keanggotaan Gereja',
     day: 'Jadwal diinfokan',
-    description:
-      'Kelas wajib untuk mendapatkan KAJ dan menjadi anggota resmi GBI BEC.',
+    description: 'Kelas wajib untuk mendapatkan KAJ dan menjadi anggota resmi GBI BEC.',
     tags: ['M-Class', 'Baptisan', 'KAJ', 'Anggota'],
-    contact: { name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' },
+    contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
     cta: { label: 'Daftar M-Class', href: '/forms/mclass' },
     aiQuestion: 'Apa itu M-Class dan bagaimana cara mendaftar menjadi anggota resmi GBI BEC?',
-    gradient: 'linear-gradient(155deg, oklch(0.23 0.020 72) 0%, oklch(0.17 0.015 66) 100%)',
-    bg: 'oklch(0.20 0.017 69)',
-    accent: 'oklch(0.82 0.035 75)',
   },
   {
     title: 'Baptisan Air',
     subtitle: 'Sakramen',
     day: 'Dua bulan sekali',
-    description:
-      'Baptisan selam bagi jemaat usia 12+ tahun yang telah menyelesaikan KOM 100.',
-    contact: { name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' },
+    description: 'Baptisan selam bagi jemaat usia 12+ tahun yang telah menyelesaikan KOM 100.',
+    contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
     cta: { label: 'Daftar Baptisan', href: '/forms/baptism' },
     aiQuestion: 'Apa syarat Baptisan Air di GBI BEC dan bagaimana cara mendaftarnya?',
-    gradient: 'linear-gradient(140deg, oklch(0.21 0.040 258) 0%, oklch(0.15 0.028 265) 100%)',
-    bg: 'oklch(0.18 0.033 261)',
-    accent: 'oklch(0.80 0.052 258)',
   },
   {
     title: 'Penyerahan Anak',
     subtitle: 'Sakramen',
     day: 'Jadwal diinfokan',
-    description:
-      'Bersama kedua orang tua di hadapan jemaat sebagai komitmen mendidik anak dalam Tuhan.',
-    contact: { name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' },
+    description: 'Bersama kedua orang tua di hadapan jemaat sebagai komitmen mendidik anak dalam Tuhan.',
+    contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
     cta: { label: 'Daftar', href: '/forms/child-dedication' },
     aiQuestion: 'Apa syarat Penyerahan Anak di GBI BEC dan bagaimana cara mendaftarnya?',
-    gradient: 'linear-gradient(135deg, oklch(0.22 0.022 62) 0%, oklch(0.16 0.016 57) 100%)',
-    bg: 'oklch(0.19 0.018 59)',
-    accent: 'oklch(0.81 0.038 70)',
   },
   {
     title: 'Pemberkatan Nikah',
     subtitle: 'Sakramen',
     day: 'Daftar min. 5 bulan sebelumnya',
-    description:
-      'Bagi jemaat GBI BEC yang memiliki KAJ dan telah lulus KOM 100.',
-    contact: { name: 'Unit Pernikahan', waLink: 'https://wa.me/6289679299098' },
+    description: 'Bagi jemaat GBI BEC yang memiliki KAJ dan telah lulus KOM 100.',
+    contacts: [{ name: 'Unit Pernikahan', waLink: 'https://wa.me/6289679299098' }],
     aiQuestion: 'Apa syarat Pemberkatan Nikah di GBI BEC dan bagaimana cara mendaftarnya?',
-    gradient: 'linear-gradient(145deg, oklch(0.22 0.038 248) 0%, oklch(0.16 0.027 256) 100%)',
-    bg: 'oklch(0.19 0.031 252)',
-    accent: 'oklch(0.80 0.050 250)',
   },
 ];
 
-/* ── WhatsApp icon ────────────────────────────────────────────── */
+/* ── Card color themes — alternate brown / navy by position ─── */
 
-function WaIcon({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
-
-/* ── Noise texture — static PNG-encoded dots, no feTurbulence GPU cost ── */
-// 4×4 pixel noise tile encoded as base64 PNG (no SVG filter, no GPU shader)
-const GRAIN_PNG = `url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z8BQDwAEgAF/QualIQAAAABJRU5ErkJggg==")`;
+const CARD_THEMES = [
+  { gradient: 'linear-gradient(140deg, oklch(0.24 0.022 68) 0%, oklch(0.17 0.016 62) 100%)', bg: 'oklch(0.20 0.018 65)', accent: 'oklch(0.82 0.035 72)' },
+  { gradient: 'linear-gradient(150deg, oklch(0.22 0.042 252) 0%, oklch(0.16 0.030 262) 100%)', bg: 'oklch(0.19 0.035 257)', accent: 'oklch(0.80 0.055 252)' },
+] as const;
 
 /* ── Stacking card top offsets ────────────────────────────────── */
 const CARD_TOP_START = 80;  // px — first card sticks here
 const CARD_TOP_STEP = 16;   // px — each subsequent card sticks a bit lower
 
+/* ── Detail modal ────────────────────────────────────────────── */
+
+function ActivityDetailModal({
+  activity,
+  theme,
+  onClose,
+}: {
+  activity: Activity;
+  theme: typeof CARD_THEMES[number];
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl p-6 sm:p-8"
+        style={{ background: theme.gradient }}
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-70"
+          style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.8)' }}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+        </button>
+
+        <p className="text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: theme.accent, opacity: 0.7 }}>
+          {activity.subtitle}
+        </p>
+        <h3 className="mt-3 font-serif text-2xl sm:text-3xl font-bold leading-[1.1] tracking-[-0.02em]" style={{ color: theme.accent }}>
+          {activity.title}
+        </h3>
+        <p className="mt-2 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
+          {activity.day}
+        </p>
+
+        {/* Long description */}
+        <div
+          className="mt-5 text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95"
+          style={{ color: 'rgba(255,255,255,0.80)' }}
+          dangerouslySetInnerHTML={{ __html: activity.longDescription! }}
+        />
+
+        {/* Tags */}
+        {activity.tags && activity.tags.length > 0 && (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {activity.tags.map((tag) => (
+              <span
+                key={tag}
+                className="text-[11px] px-2.5 py-1 rounded-md font-medium"
+                style={{
+                  backgroundColor: 'rgba(255,255,255,0.14)',
+                  color: 'rgba(255,255,255,0.85)',
+                  border: '1px solid rgba(255,255,255,0.18)',
+                }}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="mt-6 flex flex-col gap-2.5">
+          {activity.contacts?.map((contact) => (
+            <LandingButton key={contact.waLink} variant="glass" href={contact.waLink} external whatsapp className="w-full">
+              Hubungi {contact.name}
+            </LandingButton>
+          ))}
+
+          <LandingButton variant="glass-light" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full">
+            Tanya AI Kami
+          </LandingButton>
+
+          {activity.cta && (
+            <LandingButton
+              variant="glass-light"
+              href={activity.cta.href}
+              external={activity.cta.external}
+              arrow
+              className="w-full"
+              darkTextColor={theme.bg}
+            >
+              {activity.cta.label}
+            </LandingButton>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Component ────────────────────────────────────────────────── */
 
 export default function ActivitiesSection() {
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [sectionEnabled, setSectionEnabled] = useState<boolean | null>(null);
+  const [detailIndex, setDetailIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    Promise.all([
+      fetch('/api/activities/settings').then(r => r.ok ? r.json() : { sectionEnabled: true }),
+      fetch('/api/activities').then(r => r.ok ? r.json() : []),
+    ]).then(([settings, data]) => {
+      setSectionEnabled(settings.sectionEnabled);
+      const mapped = (data as ApiActivity[]).map(mapApiActivity);
+      setActivities(mapped.length > 0 ? mapped : FALLBACK_ACTIVITIES);
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    }).catch(() => {
+      setSectionEnabled(true);
+      setActivities(FALLBACK_ACTIVITIES);
+    });
+  }, []);
+
+  if (sectionEnabled === null) return null;
+
+  const displayActivities = sectionEnabled ? activities : FALLBACK_ACTIVITIES;
+  if (displayActivities.length === 0) return null;
+
   return (
     <section id="kegiatan" className="py-16 lg:py-24 px-4 sm:px-6 lg:px-12">
       <div className="max-w-6xl mx-auto">
@@ -173,7 +304,9 @@ export default function ActivitiesSection() {
 
         {/* Stacking cards */}
         <div className="relative">
-          {ACTIVITIES.map((activity, i) => (
+          {displayActivities.map((activity, i) => {
+            const theme = CARD_THEMES[i % 2];
+            return (
             <div
               key={activity.title}
               className="sticky mb-4 last:mb-0"
@@ -184,7 +317,7 @@ export default function ActivitiesSection() {
               <div
                 className="relative overflow-hidden rounded-2xl lg:rounded-3xl min-h-[420px] sm:min-h-[380px] lg:min-h-[400px] flex flex-col p-6 sm:p-8 lg:p-10"
                 style={{
-                  background: activity.gradient,
+                  background: theme.gradient,
                   boxShadow: '0 -4px 30px -5px rgba(0,0,0,0.3)',
                 }}
               >
@@ -195,7 +328,7 @@ export default function ActivitiesSection() {
                   style={{
                     fontSize: 'clamp(5rem, 12vw, 10rem)',
                     lineHeight: 1,
-                    color: activity.accent,
+                    color: theme.accent,
                     opacity: 0.10,
                   }}
                   aria-hidden="true"
@@ -209,7 +342,7 @@ export default function ActivitiesSection() {
                   {/* Subtitle label */}
                   <p
                     className="text-xs uppercase tracking-[0.2em] font-semibold mb-auto"
-                    style={{ color: activity.accent, opacity: 0.7 }}
+                    style={{ color: theme.accent, opacity: 0.7 }}
                   >
                     {activity.subtitle}
                   </p>
@@ -224,7 +357,7 @@ export default function ActivitiesSection() {
                           className="font-serif font-bold leading-[1.05] tracking-[-0.03em]"
                           style={{
                             fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                            color: activity.accent,
+                            color: theme.accent,
                           }}
                         >
                           {activity.title}
@@ -238,21 +371,51 @@ export default function ActivitiesSection() {
                       </div>
 
                       {/* Description — right on desktop */}
-                      <p
-                        className="hidden lg:block lg:max-w-sm text-sm leading-relaxed lg:text-right"
-                        style={{ color: 'rgba(255,255,255,0.55)' }}
-                      >
-                        {activity.description}
-                      </p>
+                      {activity.longDescription ? (
+                        <button
+                          type="button"
+                          onClick={() => setDetailIndex(i)}
+                          className="hidden lg:block lg:max-w-sm lg:text-right cursor-pointer"
+                        >
+                          <p className="text-sm leading-relaxed " style={{ color: 'rgba(255,255,255,0.55)' }}>
+                            {activity.description}
+                          </p>
+                          <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold transition-opacity group-hover/desc:opacity-80" style={{ color: theme.accent }}>
+                            Selengkapnya
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
+                              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          </span>
+                        </button>
+                      ) : (
+                        <p className="hidden lg:block lg:max-w-sm text-sm leading-relaxed lg:text-right" style={{ color: 'rgba(255,255,255,0.55)' }}>
+                          {activity.description}
+                        </p>
+                      )}
                     </div>
 
                     {/* Description — mobile only */}
-                    <p
-                      className="lg:hidden mt-3 text-sm leading-relaxed"
-                      style={{ color: 'rgba(255,255,255,0.60)' }}
-                    >
-                      {activity.description}
-                    </p>
+                    {activity.longDescription ? (
+                      <button
+                        type="button"
+                        onClick={() => setDetailIndex(i)}
+                        className="lg:hidden mt-3 text-left cursor-pointer"
+                      >
+                        <p className="text-sm leading-relaxed " style={{ color: 'rgba(255,255,255,0.60)' }}>
+                          {activity.description}
+                        </p>
+                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold transition-opacity group-hover/desc:opacity-80" style={{ color: theme.accent }}>
+                          Selengkapnya
+                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
+                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        </span>
+                      </button>
+                    ) : (
+                      <p className="lg:hidden mt-3 text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.60)' }}>
+                        {activity.description}
+                      </p>
+                    )}
 
                     {/* Tags */}
                     {activity.tags && (
@@ -277,72 +440,45 @@ export default function ActivitiesSection() {
 
                   {/* Action buttons — mt-auto pins them to bottom, space falls in middle */}
                   <div className="mt-auto pt-6 flex flex-col lg:flex-row gap-2 lg:gap-2.5">
+                    {activity.contacts?.map((contact) => (
+                      <LandingButton key={contact.waLink} variant="glass" href={contact.waLink} external whatsapp className="w-full lg:w-auto">
+                        Hubungi {contact.name}
+                      </LandingButton>
+                    ))}
 
-                    {activity.contact && (
-                      <a
-                        href={activity.contact.waLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-85"
-                        style={{
-                          backgroundColor: 'rgba(255,255,255,0.12)',
-                          border: '1px solid rgba(255,255,255,0.25)',
-                          color: 'rgba(255,255,255,0.90)',
-                        }}
-                      >
-                        <WaIcon className="w-4 h-4 shrink-0 text-white/90" />
-                        Hubungi {activity.contact.name}
-                      </a>
-                    )}
-
-                    <Link
-                      href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`}
-                      className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
-                      style={{
-                        backgroundColor: 'rgba(255,255,255,0.92)',
-                        color: activity.bg,
-                      }}
-                    >
+                    <LandingButton variant="glass-light" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full lg:w-auto">
                       Tanya AI Kami
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                        <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </Link>
+                    </LandingButton>
 
                     {activity.cta && (
-                      activity.cta.external ? (
-                        <a
-                          href={activity.cta.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-85"
-                          style={{ backgroundColor: activity.accent, color: activity.bg }}
-                        >
-                          {activity.cta.label}
-                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </a>
-                      ) : (
-                        <Link
-                          href={activity.cta.href}
-                          className="w-full lg:w-auto inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-opacity hover:opacity-85"
-                          style={{ backgroundColor: activity.accent, color: activity.bg }}
-                        >
-                          {activity.cta.label}
-                          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </Link>
-                      )
+                      <LandingButton
+                        variant="glass-light"
+                        href={activity.cta.href}
+                        external={activity.cta.external}
+                        arrow
+                        className="w-full lg:w-auto"
+                        darkTextColor={theme.bg}
+                      >
+                        {activity.cta.label}
+                      </LandingButton>
                     )}
                   </div>
                 </div>
               </div>
             </div>
-          ))}
+          );
+          })}
         </div>
       </div>
+
+      {/* Detail modal */}
+      {detailIndex !== null && displayActivities[detailIndex] && (
+        <ActivityDetailModal
+          activity={displayActivities[detailIndex]}
+          theme={CARD_THEMES[detailIndex % 2]}
+          onClose={() => setDetailIndex(null)}
+        />
+      )}
     </section>
   );
 }

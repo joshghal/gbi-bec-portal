@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import Link from 'next/link';
+import { LandingButton } from '@/components/landing/landing-button';
 import {
   wordSplitContainer,
   wordSplitChild,
@@ -97,23 +97,12 @@ export default function Hero() {
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.85 }}
             className="flex flex-wrap items-center gap-6"
           >
-            <a
-              href="#jadwal"
-              className="inline-flex items-center justify-center bg-primary text-primary-foreground rounded-full px-7 py-3 text-sm font-medium shadow-md shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25"
-            >
+            <LandingButton variant="primary" href="#jadwal">
               Jadwal &amp; Lokasi
-            </a>
-            <Link
-              href="/chat"
-              className="group inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
-            >
-              <span className="underline decoration-foreground/25 underline-offset-4 transition-all group-hover:decoration-primary group-hover:underline-offset-6">
-                Tanya AI Kami
-              </span>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
+            </LandingButton>
+            <LandingButton variant="text" href="/chat" arrow>
+              Tanya AI Kami
+            </LandingButton>
           </motion.div>
         </div>
       </div>

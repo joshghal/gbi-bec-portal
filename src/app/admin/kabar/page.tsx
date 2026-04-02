@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Loader2, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ExternalLink, Pin } from 'lucide-react';
 import { generateSlug, stripHtml } from '@/lib/slug';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
@@ -14,11 +14,13 @@ import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Switch } from '@/components/ui/switch';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { toastApiError } from '@/lib/api-toast';
+import { formatDate } from '@/lib/format-date';
 import { toast } from 'sonner';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogBody,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -35,6 +37,7 @@ interface Update {
   color: string;
   imageUrl?: string;
   isVideo?: boolean;
+  pinned?: boolean;
   published: boolean;
   createdAt: string;
   updatedAt: string;
@@ -60,14 +63,10 @@ const EMPTY_FORM: Omit<Update, 'createdAt' | 'updatedAt'> = {
   color: COLOR_SWATCHES[0].value,
   imageUrl: '',
   isVideo: false,
+  pinned: false,
   published: false,
 };
 
-function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-');
-  return new Date(Number(year), Number(month) - 1, Number(day))
-    .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 export default function KabarPage() {
   const { user } = useAuth();
@@ -152,6 +151,7 @@ export default function KabarPage() {
       color: update.color,
       imageUrl: update.imageUrl ?? '',
       isVideo: update.isVideo ?? false,
+      pinned: update.pinned ?? false,
       published: update.published,
     });
     setFormError('');
@@ -197,6 +197,31 @@ export default function KabarPage() {
       setFormError('Gagal menyimpan. Silakan coba lagi.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleTogglePin(update: Update) {
+    if (!update.id) return;
+    const newPinned = !update.pinned;
+    try {
+      const token = await user?.getIdToken();
+      await fetch(`/api/updates/${update.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ pinned: newPinned }),
+      });
+      // Server unpins others — update local state to match
+      setUpdates(prev =>
+        prev.map(u => u.id === update.id
+          ? { ...u, pinned: newPinned }
+          : newPinned ? { ...u, pinned: false } : u
+        )
+      );
+    } catch (err) {
+      toastApiError(err, 'Gagal mengubah pin.');
     }
   }
 
@@ -315,9 +340,14 @@ export default function KabarPage() {
                             style={{ backgroundColor: update.color }}
                           />
                           <div className="min-w-0">
-                            <span className="truncate block max-w-[200px] font-medium" title={update.title}>
-                              {update.title}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              {update.pinned && (
+                                <Pin className="w-3 h-3 text-primary shrink-0 -rotate-45" />
+                              )}
+                              <span className="truncate block max-w-[200px] font-medium" title={update.title}>
+                                {update.title}
+                              </span>
+                            </div>
                             {update.slug && (
                               <a
                                 href={`/kabar/${update.slug}`}
@@ -349,6 +379,15 @@ export default function KabarPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={`h-8 w-8 ${update.pinned ? 'text-primary bg-primary/10' : ''}`}
+                            onClick={() => handleTogglePin(update)}
+                            title={update.pinned ? 'Lepas pin' : 'Sematkan'}
+                          >
+                            <Pin className="w-3.5 h-3.5 -rotate-45" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -390,7 +429,7 @@ export default function KabarPage() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-1">
+          <DialogBody className="space-y-4">
             {/* Title */}
             <div className="space-y-1.5">
               <Label htmlFor="kabar-title">Judul <span className="text-destructive">*</span></Label>
@@ -481,6 +520,16 @@ export default function KabarPage() {
               </div>
               <div className="flex items-center justify-between rounded-lg border px-4 py-3 bg-muted/30">
                 <div>
+                  <p className="text-sm font-medium">Sematkan (Pin)</p>
+                  <p className="text-xs text-muted-foreground">Selalu tampil di urutan pertama</p>
+                </div>
+                <Switch
+                  checked={form.pinned ?? false}
+                  onCheckedChange={checked => setForm(prev => ({ ...prev, pinned: checked }))}
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-lg border px-4 py-3 bg-muted/30">
+                <div>
                   <p className="text-sm font-medium">Publikasikan</p>
                   <p className="text-xs text-muted-foreground">Tampilkan di halaman utama</p>
                 </div>
@@ -494,7 +543,7 @@ export default function KabarPage() {
             {formError && (
               <p className="text-sm text-destructive">{formError}</p>
             )}
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)} disabled={saving}>

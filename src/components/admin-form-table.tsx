@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/table';
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -407,8 +408,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
       </main>
 
       <Dialog open={!!selected} onOpenChange={open => !open && setSelected(null)}>
-        <DialogContent className="sm:max-w-2xl" style={{ maxHeight: '85vh', gridTemplateRows: 'auto 1fr auto' }}>
-          <DialogHeader className="p-4 pb-2">
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
             <DialogTitle>
               {selected && (FORM_TYPE_LABELS[selected.type] || selected.type)}
               {selected && ` - ${getDisplayName(selected)}`}
@@ -419,7 +420,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
           </DialogHeader>
 
           {selected && (
-            <div className="space-y-4 overflow-y-auto px-4 py-2">
+            <DialogBody className="space-y-4">
               <div className="space-y-3">
                 {Object.entries(selected.data).map(([key, value]) => (
                   <div key={key}>
@@ -466,7 +467,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                   />
                 </div>
               )}
-            </div>
+            </DialogBody>
           )}
 
           <DialogFooter className="flex-row justify-between sm:justify-between">
@@ -499,8 +500,8 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
 
       {/* Edit Modal */}
       <Dialog open={!!editing} onOpenChange={open => !open && setEditing(null)}>
-        <DialogContent className="sm:max-w-2xl" style={{ maxHeight: '85vh', gridTemplateRows: 'auto 1fr auto' }}>
-          <DialogHeader className="p-4 pb-2">
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
             <DialogTitle>
               Edit — {editing && (FORM_TYPE_LABELS[editing.type] || editing.type)}
             </DialogTitle>
@@ -513,7 +514,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
             const config = getFormConfig(editing.type);
             const steps = config?.steps ?? [];
             return (
-              <div className="space-y-3 overflow-y-auto px-4 py-2">
+              <DialogBody className="space-y-3">
                 {steps.filter(s => !s.hidden).map(step => (
                   <div key={step.field}>
                     <Label className="text-xs text-muted-foreground">{step.label}</Label>
@@ -546,7 +547,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                     )}
                   </div>
                 ))}
-              </div>
+              </DialogBody>
             );
           })()}
 

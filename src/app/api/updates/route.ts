@@ -42,6 +42,16 @@ export async function POST(request: NextRequest) {
     const db = getAdminFirestore();
     const slug = await generateUniqueSlug(body.title, db);
 
+    const pinned = body.pinned ?? false;
+
+    // Only one pinned allowed — unpin others first
+    if (pinned) {
+      const pinnedDocs = await db.collection('updates').where('pinned', '==', true).get();
+      const batch = db.batch();
+      pinnedDocs.docs.forEach(d => batch.update(d.ref, { pinned: false }));
+      await batch.commit();
+    }
+
     const doc = {
       title: body.title,
       slug,
@@ -52,6 +62,7 @@ export async function POST(request: NextRequest) {
       color: body.color,
       imageUrl: body.imageUrl ?? null,
       isVideo: body.isVideo ?? false,
+      pinned,
       published: body.published ?? false,
       createdAt: now,
       updatedAt: now,

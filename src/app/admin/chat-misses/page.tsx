@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import {
   Dialog,
+  DialogBody,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -242,7 +243,7 @@ export default function ChatMissesPage() {
             </DialogHeader>
 
             {selected && (
-              <div className="space-y-4 py-1">
+              <DialogBody className="space-y-4">
                 {/* Question */}
                 <div className="flex gap-3">
                   <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -278,7 +279,7 @@ export default function ChatMissesPage() {
                     </div>
                   </div>
                 )}
-              </div>
+              </DialogBody>
             )}
 
             <DialogFooter>

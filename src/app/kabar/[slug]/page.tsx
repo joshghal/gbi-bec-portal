@@ -4,7 +4,9 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { getAdminFirestore } from '@/lib/firebase-admin';
 import { stripHtml } from '@/lib/slug';
+import { formatDateFull } from '@/lib/format-date';
 import { Button } from '@/components/ui/button';
+import { LandingButton } from '@/components/landing/landing-button';
 import { AdaptiveImage } from '@/components/adaptive-image';
 
 export const revalidate = 3600;
@@ -55,12 +57,6 @@ async function getUpdateBySlug(slug: string): Promise<Update | null> {
   if (snapshot.empty) return null;
   const doc = snapshot.docs[0];
   return { id: doc.id, ...doc.data() } as Update;
-}
-
-function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-');
-  return new Date(Number(year), Number(month) - 1, Number(day))
-    .toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export async function generateStaticParams() {
@@ -190,7 +186,7 @@ export default async function KabarDetailPage(
           </span>
           <span className="text-muted-foreground text-xs">·</span>
           <span className="text-xs text-muted-foreground font-mono">
-            {formatDate(update.date)}
+            {formatDateFull(update.date)}
           </span>
         </div>
 
@@ -223,15 +219,9 @@ export default async function KabarDetailPage(
                 Formulir {formLink.label.replace('Daftar ', '')} sedang dibuka. Daftar sekarang secara online.
               </p>
             </div>
-            <Link
-              href={formLink.href}
-              className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
-            >
+            <LandingButton variant="primary-sm" href={formLink.href} arrow className="shrink-0">
               {formLink.label}
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden>
-                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
+            </LandingButton>
           </div>
         )}
 

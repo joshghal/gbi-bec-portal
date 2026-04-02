@@ -7,6 +7,8 @@ import {
   FileText,
   BarChart3,
   Activity,
+  CalendarDays,
+  Megaphone,
   Settings,
   GraduationCap,
   Droplets,
@@ -53,6 +55,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin', label: 'Basis Pengetahuan', icon: FileText, permission: 'page:knowledge-base' },
       { href: '/admin/posters', label: 'Poster', icon: Image, permission: 'page:posters' },
       { href: '/admin/kabar', label: 'Kabar Terbaru', icon: Newspaper, permission: 'page:kabar' },
+      { href: '/admin/kegiatan', label: 'Kegiatan Kami', icon: CalendarDays, permission: 'page:kegiatan' },
+      { href: '/admin/pengumuman', label: 'Pengumuman', icon: Megaphone, permission: 'page:pengumuman' },
     ],
   },
   {

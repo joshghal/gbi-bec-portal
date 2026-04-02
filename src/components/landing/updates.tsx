@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { LandingButton } from '@/components/landing/landing-button';
+import { stripHtml } from '@/lib/slug';
+import { formatDate } from '@/lib/format-date';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { AdaptiveImage } from '@/components/adaptive-image';
 import {
@@ -24,6 +27,7 @@ interface Update {
   color: string;
   image?: string;
   video?: string;
+  pinned?: boolean;
 }
 
 interface ApiUpdate {
@@ -36,14 +40,10 @@ interface ApiUpdate {
   color: string;
   imageUrl?: string | null;
   isVideo?: boolean;
+  pinned?: boolean;
   published: boolean;
 }
 
-function toDisplayDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-');
-  return new Date(Number(year), Number(month) - 1, Number(day))
-    .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
 
 function mapApiUpdate(u: ApiUpdate): Update {
   return {
@@ -53,10 +53,11 @@ function mapApiUpdate(u: ApiUpdate): Update {
     excerpt: u.excerpt,
     category: u.category,
     rawDate: u.date,
-    date: toDisplayDate(u.date),
+    date: formatDate(u.date),
     color: u.color,
     image: !u.isVideo && u.imageUrl ? u.imageUrl : undefined,
     video: u.isVideo && u.imageUrl ? u.imageUrl : undefined,
+    pinned: u.pinned,
   };
 }
 
@@ -90,12 +91,6 @@ const PLACEHOLDER_UPDATES: Update[] = [
     video: '/about/youth.webp',
   },
 ];
-
-/* ── Helpers ──────────────────────────────────────────────────── */
-
-function stripHtmlBasic(html: string): string {
-  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-}
 
 /* ── Category → form mapping ─────────────────────────────────── */
 
@@ -132,7 +127,12 @@ export default function UpdatesSection() {
   if (sectionEnabled === null) return null;
 
   const displayUpdates = (sectionEnabled ? updates : PLACEHOLDER_UPDATES)
-    .sort((a, b) => b.rawDate.localeCompare(a.rawDate))
+    .sort((a, b) => {
+      // Pinned items always first
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return b.rawDate.localeCompare(a.rawDate);
+    })
     .slice(0, 3);
   if (sectionEnabled && displayUpdates.length === 0) return null;
 
@@ -162,7 +162,6 @@ export default function UpdatesSection() {
           {displayUpdates.map((update, i) => {
             const href = update.slug ? `/kabar/${update.slug}` : undefined;
             const hasMedia = !!(update.image || update.video);
-            const tint = i % 2 === 0 ? 'rgba(55, 35, 18, 0.25)' : 'rgba(20, 38, 72, 0.25)';
             const formLink = CATEGORY_FORM_MAP[update.category];
             const dateStillValid = update.rawDate >= new Date().toISOString().slice(0, 10);
             const formEnabled = formLink && !disabledForms.includes(formLink.type) && dateStillValid;
@@ -175,14 +174,17 @@ export default function UpdatesSection() {
                   boxShadow: '0 -4px 30px -5px rgba(0,0,0,0.08)',
                 }}
               >
-                {/* Image side — grayscale + brown tint (matches tentang section) */}
+                {/* Image side — gradient + blur fade */}
                 {hasMedia ? (
                   <div className="relative sm:w-[45%] lg:w-[50%] shrink-0 overflow-hidden">
                     <AdaptiveImage
                       src={mediaSrc}
                       className="w-full h-full grayscale transition-transform duration-700 group-hover:scale-[1.03]"
                     />
-                    <div className="absolute inset-0" style={{ backgroundColor: tint }} />
+                    {/* Mobile: bottom-to-top fade */}
+                    <div className="absolute inset-0 sm:hidden bg-gradient-to-t from-card from-5% via-card/60 via-40% to-transparent" />
+                    {/* Desktop: right-to-left fade */}
+                    <div className="absolute inset-0 hidden sm:block bg-gradient-to-l from-card from-5% via-card/60 via-40% to-transparent" />
                     {update.video && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-10 h-10 rounded-full bg-background/80 flex items-center justify-center shadow-sm backdrop-blur-sm">
@@ -222,29 +224,27 @@ export default function UpdatesSection() {
                       {update.title}
                     </h3>
                     <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed line-clamp-3 max-w-xl">
-                      {stripHtmlBasic(update.excerpt)}
+                      {stripHtml(update.excerpt)}
                     </p>
                   </div>
 
                   {/* CTA */}
-                  <div className="mt-auto pt-6 flex items-center gap-4 flex-wrap">
-                    <span className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground/40 group-hover:text-muted-foreground/80 transition-colors duration-300">
+                  <div className="mt-auto pt-6 flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center justify-center gap-2 rounded-full border border-border/60 bg-card px-5 py-2.5 text-xs font-semibold text-muted-foreground transition-all group-hover:text-foreground group-hover:border-border">
                       Selengkapnya
-                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden className="transition-transform group-hover:translate-x-0.5">
                         <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </span>
                     {formEnabled && (
-                      <button
-                        type="button"
+                      <LandingButton
+                        variant="primary-sm"
+                        href={formLink.href}
+                        arrow
                         onClick={e => { e.preventDefault(); e.stopPropagation(); window.location.href = formLink.href; }}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
                       >
                         {formLink.label}
-                        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
-                          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </button>
+                      </LandingButton>
                     )}
                   </div>
                 </div>
@@ -265,6 +265,13 @@ export default function UpdatesSection() {
               </div>
             );
           })}
+        </div>
+
+        {/* Lihat Semua */}
+        <div className="mt-6 flex justify-center">
+          <LandingButton variant="outline" href="/kabar" arrow>
+            Lihat Semua Kabar
+          </LandingButton>
         </div>
 
       </div>

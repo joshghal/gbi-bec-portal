@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { getAdminFirestore } from '@/lib/firebase-admin';
 import { stripHtml } from '@/lib/slug';
+import { formatDate, formatDateLong } from '@/lib/format-date';
 import { Button } from '@/components/ui/button';
 import { AdaptiveImage } from '@/components/adaptive-image';
 
@@ -35,19 +36,8 @@ interface Update {
   date: string;
   color: string;
   imageUrl?: string;
+  pinned?: boolean;
   published: boolean;
-}
-
-function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-');
-  return new Date(Number(year), Number(month) - 1, Number(day))
-    .toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-}
-
-function formatDateLong(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-');
-  return new Date(Number(year), Number(month) - 1, Number(day))
-    .toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 async function getPublishedUpdates(): Promise<Update[]> {
@@ -61,7 +51,13 @@ async function getPublishedUpdates(): Promise<Update[]> {
 
     return snapshot.docs
       .map((doc) => ({ id: doc.id, ...doc.data() } as Update))
-      .filter((u) => u.slug);
+      .filter((u) => u.slug)
+      .sort((a, b) => {
+        // Pinned items always first
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
+        return 0; // date order already from Firestore
+      });
   } catch (error) {
     console.error('Failed to fetch updates:', error);
     return [];
@@ -73,8 +69,8 @@ async function getPublishedUpdates(): Promise<Update[]> {
 function FeaturedCard({ update }: { update: Update }) {
   return (
     <Link href={`/kabar/${update.slug}`} className="group block col-span-full lg:col-span-2 lg:row-span-2">
-      <article className="h-full rounded-2xl overflow-hidden bg-card border border-border/40 hover:shadow-lg transition-all duration-300 flex flex-col">
-        {/* Image — natural ratio, capped height */}
+      <article className="h-full rounded-2xl overflow-hidden bg-card hover:shadow-lg transition-all duration-300 flex flex-col">
+        {/* Image — gradient fade to card */}
         {update.imageUrl && (
           <div className="shrink-0 overflow-hidden bg-muted">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -116,8 +112,8 @@ function FeaturedCard({ update }: { update: Update }) {
 function ImageCard({ update }: { update: Update }) {
   return (
     <Link href={`/kabar/${update.slug}`} className="group block">
-      <article className="h-full rounded-xl overflow-hidden bg-card border border-border/40 hover:shadow-lg transition-all duration-300 flex flex-col">
-        {/* Image — natural ratio, capped */}
+      <article className="h-full rounded-xl overflow-hidden bg-card hover:shadow-lg transition-all duration-300 flex flex-col">
+        {/* Image — gradient + blur fade */}
         {update.imageUrl && (
           <div className="shrink-0 overflow-hidden bg-muted">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -152,7 +148,7 @@ function ImageCard({ update }: { update: Update }) {
 function TextCard({ update }: { update: Update }) {
   return (
     <Link href={`/kabar/${update.slug}`} className="group block">
-      <article className="h-full rounded-xl bg-card border border-border/40 hover:shadow-lg transition-all duration-300 p-5 flex flex-col gap-2.5">
+      <article className="h-full rounded-xl bg-card hover:shadow-lg transition-all duration-300 p-5 flex flex-col gap-2.5">
         <div className="flex items-center gap-2.5">
           <span className="text-[9px] uppercase tracking-[0.2em] font-semibold" style={{ color: update.color }}>
             {update.category}
@@ -220,7 +216,7 @@ export default async function KabarPage() {
             </div>
 
             {/* Bento grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-5 auto-rows-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 auto-rows-auto">
               {/* Featured — spans 2 cols + 2 rows on desktop */}
               {featured && <FeaturedCard update={featured} />}
 
