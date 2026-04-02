@@ -3,12 +3,12 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { readFileSync } from 'fs';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDJdbrKdYgJDN01mrSwmcEFvZe1vSD0GLE",
-  authDomain: "baranangsiang-evening-chur.firebaseapp.com",
-  projectId: "baranangsiang-evening-chur",
-  storageBucket: "baranangsiang-evening-chur.firebasestorage.app",
-  messagingSenderId: "100937908314",
-  appId: "1:100937908314:web:2e40cde32baf5537e6d863",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
 const app = initializeApp(firebaseConfig);
