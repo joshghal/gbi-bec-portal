@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LandingButton } from '@/components/landing/landing-button';
 import {
@@ -173,7 +172,7 @@ function ActivityDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-white/70 md:bg-white/60 md:backdrop-blur-sm" />
       <div
         className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl p-6 sm:p-8"
         style={{ background: theme.gradient }}

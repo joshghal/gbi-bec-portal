@@ -3,8 +3,6 @@
 import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { motion } from 'framer-motion';
-
 import { WaIcon } from '@/components/landing/icons';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -38,82 +36,84 @@ export default function VideoParallaxSection() {
   useEffect(() => {
     const section = sectionRef.current;
     const video = videoRef.current;
-    const content = contentRef.current;
     if (!section || !video) return;
 
-    const ctx = gsap.context(() => {
-      // Play video on loop
-      video.play().catch(() => {});
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-      // Clip-path reveal — inset rounded card expands to full bleed
-      gsap.fromTo(section,
-        { clipPath: 'inset(6% 4% 6% 4% round 24px)' },
-        {
-          clipPath: 'inset(0% 0% 0% 0% round 0px)',
+    const ctx = gsap.context(() => {
+      // Lazy play — only when section enters viewport
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top bottom',
+        onEnter: () => video.play().catch(() => {}),
+        onLeave: () => video.pause(),
+        onEnterBack: () => video.play().catch(() => {}),
+        onLeaveBack: () => video.pause(),
+      });
+
+      if (isMobile) {
+        // Mobile: scale reveal (GPU-accelerated, no clip-path)
+        gsap.fromTo(section,
+          { scale: 0.92, borderRadius: '16px' },
+          {
+            scale: 1,
+            borderRadius: '0px',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'top 35%',
+              scrub: 0.3,
+            },
+          }
+        );
+      } else {
+        // Desktop: clip-path reveal + parallax
+        gsap.fromTo(section,
+          { clipPath: 'inset(6% 4% 6% 4% round 24px)' },
+          {
+            clipPath: 'inset(0% 0% 0% 0% round 0px)',
+            ease: 'none',
+            scrollTrigger: {
+              trigger: section,
+              start: 'top 85%',
+              end: 'top 25%',
+              scrub: 0.5,
+            },
+          }
+        );
+
+        gsap.to(video, {
+          yPercent: -15,
           ease: 'none',
           scrollTrigger: {
             trigger: section,
-            start: 'top 85%',
-            end: 'top 25%',
-            scrub: 0.5,
+            start: 'top bottom',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      // Content reveal — single staggered timeline (1 ScrollTrigger instead of 5)
+      const els = [labelRef, titleRef, dividerRef, descRef, ctaRef]
+        .map(r => r.current)
+        .filter(Boolean) as HTMLElement[];
+
+      gsap.fromTo(els,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          stagger: 0.08,
+          scrollTrigger: {
+            trigger: section,
+            start: isMobile ? 'top 60%' : 'top 50%',
+            end: isMobile ? 'top 25%' : 'top 15%',
+            scrub: 0.4,
           },
         }
       );
-
-      // Parallax on video
-      gsap.to(video, {
-        yPercent: -15,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-        },
-      });
-
-      // Per-element reveals — each has its own character
-      const st = { trigger: section, scrub: 0.4 };
-
-      // Label — slides in from left
-      if (labelRef.current) {
-        gsap.fromTo(labelRef.current,
-          { opacity: 0, x: -30 },
-          { opacity: 1, x: 0, scrollTrigger: { ...st, start: 'top 55%', end: 'top 30%' } }
-        );
-      }
-
-      // Title — clips up from bottom (mask reveal)
-      if (titleRef.current) {
-        gsap.fromTo(titleRef.current,
-          { opacity: 0, y: 80, skewY: 3 },
-          { opacity: 1, y: 0, skewY: 0, scrollTrigger: { ...st, start: 'top 50%', end: 'top 20%' } }
-        );
-      }
-
-      // Divider — scales from left
-      if (dividerRef.current) {
-        gsap.fromTo(dividerRef.current,
-          { scaleX: 0 },
-          { scaleX: 1, scrollTrigger: { ...st, start: 'top 40%', end: 'top 18%' } }
-        );
-      }
-
-      // Description — blurs in from below
-      if (descRef.current) {
-        gsap.fromTo(descRef.current,
-          { opacity: 0, y: 25, filter: 'blur(6px)' },
-          { opacity: 1, y: 0, filter: 'blur(0px)', scrollTrigger: { ...st, start: 'top 38%', end: 'top 12%' } }
-        );
-      }
-
-      // CTA — slides in from right
-      if (ctaRef.current) {
-        gsap.fromTo(ctaRef.current,
-          { opacity: 0, x: 40 },
-          { opacity: 1, x: 0, scrollTrigger: { ...st, start: 'top 35%', end: 'top 12%' } }
-        );
-      }
     }, section);
 
     return () => ctx.revert();
@@ -138,7 +138,7 @@ export default function VideoParallaxSection() {
         muted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         className="absolute inset-0 w-full h-[125%] -top-[12%] object-cover"
       />
 
@@ -172,7 +172,7 @@ export default function VideoParallaxSection() {
             {/* Title — oversized brutalist */}
             <h3
               ref={titleRef}
-              className="mt-2 font-serif font-black leading-[0.9] tracking-[-0.03em] will-change-transform"
+              className="mt-2 font-serif font-black leading-[0.9] tracking-[-0.03em]"
               style={{
                 fontSize: 'clamp(3rem, 10vw, 7.5rem)',
                 color: '#fff',

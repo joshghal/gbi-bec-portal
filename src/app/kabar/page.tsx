@@ -6,7 +6,6 @@ import { getAdminFirestore } from '@/lib/firebase-admin';
 import { stripHtml } from '@/lib/slug';
 import { formatDate, formatDateLong } from '@/lib/format-date';
 import { Button } from '@/components/ui/button';
-import { AdaptiveImage } from '@/components/adaptive-image';
 
 export const revalidate = 3600;
 
@@ -70,14 +69,14 @@ function FeaturedCard({ update }: { update: Update }) {
   return (
     <Link href={`/kabar/${update.slug}`} className="group block col-span-full lg:col-span-2 lg:row-span-2">
       <article className="h-full rounded-2xl overflow-hidden bg-card hover:shadow-lg transition-all duration-300 flex flex-col">
-        {/* Image — gradient fade to card */}
+        {/* Image — eager load (above the fold) */}
         {update.imageUrl && (
           <div className="shrink-0 overflow-hidden bg-muted">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={update.imageUrl}
               alt={update.title}
-              className="w-full h-auto max-h-[400px] object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+              className="w-full h-auto max-h-[400px] object-contain"
             />
           </div>
         )}
@@ -120,7 +119,9 @@ function ImageCard({ update }: { update: Update }) {
             <img
               src={update.imageUrl}
               alt={update.title}
-              className="w-full h-auto max-h-[220px] object-contain transition-transform duration-700 group-hover:scale-[1.02]"
+              loading="lazy"
+              decoding="async"
+              className="w-full h-auto max-h-[220px] object-contain"
             />
           </div>
         )}
@@ -221,7 +222,7 @@ export default async function KabarPage() {
               {featured && <FeaturedCard update={featured} />}
 
               {/* Rest — alternate between image and text cards */}
-              {rest.map((update, i) =>
+              {rest.map((update) =>
                 update.imageUrl ? (
                   <ImageCard key={update.id} update={update} />
                 ) : (

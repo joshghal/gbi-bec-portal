@@ -187,7 +187,7 @@ export default function UpdatesSection() {
                     <div className="absolute inset-0 hidden sm:block bg-gradient-to-l from-card from-5% via-card/60 via-40% to-transparent" />
                     {update.video && (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-10 h-10 rounded-full bg-background/80 flex items-center justify-center shadow-sm backdrop-blur-sm">
+                        <div className="w-10 h-10 rounded-full bg-background/90 flex items-center justify-center shadow-sm">
                           <svg width="12" height="13" viewBox="0 0 12 13" fill="none" aria-hidden>
                             <path d="M3 2.5l7 4-7 4v-8z" fill="currentColor" className="text-foreground" />
                           </svg>
