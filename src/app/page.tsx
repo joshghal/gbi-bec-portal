@@ -10,6 +10,7 @@ import UpdatesSection from '@/components/landing/updates';
 import VideoParallaxSection from '@/components/landing/video-parallax';
 import ContactSection from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
+import LandingLoader from '@/components/landing/landing-loader';
 
 export const metadata: Metadata = {
   title: 'GBI Baranangsiang Evening Church',
@@ -69,20 +70,22 @@ export default function LandingPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <SmoothScroll>
-        <Nav />
-        <main>
-          <Hero />
-          <VideoParallaxSection />
-          <UpdatesSection />
-          <AboutIntro />
-          <ActivitiesSection />
-          <ServicesSection />
-          <ScheduleSection />
-          <ContactSection />
-        </main>
-        <Footer />
-      </SmoothScroll>
+      <LandingLoader>
+        <SmoothScroll>
+          <Nav />
+          <main>
+            <Hero />
+            <VideoParallaxSection />
+            <UpdatesSection />
+            <AboutIntro />
+            <ActivitiesSection />
+            <ServicesSection />
+            <ScheduleSection />
+            <ContactSection />
+          </main>
+          <Footer />
+        </SmoothScroll>
+      </LandingLoader>
     </>
   );
 }

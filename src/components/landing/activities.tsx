@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { LandingButton } from '@/components/landing/landing-button';
+import { useLandingData } from '@/components/landing/landing-loader';
 import {
   fadeUp,
   viewportOnce,
@@ -256,29 +256,14 @@ function ActivityDetailModal({
 /* ── Component ────────────────────────────────────────────────── */
 
 export default function ActivitiesSection() {
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [sectionEnabled, setSectionEnabled] = useState<boolean | null>(null);
+  const landingData = useLandingData();
   const [detailIndex, setDetailIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    Promise.all([
-      fetch('/api/activities/settings').then(r => r.ok ? r.json() : { sectionEnabled: true }),
-      fetch('/api/activities').then(r => r.ok ? r.json() : []),
-    ]).then(([settings, data]) => {
-      setSectionEnabled(settings.sectionEnabled);
-      const mapped = (data as ApiActivity[]).map(mapApiActivity);
-      setActivities(mapped.length > 0 ? mapped : FALLBACK_ACTIVITIES);
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-    }).catch(() => {
-      setSectionEnabled(true);
-      setActivities(FALLBACK_ACTIVITIES);
-    });
-  }, []);
+  const sectionEnabled = landingData?.activitySettings.sectionEnabled ?? true;
+  const mapped = (landingData?.activities as ApiActivity[] ?? []).map(mapApiActivity);
 
-  const isLoading = sectionEnabled === null;
-
-  const displayActivities = isLoading || !sectionEnabled ? FALLBACK_ACTIVITIES : (activities.length > 0 ? activities : FALLBACK_ACTIVITIES);
-  if (!isLoading && displayActivities.length === 0) return null;
+  const displayActivities = !sectionEnabled ? FALLBACK_ACTIVITIES : (mapped.length > 0 ? mapped : FALLBACK_ACTIVITIES);
+  if (displayActivities.length === 0) return null;
 
   return (
     <section id="kegiatan" className="py-16 lg:py-24 px-4 sm:px-6 lg:px-12">

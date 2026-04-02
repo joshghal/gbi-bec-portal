@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { LandingButton } from '@/components/landing/landing-button';
+import { useLandingData } from '@/components/landing/landing-loader';
 import { stripHtml } from '@/lib/slug';
 import { formatDate } from '@/lib/format-date';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -107,26 +108,17 @@ const CARD_TOP_STEP = 16;
 /* ── Section ──────────────────────────────────────────────────── */
 
 export default function UpdatesSection() {
-  const [updates, setUpdates] = useState<Update[]>([]);
-  const [sectionEnabled, setSectionEnabled] = useState<boolean | null>(null);
-  const [disabledForms, setDisabledForms] = useState<string[]>([]);
+  const landingData = useLandingData();
+
+  const sectionEnabled = landingData?.updateSettings.sectionEnabled ?? true;
+  const updates = (landingData?.updates as ApiUpdate[] ?? []).map(mapApiUpdate);
+  const disabledForms = landingData?.formSettings.disabledForms ?? [];
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/updates/settings').then(r => r.ok ? r.json() : { sectionEnabled: true }),
-      fetch('/api/updates').then(r => r.ok ? r.json() : []),
-      fetch('/api/forms/settings').then(r => r.ok ? r.json() : { disabledForms: [] }),
-    ]).then(([settings, data, formSettings]) => {
-      setSectionEnabled(settings.sectionEnabled);
-      setUpdates((data as ApiUpdate[]).map(mapApiUpdate));
-      setDisabledForms(formSettings.disabledForms || []);
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-    }).catch(() => setSectionEnabled(true));
-  }, []);
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+  }, [landingData]);
 
-  const isLoading = sectionEnabled === null;
-
-  const displayUpdates = (isLoading || !sectionEnabled ? PLACEHOLDER_UPDATES : updates)
+  const displayUpdates = (!sectionEnabled ? PLACEHOLDER_UPDATES : (updates.length > 0 ? updates : PLACEHOLDER_UPDATES))
     .sort((a, b) => {
       // Pinned items always first
       if (a.pinned && !b.pinned) return -1;
@@ -134,7 +126,7 @@ export default function UpdatesSection() {
       return b.rawDate.localeCompare(a.rawDate);
     })
     .slice(0, 3);
-  if (!isLoading && sectionEnabled && displayUpdates.length === 0) return null;
+  if (sectionEnabled && displayUpdates.length === 0) return null;
 
   return (
     <section id="update" className="py-16 lg:py-24 px-4 sm:px-6 lg:px-12">

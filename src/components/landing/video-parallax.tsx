@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { WaIcon } from '@/components/landing/icons';
+import { useLandingData } from '@/components/landing/landing-loader';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -24,14 +25,8 @@ export default function VideoParallaxSection() {
   const dividerRef = useRef<HTMLDivElement>(null);
   const descRef = useRef<HTMLParagraphElement>(null);
   const ctaRef = useRef<HTMLAnchorElement>(null);
-  const [data, setData] = useState<Announcement | null>(null);
-
-  useEffect(() => {
-    fetch('/api/announcement')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => setData(d))
-      .catch(() => {});
-  }, []);
+  const landingData = useLandingData();
+  const data = landingData?.announcement as Announcement | null;
 
   useEffect(() => {
     const section = sectionRef.current;
