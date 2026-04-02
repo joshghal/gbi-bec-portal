@@ -139,14 +139,20 @@ export default function VideoParallaxSection() {
         loop
         playsInline
         preload="metadata"
-        className="absolute inset-0 w-full h-[125%] -top-[12%] object-cover"
+        className="absolute inset-0 w-full h-[125%] -top-[12%] object-cover grayscale"
       />
 
-      {/* Overlay — darker at bottom for text legibility */}
+      {/* Brown tint — matches about-intro collage */}
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: 'rgba(55, 35, 18, 0.42)' }}
+      />
+
+      {/* Gradient — darker at bottom for text legibility */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to bottom, oklch(0.08 0.03 260 / 0.25) 0%, oklch(0.06 0.04 260 / 0.75) 100%)',
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 100%)',
         }}
       />
 
