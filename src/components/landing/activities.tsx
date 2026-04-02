@@ -275,10 +275,10 @@ export default function ActivitiesSection() {
     });
   }, []);
 
-  if (sectionEnabled === null) return null;
+  const isLoading = sectionEnabled === null;
 
-  const displayActivities = sectionEnabled ? activities : FALLBACK_ACTIVITIES;
-  if (displayActivities.length === 0) return null;
+  const displayActivities = isLoading || !sectionEnabled ? FALLBACK_ACTIVITIES : (activities.length > 0 ? activities : FALLBACK_ACTIVITIES);
+  if (!isLoading && displayActivities.length === 0) return null;
 
   return (
     <section id="kegiatan" className="py-16 lg:py-24 px-4 sm:px-6 lg:px-12">

@@ -124,9 +124,9 @@ export default function UpdatesSection() {
     }).catch(() => setSectionEnabled(true));
   }, []);
 
-  if (sectionEnabled === null) return null;
+  const isLoading = sectionEnabled === null;
 
-  const displayUpdates = (sectionEnabled ? updates : PLACEHOLDER_UPDATES)
+  const displayUpdates = (isLoading || !sectionEnabled ? PLACEHOLDER_UPDATES : updates)
     .sort((a, b) => {
       // Pinned items always first
       if (a.pinned && !b.pinned) return -1;
@@ -134,7 +134,7 @@ export default function UpdatesSection() {
       return b.rawDate.localeCompare(a.rawDate);
     })
     .slice(0, 3);
-  if (sectionEnabled && displayUpdates.length === 0) return null;
+  if (!isLoading && sectionEnabled && displayUpdates.length === 0) return null;
 
   return (
     <section id="update" className="py-16 lg:py-24 px-4 sm:px-6 lg:px-12">
