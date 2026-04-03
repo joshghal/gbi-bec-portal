@@ -1,9 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LandingButton } from '@/components/landing/landing-button';
 import { useLandingData } from '@/components/landing/landing-loader';
+import {
+  Dialog,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   fadeUp,
   viewportOnce,
@@ -155,103 +164,7 @@ const CARD_TOP_STEP = 16;   // px — each subsequent card sticks a bit lower
 
 /* ── Detail modal ────────────────────────────────────────────── */
 
-function ActivityDetailModal({
-  activity,
-  theme,
-  onClose,
-}: {
-  activity: Activity;
-  theme: typeof CARD_THEMES[number];
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onClose]);
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-white/70 md:bg-white/60 md:backdrop-blur-sm" />
-      <div
-        className="relative w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl p-6 sm:p-8"
-        style={{ background: theme.gradient }}
-        onClick={e => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-opacity hover:opacity-70"
-          style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.8)' }}
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-        </button>
-
-        <p className="text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: theme.accent, opacity: 0.7 }}>
-          {activity.subtitle}
-        </p>
-        <h3 className="mt-3 font-serif text-2xl sm:text-3xl font-bold leading-[1.1] tracking-[-0.02em]" style={{ color: theme.accent }}>
-          {activity.title}
-        </h3>
-        <p className="mt-2 text-sm font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>
-          {activity.day}
-        </p>
-
-        {/* Long description */}
-        <div
-          className="mt-5 text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95"
-          style={{ color: 'rgba(255,255,255,0.80)' }}
-          dangerouslySetInnerHTML={{ __html: activity.longDescription! }}
-        />
-
-        {/* Tags */}
-        {activity.tags && activity.tags.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-2">
-            {activity.tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[11px] px-2.5 py-1 rounded-md font-medium"
-                style={{
-                  backgroundColor: 'rgba(255,255,255,0.14)',
-                  color: 'rgba(255,255,255,0.85)',
-                  border: '1px solid rgba(255,255,255,0.18)',
-                }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="mt-6 flex flex-col gap-2.5">
-          {activity.contacts?.map((contact) => (
-            <LandingButton key={contact.waLink} variant="glass" href={contact.waLink} external whatsapp className="w-full">
-              Hubungi {contact.name}
-            </LandingButton>
-          ))}
-
-          <LandingButton variant="glass-light" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full">
-            Tanya AI Kami
-          </LandingButton>
-
-          {activity.cta && (
-            <LandingButton
-              variant="glass-light"
-              href={activity.cta.href}
-              external={activity.cta.external}
-              arrow
-              className="w-full"
-              darkTextColor={theme.bg}
-            >
-              {activity.cta.label}
-            </LandingButton>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+/* Detail modal is rendered inline using Dialog component — see bottom of ActivitiesSection */
 
 /* ── Component ────────────────────────────────────────────────── */
 
@@ -456,13 +369,66 @@ export default function ActivitiesSection() {
       </div>
 
       {/* Detail modal */}
-      {detailIndex !== null && displayActivities[detailIndex] && (
-        <ActivityDetailModal
-          activity={displayActivities[detailIndex]}
-          theme={CARD_THEMES[detailIndex % 2]}
-          onClose={() => setDetailIndex(null)}
-        />
-      )}
+      <Dialog open={detailIndex !== null} onOpenChange={open => { if (!open) setDetailIndex(null); }}>
+        {detailIndex !== null && displayActivities[detailIndex] && (() => {
+          const activity = displayActivities[detailIndex];
+          return (
+            <DialogContent className="sm:max-w-lg">
+              <DialogHeader>
+                <DialogDescription className="text-xs uppercase tracking-[0.2em] font-semibold">
+                  {activity.subtitle}
+                </DialogDescription>
+                <DialogTitle className="font-serif text-2xl font-bold leading-[1.1] tracking-[-0.02em]">
+                  {activity.title}
+                </DialogTitle>
+                <p className="text-sm text-muted-foreground">{activity.day}</p>
+              </DialogHeader>
+
+              <DialogBody className="space-y-4">
+                {/* Long description */}
+                {activity.longDescription && (
+                  <div
+                    className="text-sm leading-relaxed prose prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0"
+                    dangerouslySetInnerHTML={{ __html: activity.longDescription }}
+                  />
+                )}
+
+                {/* Tags */}
+                {activity.tags && activity.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {activity.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-[11px] px-2.5 py-1 rounded-md font-medium bg-muted text-muted-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </DialogBody>
+
+              <DialogFooter className="flex-col gap-2 sm:flex-col">
+                {activity.contacts?.map((contact) => (
+                  <LandingButton key={contact.waLink} variant="primary" href={contact.waLink} external whatsapp className="w-full">
+                    Hubungi {contact.name}
+                  </LandingButton>
+                ))}
+
+                <LandingButton variant="outline" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow className="w-full">
+                  Tanya AI Kami
+                </LandingButton>
+
+                {activity.cta && (
+                  <LandingButton variant="outline" href={activity.cta.href} external={activity.cta.external} arrow className="w-full">
+                    {activity.cta.label}
+                  </LandingButton>
+                )}
+              </DialogFooter>
+            </DialogContent>
+          );
+        })()}
+      </Dialog>
     </section>
   );
 }
