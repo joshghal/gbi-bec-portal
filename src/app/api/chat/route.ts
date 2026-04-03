@@ -26,8 +26,13 @@ async function getLiveCoolGroups(query: string): Promise<string> {
 
   try {
     const db = getAdminFirestore();
-    const snap = await db.collection('cool_groups').orderBy('order', 'asc').get();
+    const [snap, settingsDoc] = await Promise.all([
+      db.collection('cool_groups').orderBy('order', 'asc').get(),
+      db.doc('settings/cool').get(),
+    ]);
     if (snap.empty) return '';
+
+    const kabid = settingsDoc.exists ? settingsDoc.data()?.kabid : null;
 
     const lines = snap.docs.map(d => {
       const g = d.data();
@@ -38,7 +43,11 @@ async function getLiveCoolGroups(query: string): Promise<string> {
       return parts.join('. ');
     });
 
-    return `[COOL Group — data terkini] Kabid COOL: Ps. Agus Sulistiyanto (HP: 081910238170). COOL bertemu setiap hari Selasa. Ada ${lines.length} kelompok COOL:\n${lines.join('\n')}`;
+    const kabidInfo = kabid?.name
+      ? `Kabid COOL: ${kabid.name}${kabid.phone ? ' (HP: ' + kabid.phone + ')' : ''}${kabid.address ? ', Alamat: ' + kabid.address : ''}`
+      : 'Kabid COOL: Ps. Agus Sulistiyanto (HP: 081910238170)';
+
+    return `[COOL Group — data terkini] ${kabidInfo}. COOL bertemu setiap hari Selasa. Ada ${lines.length} kelompok COOL:\n${lines.join('\n')}`;
   } catch {
     return '';
   }

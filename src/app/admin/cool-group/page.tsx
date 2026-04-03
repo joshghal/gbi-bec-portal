@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Phone } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, Phone, Save } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -122,6 +122,10 @@ export default function CoolGroupPage() {
   const [groups, setGroups] = useState<CoolGroup[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Kabid state
+  const [kabid, setKabid] = useState<Leader>({ ...EMPTY_LEADER });
+  const [savingKabid, setSavingKabid] = useState(false);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<typeof EMPTY_FORM>({ ...EMPTY_FORM });
@@ -136,9 +140,16 @@ export default function CoolGroupPage() {
     setLoading(true);
     try {
       const token = await user.getIdToken();
-      const res = await fetch('/api/cool-groups?all=1', { headers: { Authorization: `Bearer ${token}` } });
-      if (!res.ok) throw new Error('Gagal memuat data');
-      setGroups(await res.json());
+      const [groupsRes, kabidRes] = await Promise.all([
+        fetch('/api/cool-groups?all=1', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch('/api/cool-groups/kabid'),
+      ]);
+      if (!groupsRes.ok) throw new Error('Gagal memuat data');
+      setGroups(await groupsRes.json());
+      if (kabidRes.ok) {
+        const data = await kabidRes.json();
+        if (data.kabid) setKabid(data.kabid);
+      }
     } catch (err) {
       toastApiError(err, 'Gagal memuat COOL group.');
     } finally {
@@ -197,6 +208,23 @@ export default function CoolGroupPage() {
     }
   }
 
+  async function handleSaveKabid() {
+    setSavingKabid(true);
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch('/api/cool-groups/kabid', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ kabid }),
+      });
+      if (!res.ok) throw new Error('Gagal menyimpan');
+    } catch (err) {
+      toastApiError(err, 'Gagal menyimpan Kabid.');
+    } finally {
+      setSavingKabid(false);
+    }
+  }
+
   async function handleDelete() {
     if (!deleteId) return;
     setDeleting(true);
@@ -236,7 +264,24 @@ export default function CoolGroupPage() {
           </div>
         </header>
 
-        <main className="p-6">
+        <main className="p-6 space-y-6">
+          {/* Kabid */}
+          {!loading && (
+            <div className="rounded-lg border bg-card p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-sm">Kabid COOL</p>
+                  <p className="text-xs text-muted-foreground">Kepala Bidang COOL</p>
+                </div>
+                <Button size="sm" onClick={handleSaveKabid} disabled={savingKabid}>
+                  {savingKabid ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : <Save className="w-3.5 h-3.5 mr-1" />}
+                  Simpan
+                </Button>
+              </div>
+              <LeaderFields label="Kabid" value={kabid} onChange={setKabid} />
+            </div>
+          )}
+
           {loading ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
