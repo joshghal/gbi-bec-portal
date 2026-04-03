@@ -158,6 +158,93 @@ const CARD_THEMES = [
   { gradient: 'linear-gradient(150deg, oklch(0.22 0.042 252) 0%, oklch(0.16 0.030 262) 100%)', bg: 'oklch(0.19 0.035 257)', accent: 'oklch(0.80 0.055 252)' },
 ] as const;
 
+/* ── COOL group cards for modal ──────────────────────────────── */
+
+function CoolGroupCards({ groups, kabid }: { groups: any[]; kabid: any }) {
+  // Group by area
+  const areaMap: Record<string, any[]> = {};
+  for (const g of groups) {
+    const area = g.area || 'Lainnya';
+    if (!areaMap[area]) areaMap[area] = [];
+    areaMap[area].push(g);
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Intro */}
+      <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
+        Kelompok sel untuk saling mendukung dan bertumbuh bersama. Saat ini ada <strong className="text-white/95">{groups.length} kelompok</strong> COOL aktif di berbagai daerah.
+      </p>
+
+      {/* Kabid */}
+      {kabid?.name && (
+        <div
+          className="flex items-center gap-3 rounded-lg px-3.5 py-2.5"
+          style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)' }}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.50)' }}>Kabid COOL</p>
+            <p className="text-sm font-semibold text-white/90">{kabid.name}</p>
+          </div>
+          {kabid.phone && (
+            <a
+              href={`https://wa.me/${kabid.phone.replace(/^0/, '62').replace(/[^0-9]/g, '')}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-full"
+              style={{ backgroundColor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.85)' }}
+            >
+              Hubungi
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Groups by area */}
+      {Object.entries(areaMap).map(([area, areaGroups]) => (
+        <div key={area}>
+          <p className="text-[10px] uppercase tracking-[0.15em] font-semibold mb-2" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            {area}
+          </p>
+          <div className="space-y-1.5">
+            {areaGroups.map((g: any) => (
+              <div
+                key={g.name}
+                className="flex items-center gap-3 rounded-lg px-3.5 py-2.5"
+                style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)' }}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white/90 truncate">{g.name}</p>
+                  {g.ketua?.name && (
+                    <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.50)' }}>
+                      Ketua: {g.ketua.name}
+                    </p>
+                  )}
+                </div>
+                {g.ketua?.phone && (
+                  <a
+                    href={`https://wa.me/${g.ketua.phone.replace(/^0/, '62').replace(/[^0-9]/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 text-xs font-medium px-3 py-1.5 rounded-full"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.75)' }}
+                  >
+                    Hubungi
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+
+      <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+        Untuk bergabung, hubungi ketua COOL di daerah terdekat.
+      </p>
+    </div>
+  );
+}
+
 /* ── Stacking card top offsets ────────────────────────────────── */
 const CARD_TOP_START = 80;  // px — first card sticks here
 const CARD_TOP_STEP = 16;   // px — each subsequent card sticks a bit lower
@@ -389,14 +476,16 @@ export default function ActivitiesSection() {
               </DialogHeader>
 
               <DialogBody className="space-y-4">
-                {/* Long description */}
-                {activity.longDescription && (
+                {/* COOL groups — render as cards if this is the COOL activity */}
+                {activity.title === 'COOL' && landingData?.coolGroups && landingData.coolGroups.length > 0 ? (
+                  <CoolGroupCards groups={landingData.coolGroups} kabid={landingData.coolKabid} />
+                ) : activity.longDescription ? (
                   <div
-                    className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95 [&_ul]:mt-1 [&_ul]:mb-3 [&_ul]:pl-4 [&_ul]:space-y-1 [&_li]:text-white/75"
+                    className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95"
                     style={{ color: 'rgba(255,255,255,0.80)' }}
                     dangerouslySetInnerHTML={{ __html: activity.longDescription }}
                   />
-                )}
+                ) : null}
 
                 {/* Tags */}
                 {activity.tags && activity.tags.length > 0 && (

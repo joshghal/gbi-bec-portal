@@ -9,6 +9,8 @@ interface LandingData {
   activitySettings: { sectionEnabled: boolean };
   announcement: any | null;
   formSettings: { disabledForms: string[] };
+  coolGroups: any[];
+  coolKabid: any | null;
 }
 
 const LandingDataContext = createContext<LandingData | null>(null);
@@ -28,8 +30,10 @@ export default function LandingLoader({ children }: { children: React.ReactNode 
       fetch('/api/activities/settings').then(r => r.ok ? r.json() : { sectionEnabled: true }),
       fetch('/api/announcement').then(r => r.ok ? r.json() : null),
       fetch('/api/forms/settings').then(r => r.ok ? r.json() : { disabledForms: [] }),
-    ]).then(([updates, updateSettings, activities, activitySettings, announcement, formSettings]) => {
-      setData({ updates, updateSettings, activities, activitySettings, announcement, formSettings });
+      fetch('/api/cool-groups').then(r => r.ok ? r.json() : []),
+      fetch('/api/cool-groups/kabid').then(r => r.ok ? r.json() : { kabid: null }),
+    ]).then(([updates, updateSettings, activities, activitySettings, announcement, formSettings, coolGroups, coolKabid]) => {
+      setData({ updates, updateSettings, activities, activitySettings, announcement, formSettings, coolGroups, coolKabid: coolKabid?.kabid || null });
     }).catch(() => {
       // Fallback — show page with defaults
       setData({
@@ -39,6 +43,8 @@ export default function LandingLoader({ children }: { children: React.ReactNode 
         activitySettings: { sectionEnabled: true },
         announcement: null,
         formSettings: { disabledForms: [] },
+        coolGroups: [],
+        coolKabid: null,
       });
     });
   }, []);
