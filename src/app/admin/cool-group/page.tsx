@@ -20,6 +20,9 @@ import {
 
 interface Leader {
   name: string;
+  gender: string;
+  birthplace: string;
+  address: string;
   phone: string;
   email: string;
 }
@@ -36,7 +39,7 @@ interface CoolGroup {
   updatedAt: string;
 }
 
-const EMPTY_LEADER: Leader = { name: '', phone: '', email: '' };
+const EMPTY_LEADER: Leader = { name: '', gender: '', birthplace: '', address: '', phone: '', email: '' };
 
 const EMPTY_FORM: Omit<CoolGroup, 'id' | 'order' | 'createdAt' | 'updatedAt'> = {
   name: '',
@@ -58,12 +61,38 @@ function LeaderFields({
   return (
     <fieldset className="space-y-3 rounded-lg border px-4 py-3 bg-muted/20">
       <legend className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">{label}</legend>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Nama</Label>
+          <Input
+            value={value.name}
+            onChange={e => onChange({ ...value, name: e.target.value })}
+            placeholder="Nama lengkap"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Jenis Kelamin</Label>
+          <Input
+            value={value.gender}
+            onChange={e => onChange({ ...value, gender: e.target.value })}
+            placeholder="Laki-laki / Perempuan"
+          />
+        </div>
+      </div>
       <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground">Nama</Label>
+        <Label className="text-xs text-muted-foreground">Tempat, Tgl Lahir</Label>
         <Input
-          value={value.name}
-          onChange={e => onChange({ ...value, name: e.target.value })}
-          placeholder="Nama lengkap"
+          value={value.birthplace}
+          onChange={e => onChange({ ...value, birthplace: e.target.value })}
+          placeholder="Bandung, 28 Oktober 1985"
+        />
+      </div>
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Alamat</Label>
+        <Input
+          value={value.address}
+          onChange={e => onChange({ ...value, address: e.target.value })}
+          placeholder="Jl. ..."
         />
       </div>
       <div className="grid grid-cols-2 gap-3">
