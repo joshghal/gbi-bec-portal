@@ -392,7 +392,7 @@ export default function ActivitiesSection() {
                 {/* Long description */}
                 {activity.longDescription && (
                   <div
-                    className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95"
+                    className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95 [&_ul]:mt-1 [&_ul]:mb-3 [&_ul]:pl-4 [&_ul]:space-y-1 [&_li]:text-white/75"
                     style={{ color: 'rgba(255,255,255,0.80)' }}
                     dangerouslySetInnerHTML={{ __html: activity.longDescription }}
                   />
