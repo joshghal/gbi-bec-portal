@@ -45,19 +45,29 @@ function loadChunks(): Chunk[] {
   }));
 }
 
-async function embedTexts(texts: string[]): Promise<number[][]> {
-  const response = await fetch(`${EMBEDDING_API_URL}/embed`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ input: texts, type: 'passage' }),
-  });
+async function embedTexts(texts: string[], retries = 3): Promise<number[][]> {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    const response = await fetch(`${EMBEDDING_API_URL}/embed`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: texts, type: 'passage' }),
+    });
 
-  if (!response.ok) {
+    if (response.ok) {
+      const data = await response.json();
+      return data.embedding;
+    }
+
+    if (response.status === 503 && attempt < retries) {
+      const wait = attempt * 10;
+      console.log(`⏳ Embedding service cold start (503), retrying in ${wait}s... (${attempt}/${retries})`);
+      await new Promise(r => setTimeout(r, wait * 1000));
+      continue;
+    }
+
     throw new Error(`Embedding API error: ${response.status}`);
   }
-
-  const data = await response.json();
-  return data.embedding;
+  throw new Error('Embedding failed after retries');
 }
 
 async function upsertToPinecone(

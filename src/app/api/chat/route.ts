@@ -47,7 +47,7 @@ async function getLiveCoolGroups(query: string): Promise<string> {
       ? `Kabid COOL: ${kabid.name}${kabid.phone ? ' (HP: ' + kabid.phone + ')' : ''}${kabid.address ? ', Alamat: ' + kabid.address : ''}`
       : 'Kabid COOL: Ps. Agus Sulistiyanto (HP: 081910238170)';
 
-    return `[COOL Group — data terkini] ${kabidInfo}. COOL bertemu setiap hari Selasa. Ada ${lines.length} kelompok COOL:\n${lines.join('\n')}`;
+    return `[COOL Group — data terkini] ${kabidInfo}. COOL (Community of Love) adalah komsel/kelompok sel GBI Baranangsiang yang bertemu setiap hari Selasa. COOL itu sebuah wadah di mana setiap jemaat bisa belajar, bertumbuh bersama, dan semakin diperlengkapi lagi untuk penuaian jiwa-jiwa. Saling berdoa dan saling menguatkan. Merupakan perpanjangan tangan dari Tuhan dan Gembala untuk menjangkau jiwa-jiwa yang membutuhkan pelayanan secara khusus. Cara bergabung: hubungi Call Centre BEC di WhatsApp 0878-2342-0950 atau langsung hubungi ketua COOL di daerah terdekat. Pendaftaran memerlukan Nama Lengkap, No. HP/WhatsApp, Alamat & Daerah, Usia, dan pilihan apakah ingin menyediakan rumah sebagai tempat COOL atau bergabung di COOL yang sudah ada. Ada ${lines.length} kelompok COOL:\n${lines.join('\n')}`;
   } catch {
     return '';
   }
@@ -100,9 +100,9 @@ export async function POST(request: NextRequest) {
     ]);
 
     // 2. Search Pinecone for relevant documents
-    // topK: how many chunks to retrieve. KB has 24 chunks — 7 covers ~30% which is
-    // the right balance between recall and context noise. Raise if KB grows past ~50 chunks.
-    const results = await searchDocuments(queryEmbedding, { topK: 7 });
+    // topK: how many chunks to retrieve. KB has 36 chunks — 9 covers ~25% which is
+    // the right balance between recall and context noise.
+    const results = await searchDocuments(queryEmbedding, { topK: 9 });
 
     // 3. Build the prompt — live dates always prepended so they're never missed
     const vectorContext = formatDocumentsForContext(results);
@@ -110,6 +110,7 @@ export async function POST(request: NextRequest) {
     const documentContext = liveContext
       ? `${liveContext}\n\n---\n\n${vectorContext}`
       : vectorContext;
+
     const sources = [...new Set(results.map(r => r.metadata.source).filter(Boolean))] as string[];
 
     const userPrompt = buildUserPrompt(message, documentContext, history || []);

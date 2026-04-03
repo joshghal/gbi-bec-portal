@@ -44,7 +44,7 @@ const SOCIALS = [
   {
     label: 'YouTube',
     handle: 'GBI Baranangsiang Evening Church',
-    href: 'https://www.youtube.com/@GBIBaranangsiangEveningChurch',
+    href: 'https://www.youtube.com/@gbibaranangsiangsukawarna7008',
     icon: 'youtube' as const,
   },
 ];

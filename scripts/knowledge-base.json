@@ -1,21 +1,21 @@
 [
   {
     "id": "identitas-gereja",
-    "content": "GBI Baranangsiang (Gereja Bethel Indonesia Baranangsiang), juga dikenal sebagai GBI Sukawarna atau GBI BEC (Baranangsiang Evening Church). Jadwal Ibadah: setiap hari Minggu pukul 17:00 WIB. Alamat: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112, Indonesia. Koordinat: -6.918881, 107.620721. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7",
+    "content": "GBI Baranangsiang (Gereja Bethel Indonesia Baranangsiang), juga dikenal sebagai GBI Sukawarna atau GBI BEC (Baranangsiang Evening Church). Kepanjangan BEC adalah Baranangsiang Evening Church. GBI BEC merupakan gereja beraliran Pentakosta-Karismatik di bawah naungan sinode Gereja Bethel Indonesia. Jadwal Ibadah: setiap hari Minggu pukul 17:00 WIB. Alamat: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112 (kode pos 40112), Indonesia. Koordinat: -6.918881, 107.620721. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7",
     "category": "identitas",
     "source": "google-sites",
     "type": "info"
   },
   {
     "id": "identitas-kontak",
-    "content": "Kontak GBI BEC (Baranangsiang Evening Church): BEC WhatsApp: 0878-2342-0950 (https://wa.me/6287823420950). Call Centre Unit Pernikahan: WhatsApp 0896-7929-9098 (https://wa.me/6289679299098). Narahubung KOM: Ibu Henny Liana \u2014 0858-6006-0050 (https://wa.me/6285860060050). Narahubung Pelayanan Jemaat: Ps. Thomas Lukiman \u2014 0815-7309-7720 (https://wa.me/6281573097720). Instagram: https://www.instagram.com/sukawarna.bec/. YouTube: youtube.com/@gbibaranangsiangsukawarna7008.",
+    "content": "Kontak GBI BEC (Baranangsiang Evening Church): BEC WhatsApp: 0878-2342-0950 (https://wa.me/6287823420950). Call Centre Unit Pernikahan: WhatsApp 0896-7929-9098 (https://wa.me/6289679299098). Narahubung KOM: Ibu Henny Liana \u2014 0858-6006-0050 (https://wa.me/6285860060050). Narahubung Pelayanan Jemaat: Ps. Thomas Lukiman \u2014 0815-7309-7720 (https://wa.me/6281573097720). Instagram: https://www.instagram.com/sukawarna.bec/. YouTube: https://www.youtube.com/@gbibaranangsiangsukawarna7008.",
     "category": "identitas",
     "source": "google-sites",
     "type": "kontak"
   },
   {
     "id": "jadwal-ibadah",
-    "content": "Jadwal Ibadah GBI Baranangsiang (GBI BEC/Sukawarna): setiap hari Minggu pukul 17:00 WIB. Lokasi: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7. Hubungi WhatsApp: 0878-2342-0950 untuk informasi lebih lanjut.",
+    "content": "Jadwal Ibadah GBI Baranangsiang (GBI BEC/Sukawarna): ibadah diadakan satu kali dalam seminggu, yaitu setiap hari Minggu pukul 17:00 - 19:00 WIB (durasi sekitar 2 jam). Tidak ada ibadah pada hari Sabtu atau hari kerja lainnya. Ibadah menggunakan Bahasa Indonesia. Lokasi: Jl. Baranang Siang No.8, Kb. Pisang, Kec. Sumur Bandung, Kota Bandung, Jawa Barat 40112. Google Maps: https://maps.app.goo.gl/DxqwnNHV8sZWEzHS7. Hubungi WhatsApp: 0878-2342-0950 untuk informasi lebih lanjut.",
     "category": "jadwal",
     "source": "google-sites",
     "type": "jadwal"
@@ -162,9 +162,100 @@
   },
   {
     "id": "cool-info",
-    "content": "COOL (Community of Love) adalah komsel/kelompok sel GBI Baranangsiang. Untuk bergabung, hubungi call centre BEC. Pendaftaran memerlukan: Nama Lengkap, No. HP/WhatsApp, Alamat Lengkap & Daerah, Usia, dan pilihan apakah ingin menyediakan rumah sebagai tempat COOL atau ingin bergabung di COOL.",
+    "content": "COOL (Community of Love) adalah komsel/kelompok sel GBI Baranangsiang Evening Church. COOL bertemu setiap hari Selasa. COOL itu sebuah wadah di mana setiap jemaat bisa belajar, bertumbuh bersama, dan semakin diperlengkapi lagi untuk penuaian jiwa-jiwa. Saling berdoa dan saling menguatkan. Merupakan perpanjangan tangan dari Tuhan dan Gembala untuk menjangkau jiwa-jiwa yang membutuhkan pelayanan secara khusus. Cara bergabung dengan COOL: hubungi Call Centre BEC di WhatsApp 0878-2342-0950 atau hubungi langsung ketua COOL di daerah terdekat. Pendaftaran memerlukan: Nama Lengkap, No. HP/WhatsApp, Alamat Lengkap & Daerah, Usia, dan pilihan apakah ingin menyediakan rumah sebagai tempat COOL atau ingin bergabung di COOL yang sudah ada. COOL terbuka untuk semua jemaat dan umum.",
     "category": "kegiatan",
     "source": "google-sites",
+    "type": "info"
+  },
+  {
+    "id": "gembala-info",
+    "content": "Gembala (pendeta senior) GBI Baranangsiang Evening Church (GBI BEC) Sukawarna adalah Pdm. Lie Yansen Wiyono. Beliau memimpin pelayanan dan ibadah di GBI BEC.",
+    "category": "identitas",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "persembahan-info",
+    "content": "Cara memberikan persembahan atau perpuluhan di GBI BEC: Jemaat dapat memberikan persembahan melalui QRIS (scan QR code) dengan nama merchant 'GBI BARANANGSIANG 5' (NMID: ID2025398761598). QRIS dapat digunakan dari semua aplikasi e-wallet dan mobile banking yang mendukung QRIS. Persembahan juga dapat diberikan secara langsung (tunai) saat ibadah berlangsung.",
+    "category": "identitas",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "sekolah-minggu",
+    "content": "GBI BEC memiliki Sekolah Minggu untuk anak-anak. Sekolah Minggu berlangsung bersamaan (paralel) dengan ibadah hari Minggu pukul 17:00 WIB. Narahubung/kontak Sekolah Minggu: Kak Zihan — WhatsApp 0858-7104-5710 (https://wa.me/6285871045710). Hubungi Kak Zihan untuk informasi pendaftaran, kelas, dan kegiatan Sekolah Minggu.",
+    "category": "kegiatan",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "ibadah-online",
+    "content": "Ibadah GBI BEC dapat diikuti secara online melalui live streaming di YouTube. Channel YouTube resmi GBI Baranangsiang: https://www.youtube.com/@gbibaranangsiangsukawarna7008. Jemaat yang tidak dapat hadir secara langsung dapat mengikuti ibadah melalui channel ini setiap hari Minggu.",
+    "category": "jadwal",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "fasilitas-parkir",
+    "content": "Fasilitas parkir di GBI Baranangsiang: Tersedia parkir motor/sepeda di sekitar gedung gereja dan parkir mobil dengan kapasitas sekitar 50 kendaraan di area basement gedung gereja.",
+    "category": "identitas",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "sejarah-gereja",
+    "content": "Sejarah GBI Baranangsiang: GBI Baranangsiang adalah cabang dari GBI Sukawarna (Rayon 2) Bandung yang dipimpin oleh Pdt. Dr. Ir. Niko Njotorahardjo. Ibadah perdana di gedung baru GBI Baranangsiang dimulai pada 6 Januari 2008. Gedung ini dibangun untuk menampung jemaat yang berkembang dari pusat kegiatan GBI Jalan Sukawarna di Bandung. GBI Baranangsiang merupakan bagian dari jejaring GBI Jalan Jenderal Gatot Subroto - Senayan, Jakarta, di bawah naungan Rayon 2 yang berpusat di Jalan Aruna no. 19, Bandung. Kapasitas gedung dirancang untuk menampung sekitar 2.500 - 3.000 jemaat. Gereja ini berfokus pada aliran Pentakosta-Karismatik dan terus berkembang di bawah naungan sinode GBI.",
+    "category": "identitas",
+    "source": "wikipedia",
+    "type": "info"
+  },
+  {
+    "id": "biaya-layanan",
+    "content": "Semua kegiatan dan layanan di GBI BEC tidak dipungut biaya (gratis), termasuk: baptisan air, penyerahan anak, KOM (Kehidupan Orientasi Melayani), M-Class, COOL, Creative Ministry, konseling, pelayanan jemaat, dan pelayanan kunjungan. Tidak ada biaya pendaftaran atau iuran untuk mengikuti kegiatan gereja.",
+    "category": "identitas",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "acara-khusus",
+    "content": "Acara khusus di GBI BEC seperti perayaan Paskah (Passover), Natal (Christmas), Ibadah Tahun Baru, Jumat Agung, KKR (Kebaktian Kebangunan Rohani), retreat, dan acara-acara spesial lainnya akan diinformasikan mendekati tanggalnya. Untuk mengetahui jadwal acara terkini, rutin pantau halaman Kabar Terbaru di website: https://gbibec.id/kabar atau ikuti Instagram resmi GBI BEC: https://www.instagram.com/sukawarna.bec untuk update terbaru.",
+    "category": "jadwal",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "aplikasi-gereja",
+    "content": "Anda sedang menggunakan aplikasi/website resmi GBI BEC yang dapat diakses di https://gbibec.id. Fitur yang tersedia: chatbot asisten virtual untuk menjawab pertanyaan seputar gereja, formulir pendaftaran online (baptisan, penyerahan anak, M-Class, pokok doa), serta halaman Kabar Terbaru. Aplikasi ini dapat diakses langsung melalui browser di HP atau komputer tanpa perlu download.",
+    "category": "identitas",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "baptis-doktrin",
+    "content": "GBI BEC menerapkan baptisan selam (full immersion), yaitu seluruh tubuh dicelupkan ke dalam air, sesuai dengan praktik baptisan dalam Alkitab. Baptisan selam berbeda dengan baptisan percik (sprinkling) yang hanya memercikkan air ke kepala. Di GBI, baptisan selam merupakan syarat yang diakui untuk keanggotaan (KAJ). Jemaat yang sudah dibaptis selam di gereja lain tetap diakui baptisannya.",
+    "category": "baptisan",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "transportasi-akses",
+    "content": "Cara menuju GBI Baranangsiang: Lokasi gereja berada di Jl. Baranang Siang No.8, dekat dengan Jl. Asia Afrika dan Jl. Braga, pusat kota Bandung. Landmark terdekat: Gedung Merdeka (Museum Konferensi Asia-Afrika), sekitar 1,2 km ke arah barat daya. Stasiun kereta terdekat: Stasiun Cikudapateuh, sekitar 700 meter (sekitar 10 menit jalan kaki). Dari Stasiun Bandung (Stasiun Hall): sekitar 4 km (sekitar 15 menit naik ojol). Bisa dijangkau menggunakan Grab/Gojek dengan mencari 'GBI Baranangsiang' atau 'Jl. Baranang Siang No.8'. Angkot yang melewati sekitar area ini termasuk rute St. Hall - Cicaheum via Jl. Merdeka dan Jl. ABC/Braga.",
+    "category": "identitas",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "ibadah-umum",
+    "content": "Informasi umum ibadah GBI BEC: Ibadah terbuka untuk umum, termasuk non-Kristen dan tamu yang baru pertama kali datang. Tidak ada dress code khusus, cukup berpakaian sopan dan rapi. Ibadah menggunakan Bahasa Indonesia (tidak ada ibadah dalam bahasa Inggris atau bahasa lain). Jemaat yang datang terlambat tetap dipersilakan masuk. Tidak perlu menjadi anggota untuk mengikuti ibadah.",
+    "category": "jadwal",
+    "source": "gereja",
+    "type": "info"
+  },
+  {
+    "id": "panggilan-pelayanan",
+    "content": "Panggilan Pelayanan GBI BEC: Cara bergabung sebagai pekerja gereja, pelayan, volunteer, atau tim pelayanan di GBI BEC: hubungi Call Centre BEC di WhatsApp 0878-2342-0950 (https://wa.me/6287823420950). Gereja membuka kesempatan bagi jemaat yang rindu melayani sebagai usher/penyambut, tim doa, dan pelayanan lainnya. Untuk pelayanan musik, hubungi Sdri. Susy melalui Call Centre. Untuk Creative Ministry (choir, balet, tamborine, banner, modern dance), hubungi Ibu Fera di WhatsApp 0821-1974-9869 atau Ibu Lia di WhatsApp 0857-7491-0351.",
+    "category": "pelayanan_jemaat",
+    "source": "gereja",
     "type": "info"
   }
 ]

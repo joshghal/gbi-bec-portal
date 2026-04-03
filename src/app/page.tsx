@@ -59,7 +59,7 @@ const jsonLd = {
   },
   sameAs: [
     'https://www.instagram.com/sukawarna.bec/',
-    'https://www.youtube.com/@GBIBaranangsiangEveningChurch',
+    'https://www.youtube.com/@gbibaranangsiangsukawarna7008',
   ],
 };
 
