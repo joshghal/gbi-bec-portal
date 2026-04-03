@@ -172,9 +172,11 @@ function CoolGroupCards({ groups, kabid }: { groups: any[]; kabid: any }) {
   return (
     <div className="space-y-4">
       {/* Intro */}
-      <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
-        Kelompok sel untuk saling mendukung dan bertumbuh bersama. Saat ini ada <strong className="text-white/95">{groups.length} kelompok</strong> COOL aktif di berbagai daerah.
-      </p>
+      <div className="text-sm leading-relaxed space-y-2" style={{ color: 'rgba(255,255,255,0.80)' }}>
+        <p>COOL adalah sebuah wadah di mana setiap jemaat bisa <strong className="text-white/95">belajar, bertumbuh bersama, dan semakin diperlengkapi lagi untuk penuaian jiwa-jiwa.</strong> Saling berdoa dan saling menguatkan.</p>
+        <p>Merupakan perpanjangan tangan dari Tuhan dan Gembala untuk menjangkau jiwa-jiwa yang membutuhkan pelayanan secara khusus.</p>
+        <p>Saat ini ada <strong className="text-white/95">{groups.length} kelompok</strong> COOL aktif di berbagai daerah.</p>
+      </div>
 
       {/* Kabid */}
       {kabid?.name && (
