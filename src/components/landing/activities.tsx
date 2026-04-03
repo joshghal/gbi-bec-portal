@@ -375,7 +375,7 @@ export default function ActivitiesSection() {
           const theme = CARD_THEMES[detailIndex % 2];
           return (
             <DialogContent
-              className="sm:max-w-lg ring-0"
+              className="sm:max-w-lg ring-0 text-white [&_[data-slot=dialog-close]]:text-white/70 [&_[data-slot=dialog-close]:hover]:bg-white/10"
               style={{ background: theme.gradient }}
             >
               <DialogHeader className="p-4 pb-2">
@@ -418,7 +418,7 @@ export default function ActivitiesSection() {
                 )}
               </DialogBody>
 
-              <DialogFooter className="flex-col gap-2 sm:flex-col border-t-white/10">
+              <DialogFooter className="flex-col gap-2 sm:flex-col !bg-transparent !border-t-white/10">
                 {activity.contacts?.map((contact) => (
                   <LandingButton key={contact.waLink} variant="glass" href={contact.waLink} external whatsapp className="w-full">
                     Hubungi {contact.name}
