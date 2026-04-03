@@ -9,6 +9,7 @@ import {
   Activity,
   CalendarDays,
   Megaphone,
+  UsersRound,
   Settings,
   GraduationCap,
   Droplets,
@@ -57,6 +58,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/kabar', label: 'Kabar Terbaru', icon: Newspaper, permission: 'page:kabar' },
       { href: '/admin/kegiatan', label: 'Kegiatan Kami', icon: CalendarDays, permission: 'page:kegiatan' },
       { href: '/admin/pengumuman', label: 'Pengumuman', icon: Megaphone, permission: 'page:pengumuman' },
+      { href: '/admin/cool-group', label: 'COOL Group', icon: UsersRound, permission: 'page:cool-group' },
     ],
   },
   {

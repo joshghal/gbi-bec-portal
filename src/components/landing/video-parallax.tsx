@@ -140,14 +140,14 @@ export default function VideoParallaxSection() {
       {/* Brown tint — matches about-intro collage */}
       <div
         className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(55, 35, 18, 0.42)' }}
+        style={{ backgroundColor: 'rgba(55, 35, 18, 0.8)' }}
       />
 
       {/* Gradient — darker at bottom for text legibility */}
       <div
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 100%)',
+          background: 'linear-gradient(transparent 1%, rgba(0, 0, 0, 1) 100%)'
         }}
       />
 
