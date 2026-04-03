@@ -372,23 +372,28 @@ export default function ActivitiesSection() {
       <Dialog open={detailIndex !== null} onOpenChange={open => { if (!open) setDetailIndex(null); }}>
         {detailIndex !== null && displayActivities[detailIndex] && (() => {
           const activity = displayActivities[detailIndex];
+          const theme = CARD_THEMES[detailIndex % 2];
           return (
-            <DialogContent className="sm:max-w-lg">
-              <DialogHeader>
-                <DialogDescription className="text-xs uppercase tracking-[0.2em] font-semibold">
+            <DialogContent
+              className="sm:max-w-lg ring-0"
+              style={{ background: theme.gradient }}
+            >
+              <DialogHeader className="p-4 pb-2">
+                <DialogDescription className="text-xs uppercase tracking-[0.2em] font-semibold" style={{ color: theme.accent, opacity: 0.7 }}>
                   {activity.subtitle}
                 </DialogDescription>
-                <DialogTitle className="font-serif text-2xl font-bold leading-[1.1] tracking-[-0.02em]">
+                <DialogTitle className="font-serif text-2xl font-bold leading-[1.1] tracking-[-0.02em]" style={{ color: theme.accent }}>
                   {activity.title}
                 </DialogTitle>
-                <p className="text-sm text-muted-foreground">{activity.day}</p>
+                <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>{activity.day}</p>
               </DialogHeader>
 
               <DialogBody className="space-y-4">
                 {/* Long description */}
                 {activity.longDescription && (
                   <div
-                    className="text-sm leading-relaxed prose prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0"
+                    className="text-sm leading-relaxed prose prose-invert prose-sm max-w-none [&_p]:mb-3 [&_p:last-child]:mb-0 [&_strong]:text-white/95"
+                    style={{ color: 'rgba(255,255,255,0.80)' }}
                     dangerouslySetInnerHTML={{ __html: activity.longDescription }}
                   />
                 )}
@@ -399,7 +404,12 @@ export default function ActivitiesSection() {
                     {activity.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="text-[11px] px-2.5 py-1 rounded-md font-medium bg-muted text-muted-foreground"
+                        className="text-[11px] px-2.5 py-1 rounded-md font-medium"
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.14)',
+                          color: 'rgba(255,255,255,0.85)',
+                          border: '1px solid rgba(255,255,255,0.18)',
+                        }}
                       >
                         {tag}
                       </span>
@@ -408,19 +418,19 @@ export default function ActivitiesSection() {
                 )}
               </DialogBody>
 
-              <DialogFooter className="flex-col gap-2 sm:flex-col">
+              <DialogFooter className="flex-col gap-2 sm:flex-col border-t-white/10">
                 {activity.contacts?.map((contact) => (
-                  <LandingButton key={contact.waLink} variant="primary" href={contact.waLink} external whatsapp className="w-full">
+                  <LandingButton key={contact.waLink} variant="glass" href={contact.waLink} external whatsapp className="w-full">
                     Hubungi {contact.name}
                   </LandingButton>
                 ))}
 
-                <LandingButton variant="outline" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow className="w-full">
+                <LandingButton variant="glass-light" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full">
                   Tanya AI Kami
                 </LandingButton>
 
                 {activity.cta && (
-                  <LandingButton variant="outline" href={activity.cta.href} external={activity.cta.external} arrow className="w-full">
+                  <LandingButton variant="glass-light" href={activity.cta.href} external={activity.cta.external} arrow darkTextColor={theme.bg} className="w-full">
                     {activity.cta.label}
                   </LandingButton>
                 )}
