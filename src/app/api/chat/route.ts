@@ -19,6 +19,31 @@ async function getDisabledForms(): Promise<string[]> {
   }
 }
 
+async function getLiveCoolGroups(query: string): Promise<string> {
+  const keywords = ['cool', 'kelompok sel', 'komunitas', 'cell group'];
+  const q = query.toLowerCase();
+  if (!keywords.some(k => q.includes(k))) return '';
+
+  try {
+    const db = getAdminFirestore();
+    const snap = await db.collection('cool_groups').orderBy('order', 'asc').get();
+    if (snap.empty) return '';
+
+    const lines = snap.docs.map(d => {
+      const g = d.data();
+      const parts = [`${g.name} — daerah ${g.area}`];
+      if (g.ketua?.name) parts.push(`Ketua: ${g.ketua.name}${g.ketua.phone ? ' (HP: ' + g.ketua.phone + ')' : ''}`);
+      if (g.wakil?.name && g.wakil.name !== 'Kosong') parts.push(`Wakil: ${g.wakil.name}${g.wakil.phone ? ' (HP: ' + g.wakil.phone + ')' : ''}`);
+      if (g.sekretaris?.name && g.sekretaris.name !== 'Kosong') parts.push(`Sekretaris: ${g.sekretaris.name}${g.sekretaris.phone ? ' (HP: ' + g.sekretaris.phone + ')' : ''}`);
+      return parts.join('. ');
+    });
+
+    return `[COOL Group — data terkini] Kabid COOL: Ps. Agus Sulistiyanto (HP: 081910238170). COOL bertemu setiap hari Selasa. Ada ${lines.length} kelompok COOL:\n${lines.join('\n')}`;
+  } catch {
+    return '';
+  }
+}
+
 async function getLiveSchedule(): Promise<string> {
   try {
     const db = getAdminFirestore();
@@ -57,11 +82,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    // 1. Embed query + fetch form settings + fetch live dates in parallel
-    const [queryEmbedding, disabledForms, liveSchedule] = await Promise.all([
+    // 1. Embed query + fetch form settings + fetch live dates + COOL groups in parallel
+    const [queryEmbedding, disabledForms, liveSchedule, liveCool] = await Promise.all([
       generateEmbedding(message, 'query'),
       getDisabledForms(),
       getLiveSchedule(),
+      getLiveCoolGroups(message),
     ]);
 
     // 2. Search Pinecone for relevant documents
@@ -71,8 +97,9 @@ export async function POST(request: NextRequest) {
 
     // 3. Build the prompt — live dates always prepended so they're never missed
     const vectorContext = formatDocumentsForContext(results);
-    const documentContext = liveSchedule
-      ? `${liveSchedule}\n\n---\n\n${vectorContext}`
+    const liveContext = [liveSchedule, liveCool].filter(Boolean).join('\n\n---\n\n');
+    const documentContext = liveContext
+      ? `${liveContext}\n\n---\n\n${vectorContext}`
       : vectorContext;
     const sources = [...new Set(results.map(r => r.metadata.source).filter(Boolean))] as string[];
 
