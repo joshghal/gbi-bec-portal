@@ -159,5 +159,12 @@
     "category": "kegiatan",
     "source": "creative-ministry-poster",
     "type": "info"
+  },
+  {
+    "id": "cool-info",
+    "content": "COOL (Community of Love) adalah komsel/kelompok sel GBI Baranangsiang. Untuk bergabung, hubungi call centre BEC. Pendaftaran memerlukan: Nama Lengkap, No. HP/WhatsApp, Alamat Lengkap & Daerah, Usia, dan pilihan apakah ingin menyediakan rumah sebagai tempat COOL atau ingin bergabung di COOL.",
+    "category": "kegiatan",
+    "source": "google-sites",
+    "type": "info"
   }
 ]
