@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { logAdminAction } from '@/lib/admin-logger';
 import { generateUniqueSlug } from '@/lib/slug';
@@ -44,6 +45,7 @@ export async function PUT(
 
     await ref.update(update);
     logAdminAction(request, 'update', 'kabar', { resourceId: id, resourceTitle: existing.data()?.title });
+    revalidatePath('/kabar');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update update error:', error);
@@ -73,6 +75,7 @@ export async function DELETE(
     const title = existing.data()?.title;
     await ref.delete();
     logAdminAction(request, 'delete', 'kabar', { resourceId: id, resourceTitle: title });
+    revalidatePath('/kabar');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete update error:', error);

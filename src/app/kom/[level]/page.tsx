@@ -207,7 +207,7 @@ export async function generateMetadata({ params }: { params: Promise<{ level: st
     keywords: [`KOM ${level}`, kom.title, 'GBI BEC', 'materi KOM', 'kurikulum gereja', 'kelas rohani Bandung'],
     alternates: { canonical: `/kom/${level}` },
     openGraph: {
-      title: `KOM ${level} — ${kom.title} | GBI BEC`,
+      title: `KOM ${level} — ${kom.title}`,
       description,
       type: 'article',
     },

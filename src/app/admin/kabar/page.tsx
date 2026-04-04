@@ -205,7 +205,7 @@ export default function KabarPage() {
     const newPinned = !update.pinned;
     try {
       const token = await user?.getIdToken();
-      await fetch(`/api/updates/${update.id}`, {
+      const res = await fetch(`/api/updates/${update.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -213,13 +213,19 @@ export default function KabarPage() {
         },
         body: JSON.stringify({ pinned: newPinned }),
       });
-      // Server unpins others — update local state to match
-      setUpdates(prev =>
-        prev.map(u => u.id === update.id
+      if (!res.ok) throw new Error('Gagal mengubah pin.');
+      // Server unpins others — update local state to match, then sort pinned first
+      setUpdates(prev => {
+        const next = prev.map(u => u.id === update.id
           ? { ...u, pinned: newPinned }
           : newPinned ? { ...u, pinned: false } : u
-        )
-      );
+        );
+        return [...next].sort((a, b) => {
+          if (a.pinned && !b.pinned) return -1;
+          if (!a.pinned && b.pinned) return 1;
+          return 0;
+        });
+      });
     } catch (err) {
       toastApiError(err, 'Gagal mengubah pin.');
     }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { logAdminAction } from '@/lib/admin-logger';
 import { generateUniqueSlug } from '@/lib/slug';
@@ -70,6 +71,7 @@ export async function POST(request: NextRequest) {
 
     const ref = await db.collection('updates').add(doc);
     logAdminAction(request, 'create', 'kabar', { resourceId: ref.id, resourceTitle: doc.title });
+    revalidatePath('/kabar');
     return NextResponse.json({ id: ref.id, ...doc }, { status: 201 });
   } catch (error) {
     console.error('Create update error:', error);

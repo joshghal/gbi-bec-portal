@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   keywords: ['kabar gereja', 'pengumuman GBI BEC', 'berita gereja Bandung', 'GBI Baranangsiang', 'update gereja'],
   alternates: { canonical: '/kabar' },
   openGraph: {
-    title: 'Kabar Terbaru | GBI BEC',
+    title: 'Kabar Terbaru',
     description: 'Kabar terbaru dan pengumuman dari GBI BEC Sukawarna, Bandung.',
     url: `${siteUrl}/kabar`,
     type: 'website',

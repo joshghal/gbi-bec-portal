@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   keywords: ['KOM', 'Kehidupan Orientasi Melayani', 'GBI BEC', 'materi gereja', 'kurikulum GBI', 'kelas rohani Bandung'],
   alternates: { canonical: '/kom' },
   openGraph: {
-    title: 'Materi KOM | GBI BEC',
+    title: 'Materi KOM',
     description: 'Program pengajaran Firman Tuhan berjenjang — 4 level, 82 sesi total. Kurikulum nasional GBI.',
     type: 'website',
   },

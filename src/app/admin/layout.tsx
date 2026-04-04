@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import AdminShell from './_admin-shell';
 
 export const metadata: Metadata = {
-  title: 'Admin | GBI BEC',
+  title: 'Admin',
   description: 'Panel administrasi GBI Baranangsiang Evening Church.',
   robots: {
     index: false,
