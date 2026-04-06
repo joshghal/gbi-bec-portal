@@ -13,9 +13,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${siteUrl}/chat`,
+      url: `${siteUrl}/helpdesk`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: 'daily',
       priority: 0.8,
     },
     {
@@ -27,13 +27,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     {
       url: `${siteUrl}/kom`,
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: 'daily',
       priority: 0.7,
     },
     ...['100', '200', '300', '400'].map((level) => ({
       url: `${siteUrl}/kom/${level}`,
       lastModified: new Date(),
-      changeFrequency: 'monthly' as const,
+      changeFrequency: 'daily' as const,
       priority: 0.6,
     })),
   ];
@@ -54,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         return {
           url: `${siteUrl}/kabar/${data.slug}`,
           lastModified: data.updatedAt ? new Date(data.updatedAt) : new Date(data.date),
-          changeFrequency: 'monthly' as const,
+          changeFrequency: 'daily' as const,
           priority: 0.6,
         };
       });

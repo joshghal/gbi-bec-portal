@@ -20,7 +20,7 @@ async function getDisabledForms(): Promise<string[]> {
 }
 
 async function getLiveCoolGroups(query: string): Promise<string> {
-  const keywords = ['cool', 'kelompok sel', 'komunitas', 'cell group'];
+  const keywords = ['cool', 'kelompok sel', 'komunitas', 'cell group', 'agus', 'kabid'];
   const q = query.toLowerCase();
   if (!keywords.some(k => q.includes(k))) return '';
 
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       ? `${liveContext}\n\n---\n\n${vectorContext}`
       : vectorContext;
 
-    const sources = [...new Set(results.map(r => r.metadata.source).filter(Boolean))] as string[];
+    const sources = results.map(r => ({ id: r.id, score: Math.round(r.score * 1000) / 1000 }));
 
     const userPrompt = buildUserPrompt(message, documentContext, history || []);
     const systemPrompt = buildSystemPrompt(disabledForms);

@@ -19,6 +19,12 @@ function toTitleCase(str: string): string {
   return str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
 }
 
+function formatDateDisplay(value: string): string {
+  const [y, m, d] = value.split('-').map(Number);
+  if (!y || !m || !d) return value;
+  return new Date(y, m - 1, d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 let wilayahCache: WilayahData | null = null;
 let wilayahPromise: Promise<WilayahData> | null = null;
 
@@ -220,7 +226,8 @@ export function useFormFlow(addMessage: AddMessageFn) {
     }
     setFormError('');
 
-    addMessage({ role: 'user', content: value.trim() || '(dilewati)' });
+    const displayValue = step.type === 'date' && value.trim() ? formatDateDisplay(value.trim()) : value.trim();
+    addMessage({ role: 'user', content: displayValue || '(dilewati)' });
 
     const newAnswers = { ...formAnswers, [step.field]: value.trim() };
     setFormAnswers(newAnswers);

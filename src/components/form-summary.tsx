@@ -20,6 +20,12 @@ interface FormSummaryProps {
   onUpdate: (field: string, value: string) => void;
 }
 
+function formatDateDisplay(value: string): string {
+  const [y, m, d] = value.split('-').map(Number);
+  if (!y || !m || !d) return value;
+  return new Date(y, m - 1, d).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProps) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState<Record<string, string>>(() =>
@@ -91,7 +97,7 @@ export function FormSummary({ rows, editable = true, onUpdate }: FormSummaryProp
                 )}
               </div>
             ) : (
-              <p className="text-xs mt-0.5">{row.value || <span className="text-muted-foreground italic">(kosong)</span>}</p>
+              <p className="text-xs mt-0.5">{(row.type === 'date' && row.value ? formatDateDisplay(row.value) : row.value) || <span className="text-muted-foreground italic">(kosong)</span>}</p>
             )}
           </div>
         ))}

@@ -32,6 +32,14 @@ function getHeaders(formType: FormType): string[] {
   return ['ID', ...fieldHeaders, 'Status', 'Dibuat', 'Diupdate'];
 }
 
+// --- Date field per form type (for tab-based grouping) ---
+
+const DATE_TAB_FIELD: Partial<Record<FormType, string>> = {
+  baptism: 'tanggalBaptis',
+  mclass: 'tanggalMClass',
+  'child-dedication': 'tanggalPenyerahan',
+};
+
 // --- Tab name helpers ---
 
 function getMonthlyTabName(date: Date): string {
@@ -274,12 +282,56 @@ async function updateRow(
     }
   }
 
-  await sheets.spreadsheets.values.update({
-    spreadsheetId,
-    range: `'${tabName}'!A${rowIndex}:${columnLetter(headers.length)}${rowIndex}`,
-    valueInputOption: 'RAW',
-    requestBody: { values: [newRow] },
-  });
+  // Check if the date-based tab field changed — if so, move the row to the correct tab
+  const dateField = DATE_TAB_FIELD[formType];
+  const updatesData = updates.data as Record<string, unknown> | undefined;
+  const newDateValue =
+    dateField && updatesData && dateField in updatesData
+      ? String(updatesData[dateField] || '')
+      : '';
+
+  if (newDateValue && newDateValue !== 'undefined' && newDateValue !== tabName) {
+    // Move: delete from old tab, append to new tab
+    const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId });
+    const oldTab = spreadsheet.data.sheets?.find(s => s.properties?.title === tabName);
+
+    if (oldTab?.properties?.sheetId !== undefined && oldTab.properties.sheetId !== null) {
+      await sheets.spreadsheets.batchUpdate({
+        spreadsheetId,
+        requestBody: {
+          requests: [{
+            deleteDimension: {
+              range: {
+                sheetId: oldTab.properties.sheetId,
+                dimension: 'ROWS',
+                startIndex: rowIndex - 1,
+                endIndex: rowIndex,
+              },
+            },
+          }],
+        },
+      });
+    }
+
+    const targetTab = await getOrCreateTab(sheets, spreadsheetId, formType, newDateValue);
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: `'${targetTab}'!A:A`,
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values: [newRow] },
+    });
+
+    console.log(`[google-sheets] Moved row for ${docId} from "${tabName}" to "${newDateValue}"`);
+  } else {
+    // Same tab: update in-place
+    await sheets.spreadsheets.values.update({
+      spreadsheetId,
+      range: `'${tabName}'!A${rowIndex}:${columnLetter(headers.length)}${rowIndex}`,
+      valueInputOption: 'RAW',
+      requestBody: { values: [newRow] },
+    });
+  }
 }
 
 async function deleteRow(

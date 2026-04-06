@@ -251,7 +251,7 @@ export default function ContactSection() {
               </div>
 
               <Link
-                href="/chat"
+                href="/helpdesk"
                 className="inline-flex items-center gap-2.5 rounded-full bg-white px-8 py-3.5 text-sm font-semibold text-black transition-all hover:bg-white/90 hover:shadow-lg hover:shadow-white/10 shrink-0 w-fit"
               >
                 Mulai Percakapan

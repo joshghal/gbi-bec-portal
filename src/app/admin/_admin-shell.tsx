@@ -77,6 +77,8 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/settings', label: 'Pengaturan Formulir', icon: Settings, permission: 'page:settings' },
       { href: '/admin/analytics', label: 'Analitik', icon: BarChart3, permission: 'page:analytics' },
       { href: '/admin/monitor', label: 'Monitor', icon: Activity, permission: 'page:monitor' },
+      { href: '/admin/qa', label: 'Tanya Jawab', icon: MessageCircleQuestion, permission: 'page:qa' },
+      { href: '/admin/saran', label: 'Saran & Masukan', icon: ScrollText, permission: 'page:saran' },
       { href: '/admin/chat-misses', label: 'Tak Terjawab', icon: MessageCircleQuestion, permission: 'page:chat-misses' },
       { href: '/admin/users', label: 'Kelola Admin', icon: Users, permission: 'page:admin-users' },
       { href: '/admin/log', label: 'Log Aktivitas', icon: ScrollText, permission: 'page:log' },
@@ -221,7 +223,7 @@ function SidebarContent({
       {/* Bottom */}
       <div className="px-2 py-3 border-t space-y-1">
         <Link
-          href="/chat"
+          href="/helpdesk"
           className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />

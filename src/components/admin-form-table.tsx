@@ -101,6 +101,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
   const [editing, setEditing] = useState<FormSubmission | null>(null);
   const [editData, setEditData] = useState<Record<string, string>>({});
   const [savingEdit, setSavingEdit] = useState(false);
+  const [dynamicEditOptions, setDynamicEditOptions] = useState<Record<string, string[]>>({});
 
   const fetchSubmissions = useCallback(async (cursor?: string) => {
     if (!user) return;
@@ -201,6 +202,23 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
   const openEdit = (sub: FormSubmission) => {
     setEditing(sub);
     setEditData({ ...sub.data });
+    setDynamicEditOptions({});
+    // Fetch all dates (including past) for dynamicOptionsUrl select fields
+    const config = getFormConfig(sub.type);
+    config?.steps.forEach(step => {
+      if (step.dynamicOptionsUrl) {
+        const url = step.dynamicOptionsUrl.includes('?')
+          ? `${step.dynamicOptionsUrl}&all=1`
+          : `${step.dynamicOptionsUrl}?all=1`;
+        fetch(url)
+          .then(r => r.json())
+          .then(data => {
+            const labels = (data.dates || []).map((d: { label: string }) => d.label);
+            setDynamicEditOptions(prev => ({ ...prev, [step.field]: labels }));
+          })
+          .catch(() => {});
+      }
+    });
   };
 
   const handleEditSave = async () => {
@@ -525,12 +543,12 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                         value={editData[step.field] || ''}
                         onChange={e => setEditData(prev => ({ ...prev, [step.field]: e.target.value }))}
                       />
-                    ) : step.type === 'select' && step.options ? (
+                    ) : step.type === 'select' && (step.options || step.dynamicOptionsUrl) ? (
                       <SearchableSelect
-                        options={step.options}
+                        options={step.options || dynamicEditOptions[step.field] || []}
                         value={editData[step.field] || ''}
                         onChange={v => setEditData(prev => ({ ...prev, [step.field]: v }))}
-                        placeholder="Pilih..."
+                        placeholder={step.dynamicOptionsUrl && !dynamicEditOptions[step.field] ? 'Memuat...' : 'Pilih...'}
                       />
                     ) : step.type === 'date' ? (
                       <DateInput

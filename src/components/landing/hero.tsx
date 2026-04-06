@@ -100,7 +100,7 @@ export default function Hero() {
             <LandingButton variant="primary" href="#jadwal">
               Jadwal &amp; Lokasi
             </LandingButton>
-            <LandingButton variant="text" href="/chat" arrow>
+            <LandingButton variant="text" href="/helpdesk" arrow>
               Tanya AI Kami
             </LandingButton>
           </motion.div>

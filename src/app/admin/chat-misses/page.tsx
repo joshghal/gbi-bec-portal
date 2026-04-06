@@ -199,7 +199,7 @@ export default function ChatMissesPage() {
                           <div className="flex flex-wrap gap-1">
                             {miss.sources.map((s, i) => (
                               <Badge key={i} variant="outline" className="text-[10px]">
-                                {s}
+                                {s.id} ({s.score})
                               </Badge>
                             ))}
                           </div>
@@ -274,7 +274,7 @@ export default function ChatMissesPage() {
                     <p className="text-[11px] font-medium text-muted-foreground mb-1.5">Konteks yang ditemukan</p>
                     <div className="flex flex-wrap gap-1">
                       {selected.sources.map((s, i) => (
-                        <Badge key={i} variant="outline" className="text-[10px]">{s}</Badge>
+                        <Badge key={i} variant="outline" className="text-[10px]">{s.id} ({s.score})</Badge>
                       ))}
                     </div>
                   </div>

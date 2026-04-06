@@ -3,7 +3,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   suggestedQuestions?: string[];
-  sources?: string[];
+  sources?: { id: string; score: number }[];
   timestamp: number;
   isError?: boolean;
   // Form-specific fields
@@ -21,7 +21,7 @@ export interface ChatRequest {
 export interface ChatResponse {
   response: string;
   suggestedQuestions: string[];
-  sources: string[];
+  sources: { id: string; score: number }[];
 }
 
 export interface DocumentChunk {

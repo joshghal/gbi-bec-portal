@@ -185,10 +185,13 @@ export default function FormTraditional({ submissionId, editToken }: FormTraditi
               const label = step.label || step.question.replace(/\?$/, '').replace(/\.$/, '').replace(/\s*\(opsional\)$/, '');
               const value = submission.data[step.field];
               if (!value && step.optional) return null;
+              const displayValue = (step.type === 'date' && value)
+                ? new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                : value;
               return (
                 <div key={step.field} className="py-2.5 first:pt-0 last:pb-0">
                   <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-                  <p className="text-sm text-foreground">{value || <span className="text-muted-foreground italic">—</span>}</p>
+                  <p className="text-sm text-foreground">{displayValue || <span className="text-muted-foreground italic">—</span>}</p>
                 </div>
               );
             })}

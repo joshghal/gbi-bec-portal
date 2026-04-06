@@ -85,11 +85,11 @@ export const FORM_CONFIGS: FormConfig[] = [
       { field: 'kelurahan', question: 'Kelurahan?', label: 'Kelurahan', type: 'select', chainType: 'village', chainParent: 'kecamatan', half: true },
       { field: 'kodePos', question: 'Kode pos?', label: 'Kode Pos', type: 'text', placeholder: 'cth. 40112', half: true },
       { field: 'noTelepon', question: 'Nomor HP orang tua?', label: 'No. HP', type: 'tel', placeholder: '08xx xxxx xxxx', half: true },
-      { field: 'cabangIbadah', question: 'Cabang ibadah yang diikuti?', label: 'Cabang ibadah', type: 'text', placeholder: 'cth. BEC Sukawarna' },
+      { field: 'cabangIbadah', question: 'Cabang ibadah yang diikuti?', label: 'Cabang ibadah', type: 'text', placeholder: 'cth. BEC Sukawarna', hidden: true, defaultValue: 'GBI Baranangsiang 5' },
       { field: 'namaAyah', question: 'Nama lengkap ayah?', label: 'Nama ayah', type: 'text', placeholder: 'Nama lengkap ayah', half: true },
       { field: 'namaIbu', question: 'Nama lengkap ibu?', label: 'Nama ibu', type: 'text', placeholder: 'Nama lengkap ibu', half: true },
       { field: 'tanggalPenyerahan', question: 'Kapan rencana tanggal penyerahan anak?', label: 'Tanggal penyerahan', type: 'date', half: true },
-      { field: 'penyerahanDilakukanOleh', question: 'Penyerahan akan dilakukan oleh siapa? (nama pendeta/hamba Tuhan)', label: 'Dilakukan oleh', type: 'text', placeholder: 'cth. Pdm. Budi', half: true },
+      { field: 'penyerahanDilakukanOleh', question: 'Penyerahan akan dilakukan oleh siapa? (nama pendeta/hamba Tuhan)', label: 'Dilakukan oleh', type: 'text', placeholder: 'cth. Pdm. Budi', half: true, hidden: true, defaultValue: 'Pdm. Lie Yansen Wiyono' },
     ],
   },
   {

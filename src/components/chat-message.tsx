@@ -3,7 +3,36 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useState } from 'react';
-import { User, BookOpen, RotateCcw, ExternalLink, Download, ClipboardCheck, Check } from 'lucide-react';
+import { User, BookOpen, RotateCcw, ExternalLink, Download, ClipboardCheck, Check, ChevronDown } from 'lucide-react';
+
+function SourcesAccordion({ sources }: { sources: { id: string; score: number }[] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+      >
+        <BookOpen className="w-2.5 h-2.5" />
+        Lihat Sumber
+        <ChevronDown className={`w-2.5 h-2.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="flex flex-wrap gap-1.5 mt-1.5">
+          {sources.map((source, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/60 rounded-full px-2 py-0.5"
+            >
+              {source.id}
+              <span className="opacity-50">{source.score.toFixed(3)}</span>
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -54,7 +83,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
 
       <div className={`flex flex-col gap-2 max-w-[80%] ${isUser ? 'items-end' : ''}`}>
         <div
-          className={`rounded-2xl px-4 py-2.5 text-sm ${
+          className={`rounded-2xl px-4 py-2.5 text-sm break-all ${
             isUser
               ? 'bg-secondary text-foreground rounded-tr-sm'
               : message.isError
@@ -108,33 +137,23 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
 
         {/* Sources */}
         {message.sources && message.sources.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {message.sources.map((source, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/60 rounded-full px-2 py-0.5"
-              >
-                <BookOpen className="w-2.5 h-2.5" />
-                {source}
-              </span>
-            ))}
-          </div>
+          <SourcesAccordion sources={message.sources} />
         )}
 
         {/* Form type cards */}
         {message.formCards && message.formCards.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className="grid grid-cols-2 gap-2 mt-1 w-full">
             {message.formCards.map(card => {
               return (
                 <button
                   key={card.type}
                   onClick={() => onFormCardClick?.(card.type)}
-                  className="relative overflow-hidden flex flex-col items-start gap-1 p-3 rounded-xl border border-primary/20 bg-card hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer text-left"
+                  className="relative overflow-hidden flex flex-col items-start gap-1 p-6 py-4 rounded-xl border border-primary/20 bg-card hover:bg-primary/5 hover:border-primary/40 transition-all cursor-pointer text-left flex-1"
                 >
                   <img
                     src={getFormGlass(card.type)}
                     alt=""
-                    className="absolute top-[-52px] right-[-40px] w-[136px] h-[136px] opacity-70 rotate-60 object-cover pointer-events-none"
+                    className="absolute top-[-52px] right-[-40px] w-[136px] h-[136px] opacity-10 rotate-60 object-cover pointer-events-none"
                   />
                   <span className="relative z-10 text-sm font-bold">{card.title}</span>
                   <span className="relative z-10 text-xs text-muted-foreground">{card.description}</span>

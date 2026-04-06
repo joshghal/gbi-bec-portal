@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // All existing collections (form_submissions, settings, admins, etc.)
+    // are accessed exclusively via Admin SDK through API routes — those
+    // bypass security rules entirely. Lock them down here defensively.
+    match /form_submissions/{doc} {
+      allow read, write: if false;
+    }
+    match /settings/{doc} {
+      allow read, write: if false;
+    }
+    match /admins/{doc} {
+      allow read, write: if false;
+    }
+    match /sheet_registry/{doc} {
+      allow read, write: if false;
+    }
+
+    // Suggestions — public write only (admin reads via Admin SDK)
+    match /suggestions/{doc} {
+      allow read: if false;
+      allow create: if request.resource.data.keys().hasAll(['name', 'text'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 1000;
+      allow update, delete: if false;
+    }
+
+    // Q&A questions — public read/write (anonymous audience + host)
+    match /qa_questions/{doc} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['sessionId', 'text', 'votes', 'answered', 'archived'])
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 500
+        && request.resource.data.votes == 0
+        && request.resource.data.answered == false
+        && request.resource.data.archived == false;
+      allow update: if true;   // votes (audience) + answered/archived (host)
+      allow delete: if false;  // use archived:true instead
+    }
+
+  }
+}

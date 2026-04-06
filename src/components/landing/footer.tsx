@@ -15,7 +15,7 @@ const INFO_LINKS = [
 ] as const;
 
 const LAINNYA_LINKS = [
-  { label: 'Chat AI', href: '/chat' },
+  { label: 'Chat AI', href: '/helpdesk' },
 ] as const;
 
 const SOCIAL_LINKS = [

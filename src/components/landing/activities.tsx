@@ -432,7 +432,7 @@ export default function ActivitiesSection() {
                       </LandingButton>
                     ))}
 
-                    <LandingButton variant="glass-light" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full lg:w-auto">
+                    <LandingButton variant="glass-light" href={`/helpdesk?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full lg:w-auto">
                       Tanya AI Kami
                     </LandingButton>
 
@@ -516,7 +516,7 @@ export default function ActivitiesSection() {
                   </LandingButton>
                 ))}
 
-                <LandingButton variant="glass-light" href={`/chat?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full">
+                <LandingButton variant="glass-light" href={`/helpdesk?q=${encodeURIComponent(activity.aiQuestion)}`} arrow darkTextColor={theme.bg} className="w-full">
                   Tanya AI Kami
                 </LandingButton>
 

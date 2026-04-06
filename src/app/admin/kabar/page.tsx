@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Loader2, ExternalLink, Pin } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ExternalLink, Pin, RefreshCw } from 'lucide-react';
 import { generateSlug, stripHtml } from '@/lib/slug';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
@@ -88,6 +88,27 @@ export default function KabarPage() {
   // Delete dialog state
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Instagram sync
+  const [syncing, setSyncing] = useState(false);
+
+  async function handleInstagramSync() {
+    setSyncing(true);
+    try {
+      const token = await user?.getIdToken();
+      const res = await fetch('/api/instagram/sync', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Gagal memicu sync');
+      toast.success('Sync Instagram dimulai. Kabar baru akan muncul dalam ~2 menit.');
+      setTimeout(() => fetchUpdates(), 90000);
+    } catch (err) {
+      toastApiError(err, 'Gagal memicu sync Instagram.');
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   const fetchUpdates = useCallback(async () => {
     if (!user) return;
@@ -296,6 +317,10 @@ export default function KabarPage() {
                   disabled={togglingSection || loading}
                 />
               </div>
+              <Button variant="outline" size="sm" onClick={handleInstagramSync} disabled={syncing}>
+                <RefreshCw className={`w-4 h-4 mr-1.5 ${syncing ? 'animate-spin' : ''}`} />
+                {syncing ? 'Memicu...' : 'Sync Instagram'}
+              </Button>
               <Button onClick={openAdd} size="sm">
                 <Plus className="w-4 h-4 mr-1.5" />
                 Tambah

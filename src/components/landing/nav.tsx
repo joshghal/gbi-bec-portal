@@ -105,7 +105,7 @@ export default function Nav() {
             {/* Right */}
             <div className="flex items-center gap-3">
               <Link
-                href="/chat"
+                href="/helpdesk"
                 className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-foreground px-5 py-1.5 text-[13px] font-semibold text-background transition-opacity duration-200 hover:opacity-85"
               >
                 Tanya AI Kami
@@ -172,7 +172,7 @@ export default function Nav() {
               }}
             >
               <Link
-                href="/chat"
+                href="/helpdesk"
                 className="inline-flex items-center gap-2 rounded-full bg-foreground px-7 py-3 text-base font-semibold text-background transition-opacity hover:opacity-85"
                 onClick={closeMenu}
               >

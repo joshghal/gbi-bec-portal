@@ -101,6 +101,25 @@ export function parseJSONResponse<T>(content: string): T | null {
         : [];
       return { response, suggestedQuestions: questions } as T;
     }
+    // Handle ASI1 Mini's malformed <tool_call> format:
+    // e.g. "Response text<tool_call>response</arg_key><arg_value>Response text</arg_value><arg_key>suggestedQuestions: []</arg_key>..."
+    if (content.includes('<tool_call>')) {
+      const argValueMatch = content.match(/<arg_value>([\s\S]*?)<\/arg_value>/);
+      const response = argValueMatch
+        ? argValueMatch[1].trim()
+        : content.split('<tool_call>')[0].trim();
+
+      const sqMatch = content.match(/suggestedQuestions[:\s]*(\[[\s\S]*?\])/);
+      let suggestedQuestions: string[] = [];
+      if (sqMatch) {
+        try { suggestedQuestions = JSON.parse(sqMatch[1]); } catch { /* empty */ }
+      }
+
+      const ftMatch = content.match(/formTrigger[:\s]*([^\s<\]]+)/);
+      const formTrigger = (ftMatch && ftMatch[1] !== 'null') ? ftMatch[1] : null;
+
+      if (response) return { response, suggestedQuestions, formTrigger } as T;
+    }
     return null;
   }
 }
