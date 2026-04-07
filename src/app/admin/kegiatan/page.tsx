@@ -576,7 +576,7 @@ export default function KegiatanPage() {
                   <Input
                     value={form.ctaHref}
                     onChange={e => setForm(prev => ({ ...prev, ctaHref: e.target.value }))}
-                    placeholder="/forms/baptism"
+                    placeholder="/formulir/baptis"
                   />
                 </div>
               </div>

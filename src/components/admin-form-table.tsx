@@ -471,7 +471,7 @@ export function AdminFormTable({ formType, title, readOnly = false }: { formType
                   <LinkIcon className="w-3 h-3" />
                   Link Edit
                 </p>
-                <EditLinkCopy editLink={`${typeof window !== 'undefined' ? window.location.origin : ''}/forms/edit/${selected.id}?token=${selected.editToken}`} />
+                <EditLinkCopy editLink={`${typeof window !== 'undefined' ? window.location.origin : ''}/formulir/edit/${selected.id}?token=${selected.editToken}`} />
               </div>
 
               {!isReadOnly && (

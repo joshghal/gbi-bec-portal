@@ -16,8 +16,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 /* ── Category → form mapping ─────────────────────────────────── */
 
 const CATEGORY_FORM_MAP: Record<string, { type: string; href: string; label: string }> = {
-  'Penyerahan Anak': { type: 'child-dedication', href: '/forms/child-dedication', label: 'Daftar Penyerahan Anak' },
-  'M-Class': { type: 'mclass', href: '/forms/mclass', label: 'Daftar M-Class' },
+  'Penyerahan Anak': { type: 'child-dedication', href: '/formulir/penyerahan-anak', label: 'Daftar Penyerahan Anak' },
+  'M-Class': { type: 'mclass', href: '/formulir/mclass', label: 'Daftar M-Class' },
 };
 
 async function getDisabledForms(): Promise<string[]> {

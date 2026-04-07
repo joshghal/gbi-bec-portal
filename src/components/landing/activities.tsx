@@ -120,7 +120,7 @@ const FALLBACK_ACTIVITIES: Activity[] = [
     description: 'Kelas wajib untuk mendapatkan KAJ dan menjadi anggota resmi GBI BEC.',
     tags: ['M-Class', 'Baptisan', 'KAJ', 'Anggota'],
     contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
-    cta: { label: 'Daftar M-Class', href: '/forms/mclass' },
+    cta: { label: 'Daftar M-Class', href: '/formulir/mclass' },
     aiQuestion: 'Apa itu M-Class dan bagaimana cara mendaftar menjadi anggota resmi GBI BEC?',
   },
   {
@@ -129,7 +129,7 @@ const FALLBACK_ACTIVITIES: Activity[] = [
     day: 'Dua bulan sekali',
     description: 'Baptisan selam bagi jemaat usia 12+ tahun yang telah menyelesaikan KOM 100.',
     contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
-    cta: { label: 'Daftar Baptisan', href: '/forms/baptism' },
+    cta: { label: 'Daftar Baptisan', href: '/formulir/baptis' },
     aiQuestion: 'Apa syarat Baptisan Air di GBI BEC dan bagaimana cara mendaftarnya?',
   },
   {
@@ -138,7 +138,7 @@ const FALLBACK_ACTIVITIES: Activity[] = [
     day: 'Jadwal diinfokan',
     description: 'Bersama kedua orang tua di hadapan jemaat sebagai komitmen mendidik anak dalam Tuhan.',
     contacts: [{ name: 'Call Centre BEC', waLink: 'https://wa.me/6287823420950' }],
-    cta: { label: 'Daftar', href: '/forms/child-dedication' },
+    cta: { label: 'Daftar', href: '/formulir/penyerahan-anak' },
     aiQuestion: 'Apa syarat Penyerahan Anak di GBI BEC dan bagaimana cara mendaftarnya?',
   },
   {

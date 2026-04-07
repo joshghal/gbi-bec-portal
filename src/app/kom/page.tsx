@@ -98,11 +98,50 @@ const INFO_ITEMS = [
   { icon: Globe, title: 'Berlaku Nasional', desc: 'Sertifikat berlaku di seluruh GBI Indonesia' },
 ];
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
+
 /* ── Page ──────────────────────────────────────────────────────── */
 
 export default function KomPage() {
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Beranda', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: 'Materi KOM', item: `${siteUrl}/kom` },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: 'Program KOM — Kehidupan Orientasi Melayani',
+      description: 'Program pengajaran Firman Tuhan berjenjang di GBI BEC — 4 level, 82 sesi total. Kurikulum nasional GBI.',
+      numberOfItems: 4,
+      itemListElement: LEVELS.map((lvl, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'Course',
+          name: `KOM ${lvl.level} — ${lvl.title}`,
+          description: lvl.description,
+          url: `${siteUrl}/kom/${lvl.level}`,
+          provider: {
+            '@type': 'Church',
+            name: 'GBI Baranangsiang Evening Church',
+            url: siteUrl,
+          },
+        },
+      })),
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-sm px-4 sm:px-6 py-3 flex items-center gap-3 sticky top-0 z-20">
         <Link href="/">

@@ -195,6 +195,8 @@ export function generateStaticParams() {
   return [{ level: '100' }, { level: '200' }, { level: '300' }, { level: '400' }];
 }
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
+
 export async function generateMetadata({ params }: { params: Promise<{ level: string }> }): Promise<Metadata> {
   const { level } = await params;
   const kom = KOM_DATA[level];
@@ -223,8 +225,47 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
   if (!kom || !theme) notFound();
 
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Beranda', item: siteUrl },
+        { '@type': 'ListItem', position: 2, name: 'Materi KOM', item: `${siteUrl}/kom` },
+        { '@type': 'ListItem', position: 3, name: `KOM ${kom.level} — ${kom.title}`, item: `${siteUrl}/kom/${kom.level}` },
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Course',
+      name: `KOM ${kom.level} — ${kom.title}`,
+      description: `Materi KOM ${kom.level} — ${kom.title} (${kom.subtitle}). ${kom.sessions} sesi kurikulum gereja di GBI BEC Bandung.`,
+      url: `${siteUrl}/kom/${kom.level}`,
+      courseCode: `KOM-${kom.level}`,
+      provider: {
+        '@type': 'Church',
+        name: 'GBI Baranangsiang Evening Church',
+        url: siteUrl,
+      },
+      hasCourseInstance: {
+        '@type': 'CourseInstance',
+        courseMode: 'online',
+        ...(kom.jadwal ? { name: kom.jadwal } : {}),
+      },
+      isPartOf: {
+        '@type': 'ItemList',
+        name: 'Program KOM — Kehidupan Orientasi Melayani',
+        url: `${siteUrl}/kom`,
+      },
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero banner */}
       <div className={`relative overflow-hidden bg-gradient-to-br ${theme.gradient}`}>
         {/* Glass accent */}

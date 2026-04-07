@@ -180,8 +180,21 @@ export default async function KabarPage() {
   const featured = updates[0];
   const rest = updates.slice(1);
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Beranda', item: siteUrl },
+      { '@type': 'ListItem', position: 2, name: 'Kabar Terbaru', item: `${siteUrl}/kabar` },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-sm px-4 sm:px-6 py-3 flex items-center gap-3 sticky top-0 z-20">
         <Link href="/">

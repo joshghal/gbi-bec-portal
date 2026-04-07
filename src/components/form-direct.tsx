@@ -280,7 +280,7 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
   };
 
   const editLink = submissionResult
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/forms/edit/${submissionResult.id}?token=${submissionResult.editToken}`
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/formulir/edit/${submissionResult.id}?token=${submissionResult.editToken}`
     : '';
 
   const whatsappSummary = visibleSteps
@@ -355,7 +355,7 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-foreground/[0.05]">
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link
-            href="/forms"
+            href="/formulir"
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium text-muted-foreground ring-1 ring-foreground/[0.08] hover:text-foreground hover:bg-foreground/[0.04] transition-colors shrink-0"
           >
             <ArrowLeft className="w-3.5 h-3.5" />

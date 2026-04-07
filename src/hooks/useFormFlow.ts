@@ -307,7 +307,7 @@ export function useFormFlow(addMessage: AddMessageFn) {
 
       if (!res.ok) throw new Error(data.error || 'Gagal mengirim');
 
-      const editLink = `${window.location.origin}/forms/edit/${data.id}?token=${data.editToken}`;
+      const editLink = `${window.location.origin}/formulir/edit/${data.id}?token=${data.editToken}`;
       const churchPhone = '6287823420950';
       const userPhone = formAnswers.noTelepon ? formatPhone(formAnswers.noTelepon) : '';
 

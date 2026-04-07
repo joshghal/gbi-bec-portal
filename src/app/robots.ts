@@ -7,13 +7,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/helpdesk', '/kabar', '/kom'],
+        allow: ['/', '/helpdesk', '/kabar', '/kom', '/formulir', '/saran', '/tanya-jawab'],
         disallow: [
           '/admin',
           '/api',
-          '/forms',
           '/promo',
-          '/highlights',
+          '/sorotan',
+          '/presentasi',
         ],
       },
     ],

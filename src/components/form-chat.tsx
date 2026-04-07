@@ -221,7 +221,7 @@ export function FormChat({ formConfig }: { formConfig: FormConfig }) {
   }, [answers, formConfig.type, totalSteps, addMessage]);
 
   const editLink = submissionResult
-    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/forms/edit/${submissionResult.id}?token=${submissionResult.editToken}`
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/formulir/edit/${submissionResult.id}?token=${submissionResult.editToken}`
     : '';
 
   const currentStepConfig =
