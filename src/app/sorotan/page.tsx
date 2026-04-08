@@ -74,7 +74,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Call Centre BEC — 0878-2342-0950",
     note: "Baptisan diadakan dua bulan sekali",
-    contactQrs: [{ src: "/posters/qr-baptisan.png", label: "Daftar Baptisan", text: "helpbec.vercel.app/formulir/baptis" }],
+    contactQrs: [{ src: "/posters/qr-baptisan.webp", label: "Daftar Baptisan", text: "helpbec.vercel.app/formulir/baptis" }],
   },
 
   // ── 2. KOM ──
@@ -98,7 +98,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Henny — 0858-6006-0050",
     note: "Kelas online via Zoom",
-    contactQrs: [{ src: "/posters/qr-kom.png", label: "Ibu Henny Liana", text: "0858-6006-0050 (WhatsApp)" }],
+    contactQrs: [{ src: "/posters/qr-kom.webp", label: "Ibu Henny Liana", text: "0858-6006-0050 (WhatsApp)" }],
   },
 
   // ── 3. M-CLASS ──
@@ -107,7 +107,7 @@ const H: HighlightDef[] = [
     title: "M-Class",
     sub: "Kelas Membership GBI BEC",
     theme: { bg: "#081020", accent: "#F0CC50", rgb: "240,204,80" },
-    logo: "/posters/mclass-logo.png",
+    logo: "/posters/mclass-logo.webp",
     pages: [
       [
         { label: "Apa Itu M-Class?", title: "Kelas Keanggotaan Jemaat", desc: "Kelas wajib bagi jemaat yang ingin menjadi anggota resmi GBI BEC dan memperoleh Kartu Anggota Jemaat (KAJ)." },
@@ -123,7 +123,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Call Centre BEC — 0878-2342-0950",
     note: "Tersedia setiap bulan",
-    contactQrs: [{ src: "/posters/qr-mclass.png", label: "Daftar M-Class", text: "helpbec.vercel.app/formulir/mclass" }],
+    contactQrs: [{ src: "/posters/qr-mclass.webp", label: "Daftar M-Class", text: "helpbec.vercel.app/formulir/mclass" }],
   },
 
   // ── 4. COOL ──
@@ -147,7 +147,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Ps. Agus Sulistyono — 0819-1023-8170",
     note: "Terbuka untuk semua jemaat",
-    contactQrs: [{ src: "/posters/qr-cool-agus.png", label: "Ps. Agus Sulistyono", text: "0819-1023-8170 (WhatsApp)" }],
+    contactQrs: [{ src: "/posters/qr-cool-agus.webp", label: "Ps. Agus Sulistyono", text: "0819-1023-8170 (WhatsApp)" }],
   },
 
   // ── 5. PENYERAHAN ANAK ──
@@ -171,7 +171,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Call Centre BEC — 0878-2342-0950",
     note: "Dokumen diserahkan ke diaken BEC",
-    contactQrs: [{ src: "/posters/qr-penyerahan-anak.png", label: "Daftar Penyerahan Anak", text: "helpbec.vercel.app/formulir/penyerahan-anak" }],
+    contactQrs: [{ src: "/posters/qr-penyerahan-anak.webp", label: "Daftar Penyerahan Anak", text: "helpbec.vercel.app/formulir/penyerahan-anak" }],
   },
 
   // ── 6. PERNIKAHAN ──
@@ -195,7 +195,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Unit Pernikahan — 0896-7929-9098",
     note: "Daftar minimal 5 bulan sebelumnya",
-    contactQrs: [{ src: "/posters/qr-pernikahan.png", label: "Unit Pernikahan", text: "0896-7929-9098 (WhatsApp)" }],
+    contactQrs: [{ src: "/posters/qr-pernikahan.webp", label: "Unit Pernikahan", text: "0896-7929-9098 (WhatsApp)" }],
   },
 
   // ── 7. PELAYANAN ──
@@ -224,7 +224,7 @@ const H: HighlightDef[] = [
     ],
     contact: "Ps. Thomas Lukiman — 0815-7309-7720",
     note: "Hubungi untuk pelayanan",
-    contactQrs: [{ src: "/posters/qr-thomas.png", label: "Ps. Thomas Lukiman", text: "0815-7309-7720 (WhatsApp)" }],
+    contactQrs: [{ src: "/posters/qr-thomas.webp", label: "Ps. Thomas Lukiman", text: "0815-7309-7720 (WhatsApp)" }],
   },
 
   // ── 8. CREATIVE ──
@@ -250,8 +250,8 @@ const H: HighlightDef[] = [
     contact: "Ibu Fera 0821-1974-9869 · Ibu Lia 0857-7491-0351",
     note: "Latihan setiap Sabtu di Baranangsiang",
     contactQrs: [
-      { src: "/posters/qr-cm-fera.png", label: "Ibu Fera (Choir / Makeup)", text: "0821-1974-9869 (WhatsApp)" },
-      { src: "/posters/qr-cm-lia.png", label: "Ibu Lia (Balet / Tamborine / Banner / Modern Dance)", text: "0857-7491-0351 (WhatsApp)" },
+      { src: "/posters/qr-cm-fera.webp", label: "Ibu Fera (Choir / Makeup)", text: "0821-1974-9869 (WhatsApp)" },
+      { src: "/posters/qr-cm-lia.webp", label: "Ibu Lia (Balet / Tamborine / Banner / Modern Dance)", text: "0857-7491-0351 (WhatsApp)" },
     ],
   },
 ];
@@ -456,14 +456,14 @@ function Cover({ highlight, onDone }: { highlight: HighlightDef; onDone: () => v
       {highlight.id === "baptisan" && (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="c-water-splash" src="/posters/baptism-water-splash.png" alt="" style={{
+          <img className="c-water-splash" src="/posters/baptism-water-splash.webp" alt="" style={{
             position: "absolute", bottom: "18%", left: "50%", transform: "translateX(-50%)",
             width: "55%", opacity: 0,
             filter: `brightness(1.3) saturate(1.5) drop-shadow(0 0 20px rgba(${theme.rgb}, 0.4))`,
             zIndex: 1, pointerEvents: "none",
           }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="c-dove" src="/posters/baptism-dove.png" alt="" style={{
+          <img className="c-dove" src="/posters/baptism-dove.webp" alt="" style={{
             position: "absolute", top: "4%", right: "2%", width: "44%",
             opacity: 0, filter: `brightness(0.85) drop-shadow(0 2px 25px rgba(${theme.rgb}, 0.5))`,
             zIndex: 1, pointerEvents: "none",
@@ -478,9 +478,9 @@ function Cover({ highlight, onDone }: { highlight: HighlightDef; onDone: () => v
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1, pointerEvents: "none",
         }}>
           {[
-            { src: "/posters/kom100.jpg", rotate: -8, top: '10%' },
-            { src: "/posters/kom200.jpg", rotate: 0 },
-            { src: "/posters/kom300.jpg", rotate: 8 },
+            { src: "/posters/kom100.webp", rotate: -8, top: '10%' },
+            { src: "/posters/kom200.webp", rotate: 0 },
+            { src: "/posters/kom300.webp", rotate: 8 },
           ].map((book, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img key={i} className="c-kom-book" src={book.src} alt="" style={{

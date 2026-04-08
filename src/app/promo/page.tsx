@@ -834,7 +834,7 @@ function CTAScene({ playing, onDone }: SceneProps) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="cta-qr"
-          src="/posters/qr-helpbec.png"
+          src="/posters/qr-helpbec.webp"
           alt="QR helpbec"
           style={{
             width: 140,
