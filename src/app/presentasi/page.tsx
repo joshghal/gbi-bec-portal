@@ -28,7 +28,7 @@ const f = {
   serif: 'var(--font-judson), Georgia, serif',
 }
 
-const N = 9
+const N = 10
 
 // ─── Atoms ────────────────────────────────────────────────────────
 
@@ -416,13 +416,78 @@ function Slide05() {
   )
 }
 
-// ─── SLIDE 06 — Forms ─────────────────────────────────────────────
-function Slide06() {
+// ─── SLIDE 06 — Recap (brutalist, one sentence) ──────────────────
+function Slide06Recap() {
+  const ref = useRef<HTMLDivElement>(null)
+  useSlideAnim(ref)
+  return (
+    <div ref={ref} style={{
+      position: 'absolute', inset: 0,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 'clamp(40px,5vh,64px) clamp(48px,5vw,80px)',
+      background: C.bg,
+    }}>
+      <Num n={6} />
+
+      <div style={{
+        border: `3px solid ${C.white}`,
+        background: C.surface,
+        padding: 'clamp(32px,4vw,56px) clamp(36px,4.5vw,64px)',
+        maxWidth: 1100, width: '100%',
+        position: 'relative',
+      }}>
+        <div className="s-sub" style={{
+          position: 'absolute', top: -14, left: 24,
+          background: C.bg, padding: '0 12px',
+          fontFamily: f.sans, fontSize: 12, fontWeight: 800,
+          letterSpacing: '0.2em', textTransform: 'uppercase', color: C.white,
+        }}>
+          SINGKATNYA
+        </div>
+
+        <h2 className="s-title" style={{
+          fontFamily: f.serif,
+          fontSize: 'clamp(28px,3.4vw,54px)',
+          fontWeight: 700, color: C.white,
+          lineHeight: 1.25, margin: 0,
+        }}>
+          Dari{' '}
+          <span style={{
+            background: C.white, color: C.bg,
+            padding: '0 10px', boxDecorationBreak: 'clone',
+            WebkitBoxDecorationBreak: 'clone',
+          }}>informasi yang tersebar</span>
+          , kini terangkum{' '}
+          <span style={{
+            background: C.white, color: C.bg,
+            padding: '0 10px', boxDecorationBreak: 'clone',
+            WebkitBoxDecorationBreak: 'clone',
+          }}>terangkum pada satu AI</span>
+          {' '}yang dapat{' '}
+          <span style={{
+            background: C.white, color: C.bg,
+            padding: '0 10px', boxDecorationBreak: 'clone',
+            WebkitBoxDecorationBreak: 'clone',
+          }}>menjawab pertanyaan jemaat</span>
+          {' '}— dengan{' '}
+          <span style={{
+            background: C.gold, color: C.surface,
+            padding: '0 10px', boxDecorationBreak: 'clone',
+            WebkitBoxDecorationBreak: 'clone',
+          }}>sumber yang terus dikelola dan diperbarui</span>.
+        </h2>
+      </div>
+    </div>
+  )
+}
+
+// ─── SLIDE 07 — Forms ─────────────────────────────────────────────
+function Slide07Forms() {
   const ref = useRef<HTMLDivElement>(null)
   useSlideAnim(ref)
   return (
     <div ref={ref} className='flex flex-col items-center justify-center p-[40px]'>
-      <Num n={6} />
+      <Num n={7} />
 
       {/* Left — text */}
       <div className='flex flex-col gap-5 items-center justify-center'>
@@ -469,13 +534,13 @@ function Slide06() {
   )
 }
 
-// ─── SLIDE 07 ─────────────────────────────────────────────────────
-function Slide07() {
+// ─── SLIDE 08 ─────────────────────────────────────────────────────
+function Slide08Progress() {
   const ref = useRef<HTMLDivElement>(null)
   useSlideAnim(ref)
   return (
     <div ref={ref} className='flex flex-col items-center justify-center p-[40px]'>
-      <Num n={7} />
+      <Num n={8} />
 
       <div className='flex flex-col gap-5 items-center justify-center'>
         <GoldBar />
@@ -491,8 +556,8 @@ function Slide07() {
   )
 }
 
-// ─── SLIDE 08 — Portal sections carousel ─────────────────────────
-function Slide08() {
+// ─── SLIDE 09 — Portal sections carousel ─────────────────────────
+function Slide09Portal() {
   const ref = useRef<HTMLDivElement>(null)
   useSlideAnim(ref)
 
@@ -523,7 +588,7 @@ function Slide08() {
 
   return (
     <div ref={ref} className='flex flex-col items-center justify-center p-[40px]'>
-      <Num n={8} />
+      <Num n={9} />
 
       {/* Text */}
       <div className='flex flex-col gap-3 items-center justify-center mb-[20px]'>
@@ -585,8 +650,8 @@ function Slide08() {
   )
 }
 
-// ─── SLIDE 09 — QR Saran ──────────────────────────────────────────
-function Slide09() {
+// ─── SLIDE 10 — QR Saran ──────────────────────────────────────────
+function Slide10Saran() {
   const ref = useRef<HTMLDivElement>(null)
   useSlideAnim(ref)
   const [qrSrc, setQrSrc] = useState('')
@@ -606,7 +671,7 @@ function Slide09() {
       alignItems: 'center', justifyContent: 'center',
       gap: 28, background: C.goldBg,
     }}>
-      <Num n={9} />
+      <Num n={10} />
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <GoldBar w={44} />
       </div>
@@ -644,8 +709,8 @@ function Slide09() {
 
 // ─── Slide registry ───────────────────────────────────────────────
 const SLIDES = [
-  Slide01, Slide02, Slide03, Slide04, Slide05, Slide06,
-  Slide07, Slide08, Slide09,
+  Slide01, Slide02, Slide03, Slide04, Slide05,
+  Slide06Recap, Slide07Forms, Slide08Progress, Slide09Portal, Slide10Saran,
 ]
 
 // ─── Shell ────────────────────────────────────────────────────────
