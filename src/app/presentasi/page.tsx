@@ -28,7 +28,7 @@ const f = {
   serif: 'var(--font-judson), Georgia, serif',
 }
 
-const N = 10
+const N = 11
 
 // ─── Atoms ────────────────────────────────────────────────────────
 
@@ -650,8 +650,78 @@ function Slide09Portal() {
   )
 }
 
-// ─── SLIDE 10 — QR Saran ──────────────────────────────────────────
-function Slide10Saran() {
+// ─── SLIDE 10 — Conclusion ────────────────────────────────────────
+function Slide10Conclusion() {
+  const ref = useRef<HTMLDivElement>(null)
+  useSlideAnim(ref)
+  const items = [
+    {
+      title: 'AI yang berisi informasi gereja',
+      desc: 'Dapat menjawab pertanyaan pekerja dan jemaat, akses 24 jam',
+    },
+    {
+      title: 'Formulir digital',
+      desc: 'Penyederhanaan alur manual',
+    },
+    {
+      title: 'Halaman profil gereja',
+      desc: 'Konten yang dapat dikelola dan diubah sewaktu-waktu',
+    },
+  ]
+  return (
+    <div ref={ref} style={{
+      position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: 'clamp(40px,5vh,64px) clamp(48px,5vw,80px)',
+      gap: 'clamp(28px,3vh,44px)',
+    }}>
+      <Num n={10} />
+
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}><GoldBar /></div>
+        <Title>Kesimpulan</Title>
+      </div>
+
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 0,
+        width: '100%', maxWidth: 900,
+      }}>
+        {items.map(({ title, desc }, i) => (
+          <div key={i} className="s-card" style={{
+            display: 'flex', alignItems: 'center', gap: 20,
+            padding: '24px 28px',
+            borderLeft: `3px solid ${C.white}`,
+            borderRight: `3px solid ${C.white}`,
+            borderTop: i === 0 ? `3px solid ${C.white}` : `1px solid ${C.border}`,
+            borderBottom: i === items.length - 1 ? `3px solid ${C.white}` : 'none',
+            background: C.surface,
+          }}>
+            <div style={{
+              width: 36, height: 36, display: 'flex',
+              alignItems: 'center', justifyContent: 'center',
+              fontSize: 16, fontWeight: 800, flexShrink: 0,
+              fontFamily: f.sans, color: C.gold,
+              background: C.goldBg, border: `1px solid ${C.gold}`,
+            }}>{i + 1}</div>
+            <div>
+              <div style={{
+                fontFamily: f.serif, fontSize: 'clamp(18px,1.8vw,26px)',
+                fontWeight: 700, color: C.white, lineHeight: 1.3,
+              }}>{title}</div>
+              <div style={{
+                fontFamily: f.sans, fontSize: 'clamp(14px,1.1vw,17px)',
+                color: C.muted, lineHeight: 1.5, marginTop: 4,
+              }}>{desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── SLIDE 11 — QR Saran ──────────────────────────────────────────
+function Slide11Saran() {
   const ref = useRef<HTMLDivElement>(null)
   useSlideAnim(ref)
   const [qrSrc, setQrSrc] = useState('')
@@ -671,7 +741,7 @@ function Slide10Saran() {
       alignItems: 'center', justifyContent: 'center',
       gap: 28, background: C.goldBg,
     }}>
-      <Num n={10} />
+      <Num n={11} />
       <div style={{ display: 'flex', justifyContent: 'center' }}>
         <GoldBar w={44} />
       </div>
@@ -710,7 +780,8 @@ function Slide10Saran() {
 // ─── Slide registry ───────────────────────────────────────────────
 const SLIDES = [
   Slide01, Slide02, Slide03, Slide04, Slide05,
-  Slide06Recap, Slide07Forms, Slide08Progress, Slide09Portal, Slide10Saran,
+  Slide06Recap, Slide07Forms, Slide08Progress, Slide09Portal,
+  Slide10Conclusion, Slide11Saran,
 ]
 
 // ─── Shell ────────────────────────────────────────────────────────
