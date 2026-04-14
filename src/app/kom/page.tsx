@@ -1,17 +1,38 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, Phone, ExternalLink, ChevronRight, BookOpen, Award, GraduationCap, Globe } from 'lucide-react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
+import { Phone, Sparkles, ArrowRight } from 'lucide-react';
+import ActivityHero from '@/components/kegiatan/activity-hero';
+import FAQAccordion from '@/components/kegiatan/faq-accordion';
+import Nav from '@/components/landing/nav';
+import ContactSection from '@/components/landing/contact';
+import Footer from '@/components/landing/footer';
+import GrainOverlay from '@/components/grain-overlay';
+
+// Force static generation at build time — the page has zero dynamic data.
+// Matches /ibadah-raya. Guards against accidental regressions later.
+export const dynamic = 'force-static';
 
 export const metadata: Metadata = {
-  title: 'Materi KOM',
-  description: 'Program Kehidupan Orientasi Melayani (KOM) — pengajaran Firman Tuhan berjenjang di GBI BEC. 4 level, 82 sesi, sertifikat resmi GBI.',
-  keywords: ['KOM', 'Kehidupan Orientasi Melayani', 'GBI BEC', 'materi gereja', 'kurikulum GBI', 'kelas rohani Bandung'],
+  title: 'Materi KOM — Kehidupan Orientasi Melayani',
+  description:
+    'Program Kehidupan Orientasi Melayani (KOM) di GBI BEC Bandung — pengajaran Firman Tuhan berjenjang. 4 level, 82 sesi, gratis, sertifikat resmi kurikulum nasional GBI.',
+  keywords: [
+    'KOM',
+    'Kehidupan Orientasi Melayani',
+    'KOM GBI',
+    'kelas rohani Bandung',
+    'materi KOM',
+    'kurikulum nasional GBI',
+    'pengajaran Firman Tuhan Bandung',
+    'sertifikat GBI',
+    'GBI BEC Bandung',
+  ],
   alternates: { canonical: '/kom' },
   openGraph: {
-    title: 'Materi KOM',
-    description: 'Program pengajaran Firman Tuhan berjenjang — 4 level, 82 sesi total. Kurikulum nasional GBI.',
+    title: 'Materi KOM — GBI BEC',
+    description:
+      'Program KOM di GBI BEC Bandung — berjenjang, gratis, bersertifikat resmi kurikulum nasional GBI.',
+    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id'}/kom`,
     type: 'website',
   },
   twitter: { card: 'summary_large_image' },
@@ -26,76 +47,122 @@ const LEVELS = [
     title: 'Pencari Tuhan',
     subtitle: 'The Seeker',
     sessions: 27,
-    description: 'Dasar-dasar kekristenan, pertumbuhan iman, mengenal Allah, dan kehidupan yang memberi dampak.',
-    series: ['Dasar-dasar Kekristenan', 'Kekristenan yang Bertumbuh', 'Mengenal Allah', 'Kehidupan yang Memberi Dampak'],
+    cover: '/posters/kom100.webp',
+    description:
+      'Level fondasi untuk semua jemaat — mengenal dasar-dasar iman Kristen, keselamatan melalui Yesus, karya Roh Kudus, serta bagaimana hidup yang bertumbuh dan memberi dampak bagi sekitar. Tidak ada prasyarat.',
+    series: [
+      'Dasar-dasar Kekristenan',
+      'Kekristenan yang Bertumbuh',
+      'Mengenal Allah',
+      'Kehidupan yang Memberi Dampak',
+    ],
     prerequisite: null,
-    gradient: 'from-green-950 via-green-900 to-slate-900',
-    accent: 'text-green-300',
-    accentMuted: 'text-green-400/60',
-    badge: 'bg-green-400/15 text-green-200 border-green-400/20',
-    dot: 'bg-green-400',
-    line: 'from-green-400/60',
-    glass: '/glass-one.webp',
-    number: '01',
   },
   {
     level: 200,
     title: 'Pelayan Tuhan',
     subtitle: 'The Servant',
     sessions: 23,
-    description: 'Karakter pelayan Tuhan, pengetahuan Alkitab, dan prinsip kepemimpinan dalam pelayanan.',
-    series: ['Karakter Pelayan Tuhan', 'Pengetahuan Alkitab', 'Kepemimpinan Pelayanan'],
+    cover: '/posters/kom200.webp',
+    description:
+      'Membentuk karakter seorang pelayan melalui delapan ucapan bahagia, memperdalam pengetahuan Alkitab (PL, PB, studi induktif), kehidupan Kristen yang berbuah di rumah dan tempat kerja, serta pengenalan dasar pelayanan jemaat.',
+    series: [
+      'Karakter Pelayan Tuhan',
+      'Pengetahuan Alkitab',
+      'Kehidupan Kristen',
+      'Pengenalan Pelayanan',
+    ],
     prerequisite: 'Setelah lulus KOM 100',
-    gradient: 'from-blue-950 via-blue-900 to-slate-900',
-    accent: 'text-blue-300',
-    accentMuted: 'text-blue-400/60',
-    badge: 'bg-blue-400/15 text-blue-200 border-blue-400/20',
-    dot: 'bg-blue-400',
-    line: 'from-blue-400/60',
-    glass: '/glass-second.webp',
-    number: '02',
   },
   {
     level: 300,
     title: 'Prajurit Tuhan',
     subtitle: 'The Soldier',
     sessions: 16,
-    description: 'Peperangan rohani, lima karakteristik pelayanan, dan menegakkan Kerajaan Allah di bumi.',
-    series: ['Peperangan Rohani', 'Lima Karakteristik Pelayanan', 'Menegakkan Kerajaan Allah'],
+    cover: '/posters/kom300.webp',
+    description:
+      'Melatih ketahanan rohani — disiplin, takut akan Tuhan, senjata rohani, pola doa-pujian-penyembahan yang dinamis, lima karakteristik pelayanan, serta menegakkan Kerajaan Allah di gereja, dunia kerja, dan seluruh bumi.',
+    series: [
+      'Karakter Prajurit',
+      'Prajurit Doa, Pujian & Penyembahan',
+      'Lima Karakteristik Pelayanan',
+      'Menegakkan Kerajaan Allah',
+    ],
     prerequisite: 'Setelah lulus KOM 200',
-    gradient: 'from-red-950 via-red-900 to-slate-900',
-    accent: 'text-red-300',
-    accentMuted: 'text-red-400/60',
-    badge: 'bg-red-400/15 text-red-200 border-red-400/20',
-    dot: 'bg-red-400',
-    line: 'from-red-400/60',
-    glass: '/glass-third.webp',
-    number: '03',
   },
   {
     level: 400,
     title: 'Penilik Tuhan',
     subtitle: 'The Steward',
     sessions: 16,
-    description: 'Kepemimpinan gereja, penatalayanan, panggilan hidup, dan menjadi pengubah masa depan.',
-    series: ['Kepemimpinan Gereja', 'Penatalayanan', 'Destiny Driven'],
+    cover: '/posters/kom400.webp',
+    description:
+      'Level puncak — mempersiapkan pemimpin yang otentik, yang hatinya hancur di hadapan Tuhan, berani mengambil tanggung jawab rohani, dan digerakkan oleh panggilan hidup yang jelas. Untuk yang siap masuk peran kepemimpinan.',
+    series: ['Authentic', 'Broken Hearted', 'Courageous', 'Destiny Driven'],
     prerequisite: 'Setelah lulus KOM 300',
-    gradient: 'from-gray-900 via-gray-800 to-slate-900',
-    accent: 'text-amber-200',
-    accentMuted: 'text-amber-300/50',
-    badge: 'bg-amber-400/40 text-amber-200 border-amber-400/15',
-    dot: 'bg-amber-300',
-    line: 'from-amber-300/60',
-    glass: '/glass-fourth.webp',
-    number: '04',
   },
 ];
 
 const INFO_ITEMS = [
-  { icon: BookOpen, title: 'Berjenjang', desc: 'Harus lulus level sebelumnya untuk melanjutkan' },
-  { icon: Award, title: 'Sertifikat KOM 100', desc: 'Diperlukan untuk surat baptis & pemberkatan nikah' },
-  { icon: GraduationCap, title: 'Kelulusan', desc: 'Kehadiran minimum, tugas, dan ujian akhir' },
-  { icon: Globe, title: 'Berlaku Nasional', desc: 'Sertifikat berlaku di seluruh GBI Indonesia' },
+  {
+    title: 'Berjenjang',
+    desc: 'Program disusun bertingkat — kamu perlu lulus level sebelumnya untuk melanjutkan ke level berikutnya, supaya pondasi iman terbangun secara bertahap.',
+  },
+  {
+    title: 'Sertifikat KOM 100',
+    desc: 'Sertifikat kelulusan KOM 100 menjadi syarat mengikuti Baptisan Air dan Pemberkatan Nikah di GBI BEC, serta untuk mendapatkan Kartu Anggota Jemaat (KAJ).',
+  },
+  {
+    title: 'Syarat kelulusan',
+    desc: 'Kelulusan setiap level memerlukan kehadiran minimum, penyelesaian tugas-tugas, serta ujian akhir — sesuai standar kurikulum nasional.',
+  },
+  {
+    title: 'Berlaku nasional',
+    desc: 'Sertifikat KOM GBI BEC diakui di seluruh gereja Gereja Bethel Indonesia — sertifikat yang kamu dapat di sini berlaku untuk ibadah di mana pun di Indonesia.',
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: 'Apa itu program KOM di GBI BEC?',
+    a: 'KOM (Kehidupan Orientasi Melayani) adalah program pengajaran Firman Tuhan berjenjang yang menggunakan kurikulum nasional Gereja Bethel Indonesia. Program ini dibagi menjadi 4 level dengan total 82 sesi, membantu jemaat bertumbuh dari dasar-dasar iman hingga kepemimpinan pelayanan.',
+  },
+  {
+    q: 'Siapa yang bisa mengikuti KOM?',
+    a: 'KOM terbuka untuk umum — siapa saja yang ingin mendalami Firman Tuhan, baik jemaat GBI BEC maupun simpatisan. Tidak perlu menjadi anggota resmi gereja terlebih dahulu untuk mengikuti KOM 100.',
+  },
+  {
+    q: 'Kapan jadwal kelas KOM?',
+    a: 'Kelas KOM di GBI BEC diadakan setiap hari Rabu dan Kamis pukul 18:30 WIB. Jadwal spesifik untuk setiap level akan diinfokan saat pendaftaran.',
+  },
+  {
+    q: 'Apakah ada biaya untuk mengikuti KOM?',
+    a: 'Tidak. Seluruh program KOM di GBI BEC tidak dipungut biaya (gratis) — baik materi, sertifikat, maupun proses pendaftaran.',
+  },
+  {
+    q: 'Apakah KOM 100 wajib untuk Baptisan Air dan Pemberkatan Nikah?',
+    a: 'Ya. Sertifikat kelulusan KOM 100 merupakan salah satu syarat untuk mengikuti Baptisan Air dan Pemberkatan Nikah di GBI BEC. KOM 100 juga syarat awal untuk mendapatkan Kartu Anggota Jemaat (KAJ).',
+  },
+  {
+    q: 'Berapa lama total durasi program KOM dari level 100 hingga 400?',
+    a: 'Total ada 82 sesi — KOM 100 (27 sesi), KOM 200 (23 sesi), KOM 300 (16 sesi), dan KOM 400 (16 sesi). Durasi penyelesaian setiap level tergantung kehadiran dan jadwal batch yang diikuti, umumnya beberapa bulan per level.',
+  },
+  {
+    q: 'Apakah sertifikat KOM berlaku di gereja GBI lain?',
+    a: 'Ya. KOM menggunakan kurikulum nasional GBI sehingga sertifikat kelulusannya berlaku dan diakui di seluruh gereja GBI di Indonesia.',
+  },
+  {
+    q: 'Apa syarat kelulusan setiap level KOM?',
+    a: 'Kelulusan setiap level memerlukan pemenuhan kehadiran minimum, penyelesaian tugas-tugas yang diberikan, serta ujian akhir pada akhir rangkaian sesi.',
+  },
+  {
+    q: 'Bagaimana cara mendaftar kelas KOM?',
+    a: 'Pendaftaran dilakukan melalui formulir online, untuk pendaftaran dan pertanyaan lanjutan, silahkan hubungi koordinator KOM: [Henny](https://wa.me/6285860060050).',
+  },
+  {
+    q: 'Di mana lokasi kelas KOM?',
+    a: 'Kelas KOM diadakan ONLINE melalui aplikasi ZOOM. Link Zoom akan diinformasikan setelah pendaftaran dilakukan.',
+  },
 ];
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
@@ -103,6 +170,25 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 /* ── Page ──────────────────────────────────────────────────────── */
 
 export default function KomPage() {
+  // Flatten `[label](url)` markdown links into `label (url)` so JSON-LD
+  // carries plain text that still surfaces the URL to Google's indexer.
+  const flattenMarkdownLinks = (s: string) =>
+    s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)');
+
+  // Provider stub used on every Course — points to GBI BEC with parent org GBI Indonesia nasional
+  const provider = {
+    '@type': 'Church',
+    name: 'GBI Baranangsiang Evening Church',
+    alternateName: 'GBI BEC',
+    url: siteUrl,
+    parentOrganization: {
+      '@type': 'Church',
+      name: 'Gereja Bethel Indonesia',
+      alternateName: 'GBI',
+      url: 'https://www.gbi.or.id',
+    },
+  };
+
   const jsonLd = [
     {
       '@context': 'https://schema.org',
@@ -114,213 +200,581 @@ export default function KomPage() {
     },
     {
       '@context': 'https://schema.org',
-      '@type': 'ItemList',
+      '@type': 'WebPage',
+      name: 'Materi KOM — Kehidupan Orientasi Melayani',
+      description:
+        'Program Kehidupan Orientasi Melayani (KOM) di GBI BEC Bandung — pengajaran Firman Tuhan berjenjang. 4 level, 82 sesi, gratis, sertifikat resmi kurikulum nasional GBI.',
+      url: `${siteUrl}/kom`,
+      inLanguage: 'id-ID',
+      isPartOf: { '@type': 'WebSite', name: 'GBI BEC', url: siteUrl },
+      // Voice-search hint — Google Assistant may read these to users asking
+      // "what is KOM" / "apa itu KOM di GBI BEC".
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['#tentang h2', '#tentang p'],
+      },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'EducationalOccupationalProgram',
       name: 'Program KOM — Kehidupan Orientasi Melayani',
-      description: 'Program pengajaran Firman Tuhan berjenjang di GBI BEC — 4 level, 82 sesi total. Kurikulum nasional GBI.',
-      numberOfItems: 4,
-      itemListElement: LEVELS.map((lvl, i) => ({
-        '@type': 'ListItem',
-        position: i + 1,
-        item: {
-          '@type': 'Course',
-          name: `KOM ${lvl.level} — ${lvl.title}`,
-          description: lvl.description,
-          url: `${siteUrl}/kom/${lvl.level}`,
-          provider: {
-            '@type': 'Church',
-            name: 'GBI Baranangsiang Evening Church',
-            url: siteUrl,
-          },
+      alternateName: 'Kehidupan Orientasi Melayani',
+      description:
+        'Program pengajaran Firman Tuhan berjenjang di GBI BEC Bandung — 4 level progresif dengan total 82 sesi, gratis, sertifikat resmi kurikulum nasional Gereja Bethel Indonesia. Diluncurkan tahun 2005 oleh Divisi Pengajaran GBI Jalan Gatot Subroto Jakarta.',
+      url: `${siteUrl}/kom`,
+      programType: 'Ministry Training',
+      educationalProgramMode: 'online',
+      inLanguage: 'id-ID',
+      timeRequired: 'P82W', // ISO 8601: 82 weekly sessions
+      occupationalCategory: 'Church Ministry',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'IDR',
+        availability: 'https://schema.org/InStock',
+      },
+      provider,
+      hasCourse: LEVELS.map((lvl) => ({
+        '@type': 'Course',
+        name: `KOM ${lvl.level} — ${lvl.title}`,
+        alternateName: lvl.subtitle,
+        courseCode: `KOM-${lvl.level}`,
+        description: lvl.description,
+        url: `${siteUrl}/kom/${lvl.level}`,
+        inLanguage: 'id-ID',
+        educationalLevel: `Level ${lvl.level}`,
+        numberOfCredits: lvl.sessions,
+        teaches: lvl.series.join(', '),
+        provider,
+        hasCourseInstance: {
+          '@type': 'CourseInstance',
+          courseMode: 'online',
+          courseWorkload: `PT90M`, // ~1.5h per session — placeholder
+          ...(lvl.prerequisite ? { coursePrerequisites: lvl.prerequisite } : {}),
+        },
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'IDR',
+          availability: 'https://schema.org/InStock',
+        },
+      })),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Church',
+      name: 'GBI Baranangsiang Evening Church',
+      alternateName: 'GBI BEC',
+      url: siteUrl,
+      telephone: '+6287823420950',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Jl. Baranang Siang No.8',
+        addressLocality: 'Bandung',
+        addressRegion: 'Jawa Barat',
+        postalCode: '40113',
+        addressCountry: 'ID',
+      },
+      sameAs: [
+        'https://www.instagram.com/sukawarna.bec/',
+        'https://www.youtube.com/@gbibaranangsiangsukawarna7008',
+      ],
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      inLanguage: 'id-ID',
+      mainEntity: FAQ_ITEMS.map(({ q, a }) => ({
+        '@type': 'Question',
+        name: q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: flattenMarkdownLinks(a),
+          inLanguage: 'id-ID',
         },
       })),
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen bg-background">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* Header */}
-      <header className="border-b bg-card/80 backdrop-blur-sm px-4 sm:px-6 py-3 flex items-center gap-3 sticky top-0 z-20">
-        <Link href="/">
-          <Button variant="ghost" size="icon" className="shrink-0">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div className="flex items-center gap-3 flex-1">
-          <Image src="/logo.png" alt="BEC" width={32} height={32} className="w-8 h-8 object-contain" />
-          <div>
-            <p className="font-semibold text-sm leading-tight">Materi KOM</p>
-            <p className="text-[10px] text-muted-foreground">Kehidupan Orientasi Melayani</p>
-          </div>
-        </div>
-        <a href="https://bit.ly/DaftarKOMBarsiBEC" target="_blank" rel="noopener noreferrer">
-          <Button size="sm" className="gap-1.5 text-xs">
-            <ExternalLink className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Daftar Sekarang</span>
-            <span className="sm:hidden">Daftar</span>
-          </Button>
-        </a>
-      </header>
 
-      {/* Hero — warm, single tone */}
-      <div className="relative bg-[#2a2118] overflow-hidden">
+      <GrainOverlay />
 
-        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 pt-16 pb-20 lg:pt-20 lg:pb-28 text-center">
-          <p className="text-[10px] tracking-[0.25em] text-white/30 font-medium uppercase">
-            Kurikulum Nasional GBI
-          </p>
-          <h1 className="mt-4 font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] text-white">
-            Kehidupan<br />
-            <span className="text-white/50">Orientasi Melayani</span>
-          </h1>
-          <p className="mt-6 text-sm sm:text-base text-white/60 leading-relaxed max-w-md mx-auto">
-            Materi KOM adalah program pengajaran Firman Tuhan berjenjang di GBI BEC — kelas rohani di Bandung
-            dengan sertifikat resmi kurikulum nasional GBI.
-          </p>
+      <Nav hideLinks />
 
-          {/* Stats */}
-          <div className="mt-10 inline-flex items-center gap-6 sm:gap-10 bg-white/[0.04] border border-white/[0.06] rounded-2xl px-8 py-5">
+      {/* Hero — matches /ibadah-raya pattern: big italic serif over parallax image card */}
+      <ActivityHero title="KOM" image="/kegiatan/kom.webp" />
+
+      {/* Big statement — magazine-style with sticky aside */}
+      <section
+        id="tentang"
+        className="max-w-6xl mx-auto px-6 lg:px-12 pt-10 lg:pt-14 pb-16 lg:pb-24"
+      >
+        <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
+          <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
+            <li>
+              <Link
+                href="/"
+                className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
+              >
+                Beranda
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-foreground/30">/</li>
+            <li aria-current="page" className="text-foreground/70">
+              Materi KOM
+            </li>
+          </ol>
+        </nav>
+
+        <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[-0.03em] leading-[1.1]">
+          Kehidupan Orientasi Melayani.
+        </h2>
+
+        {/* Compact info block — mobile + tablet only (desktop uses sticky aside instead) */}
+        <div className="lg:hidden mt-8 border-t border-b border-border/60 py-5 space-y-6">
+          <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-white">4</p>
-              <p className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Level</p>
+              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+                Sejak
+              </dt>
+              <dd className="mt-0.5 text-foreground/85 font-medium">2005</dd>
             </div>
-            <div className="w-px h-10 bg-white/40" />
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-white">82</p>
-              <p className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Sesi</p>
+              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+                Level
+              </dt>
+              <dd className="mt-0.5 text-foreground/85 font-medium">4 level</dd>
             </div>
-            <div className="w-px h-10 bg-white/40" />
             <div>
-              <p className="font-serif text-2xl sm:text-3xl font-bold text-white">Gratis</p>
-              <p className="text-[10px] text-white/30 mt-1 uppercase tracking-wider">Biaya</p>
+              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+                Durasi
+              </dt>
+              <dd className="mt-0.5 text-foreground/85 font-medium">82 sesi</dd>
             </div>
-          </div>
-        </div>
-      </div>
+            <div>
+              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+                Biaya
+              </dt>
+              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
+            </div>
+            <div className="col-span-2 sm:col-span-1">
+              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+                Sertifikat
+              </dt>
+              <dd className="mt-0.5 text-foreground/85 font-medium">
+                Kurikulum nasional GBI
+              </dd>
+            </div>
+          </dl>
 
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-12 lg:py-16">
-        {/* Section label */}
-        <div className="mb-10">
-          <p className="text-[11px] tracking-[0.2em] text-muted-foreground font-medium uppercase">Perjalanan</p>
-          <p className="mt-1 font-serif text-2xl font-bold tracking-[-0.02em]">4 Level KOM</p>
-        </div>
-
-        {/* Level cards — staggered layout */}
-        <div className="space-y-6">
-          {LEVELS.map((lvl, i) => (
-            <Link
-              key={lvl.level}
-              href={`/kom/${lvl.level}`}
-              className="group block"
-            >
-              <div className={`relative overflow-hidden rounded-2xl lg:rounded-3xl bg-gradient-to-br ${lvl.gradient} border border-white/[0.06] hover:border-white/15 transition-all duration-500 hover:shadow-[0_24px_48px_rgba(0,0,0,0.25)]`}>
-                {/* Glass accent */}
-                <div className="absolute -bottom-8 -right-8 w-44 h-44 md:w-60 md:h-60 opacity-15 pointer-events-none">
-                  <Image src={lvl.glass} alt="" fill className="object-contain" />
-                </div>
-
-                {/* Large decorative number */}
-                <span
-                  className="absolute top-4 right-5 lg:top-5 lg:right-8 font-serif font-bold select-none pointer-events-none"
-                  style={{ fontSize: 'clamp(4rem, 10vw, 7rem)', lineHeight: 1, color: 'rgba(255,255,255,0.03)' }}
-                  aria-hidden="true"
+          <nav aria-label="Navigasi halaman">
+            <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              Di halaman ini
+            </p>
+            <ul className="flex flex-wrap gap-x-3 gap-y-2 text-sm">
+              <li>
+                <a
+                  href="#level"
+                  className="text-foreground/70 hover:text-foreground transition-colors underline-offset-4 hover:underline"
                 >
-                  {lvl.number}
-                </span>
-
-                <div className="relative z-10 p-6 sm:p-7 lg:p-8">
-                  {/* Top row */}
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <p className={`text-[10px] font-semibold uppercase tracking-[0.2em] ${lvl.accent}`}>
-                        KOM {lvl.level}
-                      </p>
-                      {lvl.prerequisite && (
-                        <>
-                          <span className="text-white/40">·</span>
-                          <p className="text-[10px] text-white/25">{lvl.prerequisite}</p>
-                        </>
-                      )}
-                    </div>
-                    <span className={`text-[10px] font-medium px-2.5 py-1 rounded-full border ${lvl.badge}`}>
-                      {lvl.sessions} sesi
-                    </span>
-                  </div>
-
-                  {/* Title + subtitle */}
-                  <div className="mt-5 sm:mt-6">
-                    <h3 className="font-serif text-2xl sm:text-3xl font-bold text-white group-hover:opacity-80 transition-opacity duration-300">
-                      {lvl.title}
-                    </h3>
-                    <p className="text-xs text-white/50 italic mt-1">{lvl.subtitle}</p>
-                  </div>
-
-                  {/* Description */}
-                  <p className="mt-3 text-sm text-white/80 leading-relaxed max-w-lg">
-                    {lvl.description}
-                  </p>
-
-                  {/* Series tags + arrow */}
-                  <div className="mt-5 flex items-end justify-between gap-4">
-                    <div className="flex flex-wrap gap-1.5">
-                      {lvl.series.map((s) => (
-                        <span
-                          key={s}
-                          className="text-[12px] px-1.5 py-0.5 rounded text-white/40"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-white/20 shrink-0 group-hover:text-white/50 group-hover:translate-x-1 transition-all duration-300" />
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+                  Empat tingkatan
+                </a>
+              </li>
+              <li aria-hidden="true" className="text-foreground/25">·</li>
+              <li>
+                <a
+                  href="#info"
+                  className="text-foreground/70 hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                >
+                  Hal penting
+                </a>
+              </li>
+              <li aria-hidden="true" className="text-foreground/25">·</li>
+              <li>
+                <a
+                  href="#daftar"
+                  className="text-foreground/70 hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                >
+                  Pendaftaran
+                </a>
+              </li>
+              <li aria-hidden="true" className="text-foreground/25">·</li>
+              <li>
+                <a
+                  href="#faq"
+                  className="text-foreground/70 hover:text-foreground transition-colors underline-offset-4 hover:underline"
+                >
+                  FAQ
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
 
-        {/* Info section */}
-        <div className="mt-16 rounded-2xl border border-[#e8dcc4] bg-[#fdf6ec] p-6 sm:p-8">
-          <p className="font-serif text-lg font-bold text-[#7a5c2e] mb-6">Informasi Penting</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {INFO_ITEMS.map((item) => (
-              <div key={item.title} className="flex gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#f0e4ce] flex items-center justify-center shrink-0">
-                  <item.icon className="w-4.5 h-4.5 text-[#7a5c2e]" />
+        {/* Two-column: labeled prose left, sticky aside right (desktop only) */}
+        <div className="mt-10 lg:mt-14 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10 lg:gap-16">
+          {/* Left — labeled mini-sections */}
+          <div className="space-y-10 max-w-2xl">
+            <div>
+              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                Apa itu
+              </p>
+              <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                KOM adalah program pengajaran Firman Tuhan berjenjang yang
+                disusun oleh sinode{' '}
+                <strong className="font-medium text-foreground/90">
+                  Gereja Bethel Indonesia
+                </strong>{' '}
+                — empat level progresif dengan total 82 sesi, membawa jemaat
+                dari dasar-dasar iman hingga kepemimpinan pelayanan.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                Sejarah
+              </p>
+              <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                Program ini diluncurkan tahun 2005 oleh Divisi Pengajaran GBI
+                Jalan Gatot Subroto Jakarta, menggantikan program pendahulunya
+                Sekolah Orientasi Melayani (SOM) yang berjalan selama 17 tahun.
+                Kurikulumnya kini dipakai secara nasional di seluruh gereja
+                GBI Indonesia — termasuk GBI BEC.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                Filosofi
+              </p>
+              <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                Yang membedakan KOM:{' '}
+                <strong className="font-medium text-foreground/90">
+                  tidak berhenti di teori doktrin
+                </strong>{' '}
+                — program ini mengajarkan bagaimana mengaplikasikan Firman
+                Tuhan dalam kehidupan sehari-hari. Mulai dari pengasuhan anak,
+                pengelolaan keuangan, komunikasi, kehidupan pernikahan, hingga
+                memulai pelayanan di komunitas terdekat. Visinya sederhana:{' '}
+                <em>mempersiapkan umat yang layak</em> — jemaat yang bertumbuh
+                dalam iman dan aktif memberi dampak di tempat kerja dan
+                lingkungan sekitarnya.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                Biaya & Sertifikat
+              </p>
+              <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                Seluruh kelas{' '}
+                <strong className="font-medium text-foreground/90">
+                  tidak dipungut biaya
+                </strong>
+                . Setiap level yang diselesaikan mendapat sertifikat resmi
+                kurikulum nasional Gereja Bethel Indonesia, yang berlaku di
+                seluruh GBI di Indonesia.
+              </p>
+            </div>
+          </div>
+
+          {/* Right — sticky aside (desktop only) */}
+          <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
+            <div className="border-t border-border/60 pt-5">
+              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-5">
+                Gambaran Cepat
+              </p>
+              <dl className="space-y-4 text-sm">
+                <div>
+                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                    Sejak
+                  </dt>
+                  <dd className="mt-0.5 text-foreground/85 font-medium">2005</dd>
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-[#7a5c2e]">{item.title}</p>
-                  <p className="text-xs text-[#8b7355] leading-relaxed mt-0.5">{item.desc}</p>
+                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                    Level
+                  </dt>
+                  <dd className="mt-0.5 text-foreground/85 font-medium">
+                    4 · The Seeker → The Steward
+                  </dd>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
+                <div>
+                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                    Durasi
+                  </dt>
+                  <dd className="mt-0.5 text-foreground/85 font-medium">
+                    82 sesi total
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                    Biaya
+                  </dt>
+                  <dd className="mt-0.5 text-foreground/85 font-medium">
+                    Gratis
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                    Sertifikat
+                  </dt>
+                  <dd className="mt-0.5 text-foreground/85 font-medium">
+                    Kurikulum nasional GBI
+                  </dd>
+                </div>
+              </dl>
+            </div>
 
-        {/* Bottom CTA */}
-        <div className="mt-14 text-center">
-          <p className="font-serif text-2xl font-bold tracking-[-0.02em]">Mulai Perjalanan KOM</p>
-          <p className="text-sm text-muted-foreground mt-2">Pendaftaran gratis — mulai dari KOM 100</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-            <a href="https://bit.ly/DaftarKOMBarsiBEC" target="_blank" rel="noopener noreferrer">
-              <Button size="lg" className="gap-2 px-8">
-                <ExternalLink className="w-4 h-4" />
-                Daftar Sekarang — Gratis
-              </Button>
-            </a>
-            <a href="https://wa.me/6285860060050" target="_blank" rel="noopener noreferrer">
-              <Button variant="outline" size="lg" className="gap-2 px-8">
+            <nav
+              aria-label="Navigasi halaman"
+              className="mt-10 border-t border-border/60 pt-5"
+            >
+              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-4">
+                Di halaman ini
+              </p>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <a
+                    href="#level"
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    Empat tingkatan
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#info"
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    Hal penting sebelum mulai
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#daftar"
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    Pendaftaran
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#faq"
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    Pertanyaan umum
+                  </a>
+                </li>
+              </ul>
+            </nav>
+          </aside>
+        </div>
+      </section>
+
+      {/* 4 Level KOM */}
+      <section id="level" className="max-w-6xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24 scroll-mt-24">
+        <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-[-0.03em] leading-[1.1] mb-6">
+          Empat tingkatan untuk bertumbuh.
+        </h3>
+        <p className="text-base sm:text-lg text-foreground/70 leading-relaxed mb-10">
+          KOM dirancang berjenjang — setiap level dibangun di atas yang
+          sebelumnya. Perjalanannya mengikuti empat peran rohani: dari{' '}
+          <strong className="font-medium text-foreground/85">Pencari</strong> yang
+          mengenal Tuhan, menjadi <strong className="font-medium text-foreground/85">Pelayan</strong> yang
+          dibentuk karakter dan pelayanannya, dilatih menjadi{' '}
+          <strong className="font-medium text-foreground/85">Prajurit</strong> yang
+          tangguh dalam peperangan iman, hingga dipersiapkan sebagai{' '}
+          <strong className="font-medium text-foreground/85">Penilik</strong> — penatalayan
+          yang mengambil tanggung jawab kepemimpinan. Klik level untuk melihat
+          rincian seri dan materinya.
+        </p>
+
+        <ol className="relative">
+          {LEVELS.map((lvl) => (
+            <li key={lvl.level} className="border-t border-border/50 last:border-b">
+              <Link
+                href={`/kom/${lvl.level}`}
+                className="relative flex flex-col sm:flex-row gap-4 sm:gap-0 py-10 sm:py-14 group"
+              >
+                {/* Meta column */}
+                <div className="shrink-0 sm:w-44 sm:pt-1 z-[2]">
+                  <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-foreground/40">
+                    KOM {lvl.level} · {lvl.sessions} sesi
+                  </span>
+                  {lvl.prerequisite && (
+                    <p className="mt-2 text-xs text-foreground/50">
+                      {lvl.prerequisite}
+                    </p>
+                  )}
+                </div>
+
+                {/* Mobile cover — inline, no rotation */}
+                <div className="sm:hidden w-24 shrink-0 aspect-[5/6] overflow-hidden rounded-md ring-1 ring-foreground/10 bg-foreground/[0.04]">
+                  <img
+                    src={lvl.cover}
+                    alt={`Sampul buku KOM ${lvl.level} — ${lvl.title}`}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+
+                {/* Desktop cover — floating, tilted, overflows row vertically */}
+                <div
+                  aria-hidden="true"
+                  className="hidden sm:block absolute left-44 top-1/2 w-44 aspect-[5/6] -translate-y-1/2 rotate-[10deg] z-[1] pointer-events-none transition-transform duration-500 ease-out group-hover:rotate-[4deg] group-hover:scale-[1.05]"
+                >
+                  <img
+                    src={lvl.cover}
+                    alt=""
+                    className="w-full h-full object-cover rounded-md ring-1 ring-foreground/15"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex-1 sm:pl-56 z-[2]">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-serif text-xl sm:text-2xl font-bold tracking-[-0.02em] leading-[1.2] group-hover:opacity-70 transition-opacity">
+                        {lvl.title}
+                      </h4>
+                      <p className="text-xs text-foreground/45 italic mt-1 mb-3">
+                        {lvl.subtitle}
+                      </p>
+                    </div>
+                    <ArrowRight className="w-5 h-5 text-foreground/25 shrink-0 mt-1 group-hover:text-foreground/60 group-hover:translate-x-1 transition-[color,transform] duration-300" />
+                  </div>
+                  <p className="text-base sm:text-lg text-foreground/70 leading-relaxed">
+                    {lvl.description}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
+                    {lvl.series.map((s) => (
+                      <span
+                        key={s}
+                        className="text-xs text-foreground/50 before:content-['·'] before:mr-3 before:text-foreground/30 first:before:content-none first:before:mr-0"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Hal penting sebelum mulai */}
+      <section id="info" className="max-w-6xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24 scroll-mt-24">
+        <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-[-0.03em] leading-[1.1] mb-10">
+          Hal penting sebelum mulai.
+        </h3>
+        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
+          {INFO_ITEMS.map((item) => (
+            <div key={item.title} className="border-t border-border/50 pt-5">
+              <dt className="font-serif text-lg sm:text-xl font-bold tracking-[-0.02em] leading-[1.2]">
+                {item.title}
+              </dt>
+              <dd className="mt-2 text-base text-foreground/70 leading-relaxed">
+                {item.desc}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      {/* Siap mulai? — inverted dark banner */}
+      <section id="daftar" className="max-w-6xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24 scroll-mt-24">
+        <div
+          className="relative overflow-hidden rounded-2xl lg:rounded-3xl p-8 sm:p-10 lg:p-14"
+          style={{
+            background:
+              'linear-gradient(140deg, oklch(0.24 0.022 68) 0%, oklch(0.17 0.016 62) 100%)',
+          }}
+        >
+          {/* Large decorative wordmark */}
+          <span
+            className="absolute -bottom-6 -right-2 lg:-bottom-8 lg:-right-6 font-serif font-bold italic select-none pointer-events-none z-[1]"
+            style={{
+              fontSize: 'clamp(7rem, 18vw, 16rem)',
+              lineHeight: 0.85,
+              color: 'oklch(0.82 0.035 72)',
+              opacity: 0.08,
+            }}
+            aria-hidden="true"
+          >
+            KOM
+          </span>
+
+          <div className="relative z-[2] flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            <div className="max-w-xl">
+              <p
+                className="text-xs tracking-[0.2em] font-semibold uppercase mb-4"
+                style={{ color: 'oklch(0.82 0.035 72)', opacity: 0.7 }}
+              >
+                Pendaftaran
+              </p>
+              <h3
+                className="font-serif font-bold leading-[1.05] tracking-[-0.03em]"
+                style={{
+                  fontSize: 'clamp(1.75rem, 4vw, 3rem)',
+                  color: 'oklch(0.82 0.035 72)',
+                }}
+              >
+                Siap mulai perjalanan KOM?
+              </h3>
+              <p
+                className="mt-4 text-sm sm:text-base leading-relaxed"
+                style={{ color: 'rgba(255,255,255,0.65)' }}
+              >
+                Pendaftaran gratis — mulai dari KOM 100. Ada pertanyaan
+                sebelum mendaftar? Hubungi koordinator kami.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+              <Link
+                href={`/helpdesk?q=${encodeURIComponent('Bagaimana cara mendaftar program KOM di GBI BEC dan apa syarat-syaratnya?')}`}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
+              >
+                <Sparkles className="w-4 h-4" />
+                Tanya AI Kami
+              </Link>
+              <a
+                href="https://wa.me/6285860060050"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors"
+                style={{
+                  color: 'rgba(255,255,255,0.9)',
+                  backgroundColor: 'rgba(255,255,255,0.08)',
+                  border: '1px solid rgba(255,255,255,0.22)',
+                }}
+              >
                 <Phone className="w-4 h-4" />
                 Hubungi Henny
-              </Button>
-            </a>
+              </a>
+            </div>
           </div>
         </div>
-      </main>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="max-w-6xl mx-auto px-6 lg:px-12 pb-16 lg:pb-24 scroll-mt-24">
+        <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-[-0.03em] leading-[1.1] mb-10">
+          Pertanyaan yang Sering Ditanyakan
+        </h3>
+        <FAQAccordion items={FAQ_ITEMS} />
+      </section>
+
+      <ContactSection />
+
+      <Footer />
     </div>
   );
 }

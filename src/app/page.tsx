@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getLandingData } from '@/lib/landing-data';
 import SmoothScroll from '@/components/smooth-scroll';
 import Nav from '@/components/landing/nav';
 import Hero from '@/components/landing/hero';
@@ -11,6 +12,7 @@ import VideoParallaxSection from '@/components/landing/video-parallax';
 import ContactSection from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
 import LandingLoader from '@/components/landing/landing-loader';
+import GrainOverlay from '@/components/grain-overlay';
 
 export const metadata: Metadata = {
   title: 'GBI Baranangsiang Evening Church',
@@ -63,14 +65,20 @@ const jsonLd = {
   ],
 };
 
-export default function LandingPage() {
+// Revalidate every 60 seconds so content stays fresh without being fully static
+export const revalidate = 60;
+
+export default async function LandingPage() {
+  const data = await getLandingData();
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <LandingLoader>
+      <LandingLoader data={data}>
+        <GrainOverlay />
         <SmoothScroll>
           <Nav />
           <main>

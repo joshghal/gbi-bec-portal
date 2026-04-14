@@ -34,6 +34,9 @@ interface Activity {
   tags?: string[];
   contacts?: Contact[];
   cta?: { label: string; href: string; external?: boolean };
+  /** Canonical subpage for this activity (e.g. /ibadah-raya). Always rendered
+   *  as a dedicated link when set — independent of the action `cta`. */
+  detailHref?: string;
   aiQuestion: string;
 }
 
@@ -55,6 +58,38 @@ interface ApiActivity {
   aiQuestion: string;
   enabled: boolean;
   order: number;
+}
+
+/**
+ * Activities with dedicated detail pages on the site. Always injected as a
+ * `detailHref` — independent of the backend-supplied action `cta`, so the
+ * internal link with keyword-rich anchor text is never dropped even when an
+ * admin edits the activity's CTA in Firestore.
+ */
+const ACTIVITY_DETAIL_PAGES: Record<string, string> = {
+  'Ibadah Raya': '/ibadah-raya',
+  'KOM': '/kom',
+  'M-Class': '/mclass',
+  'Baptisan Air': '/baptisan',
+  'Penyerahan Anak': '/penyerahan-anak',
+  'Pemberkatan Nikah': '/pemberkatan-nikah',
+  'Creative Ministry': '/creative-ministry',
+  // Future: additional activity detail pages go here.
+};
+
+function withDetailPage(activity: Activity): Activity {
+  const href = ACTIVITY_DETAIL_PAGES[activity.title];
+  if (!href) return activity;
+  // If a backend-supplied `cta` points to the same destination as the detail
+  // page, strip it — `Selengkapnya` (powered by detailHref) already navigates
+  // there, and we don't want two competing buttons going to the same place.
+  const { cta, ...rest } = activity;
+  const ctaIsRedundant = cta?.href === href;
+  return {
+    ...rest,
+    ...(ctaIsRedundant ? {} : { cta }),
+    detailHref: href,
+  };
 }
 
 function mapApiActivity(a: ApiActivity): Activity {
@@ -93,7 +128,6 @@ const FALLBACK_ACTIVITIES: Activity[] = [
     description: 'Program pengajaran Firman Tuhan berjenjang — 4 level, 82 sesi total. Kurikulum nasional GBI, sertifikat resmi setiap level.',
     tags: ['KOM 100 · Pencari', 'KOM 200 · Pelayan', 'KOM 300 · Prajurit', 'KOM 400 · Penilik'],
     contacts: [{ name: 'Henny', waLink: 'https://wa.me/6285860060050' }],
-    cta: { label: 'Lihat Materi KOM', href: '/kom' },
     aiQuestion: 'Apa itu program KOM di GBI BEC dan bagaimana cara mendaftar?',
   },
   {
@@ -247,6 +281,83 @@ function CoolGroupCards({ groups, kabid }: { groups: any[]; kabid: any }) {
   );
 }
 
+/* ── Description block ───────────────────────────────────────────
+ * Renders the activity description with its "Selengkapnya" trigger.
+ * Three shapes, picked by data:
+ *   1. detailHref present    → <a> to the canonical subpage
+ *   2. longDescription only  → <button> opens preview modal
+ *   3. neither               → plain <p>, no affordance
+ * The `variant` prop toggles desktop (right-aligned) vs mobile (stacked)
+ * classes so the same logic serves both breakpoints.
+ */
+function ActivityDescription({
+  activity,
+  theme,
+  onOpenModal,
+  variant,
+}: {
+  activity: Activity;
+  theme: (typeof CARD_THEMES)[number];
+  onOpenModal: () => void;
+  variant: 'desktop' | 'mobile';
+}) {
+  const triggerClass =
+    variant === 'desktop'
+      ? 'hidden lg:block lg:max-w-sm lg:text-right cursor-pointer'
+      : 'lg:hidden mt-3 block text-left cursor-pointer';
+  const textColor =
+    variant === 'desktop' ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.60)';
+
+  const inner = (
+    <>
+      <p className="text-sm leading-relaxed" style={{ color: textColor }}>
+        {activity.description}
+      </p>
+      <span
+        className="mt-2 inline-flex items-center gap-1 text-xs font-semibold transition-opacity group-hover/desc:opacity-80"
+        style={{ color: theme.accent }}
+      >
+        Selengkapnya
+        <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
+          <path
+            d="M3 8h10M9 4l4 4-4 4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </span>
+    </>
+  );
+
+  if (activity.detailHref) {
+    return (
+      <a href={activity.detailHref} className={triggerClass}>
+        {inner}
+      </a>
+    );
+  }
+
+  if (activity.longDescription) {
+    return (
+      <button type="button" onClick={onOpenModal} className={triggerClass}>
+        {inner}
+      </button>
+    );
+  }
+
+  const plainClass =
+    variant === 'desktop'
+      ? 'hidden lg:block lg:max-w-sm text-sm leading-relaxed lg:text-right'
+      : 'lg:hidden mt-3 text-sm leading-relaxed';
+  return (
+    <p className={plainClass} style={{ color: textColor }}>
+      {activity.description}
+    </p>
+  );
+}
+
 /* ── Stacking card top offsets ────────────────────────────────── */
 const CARD_TOP_START = 80;  // px — first card sticks here
 const CARD_TOP_STEP = 16;   // px — each subsequent card sticks a bit lower
@@ -264,7 +375,8 @@ export default function ActivitiesSection() {
   const sectionEnabled = landingData?.activitySettings.sectionEnabled ?? true;
   const mapped = (landingData?.activities as ApiActivity[] ?? []).map(mapApiActivity);
 
-  const displayActivities = !sectionEnabled ? FALLBACK_ACTIVITIES : (mapped.length > 0 ? mapped : FALLBACK_ACTIVITIES);
+  const source = !sectionEnabled ? FALLBACK_ACTIVITIES : (mapped.length > 0 ? mapped : FALLBACK_ACTIVITIES);
+  const displayActivities = source.map(withDetailPage);
   if (displayActivities.length === 0) return null;
 
   return (
@@ -357,51 +469,21 @@ export default function ActivitiesSection() {
                       </div>
 
                       {/* Description — right on desktop */}
-                      {activity.longDescription ? (
-                        <button
-                          type="button"
-                          onClick={() => setDetailIndex(i)}
-                          className="hidden lg:block lg:max-w-sm lg:text-right cursor-pointer"
-                        >
-                          <p className="text-sm leading-relaxed " style={{ color: 'rgba(255,255,255,0.55)' }}>
-                            {activity.description}
-                          </p>
-                          <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold transition-opacity group-hover/desc:opacity-80" style={{ color: theme.accent }}>
-                            Selengkapnya
-                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
-                              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                          </span>
-                        </button>
-                      ) : (
-                        <p className="hidden lg:block lg:max-w-sm text-sm leading-relaxed lg:text-right" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                          {activity.description}
-                        </p>
-                      )}
+                      <ActivityDescription
+                        activity={activity}
+                        theme={theme}
+                        onOpenModal={() => setDetailIndex(i)}
+                        variant="desktop"
+                      />
                     </div>
 
                     {/* Description — mobile only */}
-                    {activity.longDescription ? (
-                      <button
-                        type="button"
-                        onClick={() => setDetailIndex(i)}
-                        className="lg:hidden mt-3 text-left cursor-pointer"
-                      >
-                        <p className="text-sm leading-relaxed " style={{ color: 'rgba(255,255,255,0.60)' }}>
-                          {activity.description}
-                        </p>
-                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold transition-opacity group-hover/desc:opacity-80" style={{ color: theme.accent }}>
-                          Selengkapnya
-                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden>
-                            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        </span>
-                      </button>
-                    ) : (
-                      <p className="lg:hidden mt-3 text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.60)' }}>
-                        {activity.description}
-                      </p>
-                    )}
+                    <ActivityDescription
+                      activity={activity}
+                      theme={theme}
+                      onOpenModal={() => setDetailIndex(i)}
+                      variant="mobile"
+                    />
 
                     {/* Tags */}
                     {activity.tags && (

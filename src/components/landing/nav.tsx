@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { label: "Kontak", href: "#kontak" },
 ] as const;
 
-export default function Nav() {
+export default function Nav({ hideLinks = false }: { hideLinks?: boolean } = {}) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   // Overlay is not mounted at all until first open — no fixed full-screen
@@ -89,18 +89,20 @@ export default function Nav() {
             </Link>
 
             {/* Desktop links */}
-            <ul className="hidden md:flex items-center gap-1">
-              {NAV_LINKS.map(({ label, href }) => (
-                <li key={href}>
-                  <a
-                    href={href}
-                    className="px-3 py-1.5 text-[13px] font-medium text-foreground/50 rounded-full transition-colors duration-200 hover:text-foreground hover:bg-foreground/[0.04]"
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {!hideLinks && (
+              <ul className="hidden md:flex items-center gap-1">
+                {NAV_LINKS.map(({ label, href }) => (
+                  <li key={href}>
+                    <a
+                      href={href}
+                      className="px-3 py-1.5 text-[13px] font-medium text-foreground/50 rounded-full transition-colors duration-200 hover:text-foreground hover:bg-foreground/[0.04]"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {/* Right */}
             <div className="flex items-center gap-3">
@@ -114,20 +116,22 @@ export default function Nav() {
                 </svg>
               </Link>
 
-              <button
-                type="button"
-                aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
-                aria-expanded={mobileOpen}
-                className="md:hidden relative w-6 h-5 flex flex-col justify-between mr-2"
-                onClick={() => mobileOpen ? closeMenu() : openMenu()}
-              >
-                <span className="block h-[1.5px] w-6 rounded-full bg-foreground origin-center transition-transform duration-[250ms]"
-                  style={{ transform: mobileOpen ? 'rotate(45deg) translateY(9px)' : 'none' }} />
-                <span className="block h-[1.5px] w-6 rounded-full bg-foreground transition-opacity duration-150"
-                  style={{ opacity: mobileOpen ? 0 : 1 }} />
-                <span className="block h-[1.5px] w-6 rounded-full bg-foreground origin-center transition-transform duration-[250ms]"
-                  style={{ transform: mobileOpen ? 'rotate(-45deg) translateY(-9px)' : 'none' }} />
-              </button>
+              {!hideLinks && (
+                <button
+                  type="button"
+                  aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
+                  aria-expanded={mobileOpen}
+                  className="md:hidden relative w-6 h-5 flex flex-col justify-between mr-2"
+                  onClick={() => mobileOpen ? closeMenu() : openMenu()}
+                >
+                  <span className="block h-[1.5px] w-6 rounded-full bg-foreground origin-center transition-transform duration-[250ms]"
+                    style={{ transform: mobileOpen ? 'rotate(45deg) translateY(9px)' : 'none' }} />
+                  <span className="block h-[1.5px] w-6 rounded-full bg-foreground transition-opacity duration-150"
+                    style={{ opacity: mobileOpen ? 0 : 1 }} />
+                  <span className="block h-[1.5px] w-6 rounded-full bg-foreground origin-center transition-transform duration-[250ms]"
+                    style={{ transform: mobileOpen ? 'rotate(-45deg) translateY(-9px)' : 'none' }} />
+                </button>
+              )}
             </div>
           </div>
         </nav>
