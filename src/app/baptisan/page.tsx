@@ -178,6 +178,8 @@ export default function BaptisanPage() {
         'Baptisan selam (full immersion) di GBI Baranangsiang Evening Church. Bagi jemaat usia 12 tahun ke atas. Diselenggarakan setiap dua bulan sekali.',
       url: `${siteUrl}/baptisan`,
       inLanguage: 'id-ID',
+      startDate: '2024-01-07T10:00:00+07:00',
+      endDate: '2024-01-07T12:00:00+07:00',
       eventSchedule: {
         '@type': 'Schedule',
         repeatFrequency: 'P2M',

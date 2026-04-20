@@ -174,27 +174,17 @@ export default function PenyerahanAnakPage() {
     },
     {
       '@context': 'https://schema.org',
-      '@type': 'Event',
+      '@type': 'Service',
       name: 'Penyerahan Anak GBI BEC',
+      serviceType: 'Child Dedication',
       description:
-        'Penyerahan anak bersama kedua orang tua di hadapan jemaat, sebagai komitmen mendidik anak dalam Tuhan. Bukan sakramen baptisan.',
+        'Penyerahan anak bersama kedua orang tua di hadapan jemaat, sebagai komitmen mendidik anak dalam Tuhan. Bukan sakramen baptisan. Jadwal pelaksanaan menyesuaikan ketersediaan Gembala GBI BEC.',
       url: `${siteUrl}/penyerahan-anak`,
-      inLanguage: 'id-ID',
-      eventStatus: 'https://schema.org/EventScheduled',
-      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-      location: {
-        '@type': 'Place',
-        name: 'GBI Baranangsiang Evening Church',
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: 'Jl. Baranang Siang No.8',
-          addressLocality: 'Bandung',
-          addressRegion: 'Jawa Barat',
-          postalCode: '40113',
-          addressCountry: 'ID',
-        },
+      provider: organizer,
+      areaServed: {
+        '@type': 'City',
+        name: 'Bandung',
       },
-      organizer,
       offers: {
         '@type': 'Offer',
         price: '0',
@@ -202,7 +192,6 @@ export default function PenyerahanAnakPage() {
         availability: 'https://schema.org/InStock',
         url: `${siteUrl}/formulir/penyerahan-anak`,
       },
-      isAccessibleForFree: true,
     },
     {
       '@context': 'https://schema.org',
