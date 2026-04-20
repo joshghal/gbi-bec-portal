@@ -275,7 +275,7 @@ export default function BaptisanPage() {
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
           <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -430,7 +430,7 @@ export default function BaptisanPage() {
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
                 Surat baptis diberikan setelah jemaat menyelesaikan{' '}
-                <Link
+                <Link prefetch={false}
                   href="/kom/100"
                   className="text-foreground/85 underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground/70 transition-colors"
                 >
@@ -649,14 +649,14 @@ export default function BaptisanPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link
+              <Link prefetch={false}
                 href="/formulir/baptis"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
               >
                 <ArrowRight className="w-4 h-4" />
                 Daftar Baptisan
               </Link>
-              <Link
+              <Link prefetch={false}
                 href={`/helpdesk?q=${encodeURIComponent('Apa syarat Baptisan Air di GBI BEC dan bagaimana cara mendaftarnya?')}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors"
                 style={{

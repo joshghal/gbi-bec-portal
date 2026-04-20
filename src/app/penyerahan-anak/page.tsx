@@ -254,7 +254,7 @@ export default function PenyerahanAnakPage() {
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
           <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -391,7 +391,7 @@ export default function PenyerahanAnakPage() {
                 atau percikan air. Keputusan untuk dibaptis adalah pilihan
                 pribadi anak kelak, saat berusia 12 tahun ke atas dan sudah
                 siap mengambil keputusan iman sendiri melalui{' '}
-                <Link
+                <Link prefetch={false}
                   href="/baptisan"
                   className="text-foreground/85 underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground/70 transition-colors"
                 >
@@ -641,14 +641,14 @@ export default function PenyerahanAnakPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link
+              <Link prefetch={false}
                 href="/formulir/penyerahan-anak"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
               >
                 <ArrowRight className="w-4 h-4" />
                 Daftar Penyerahan Anak
               </Link>
-              <Link
+              <Link prefetch={false}
                 href={`/helpdesk?q=${encodeURIComponent('Apa syarat Penyerahan Anak di GBI BEC dan bagaimana cara mendaftarnya?')}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors"
                 style={{

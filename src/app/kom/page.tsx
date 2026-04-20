@@ -318,7 +318,7 @@ export default function KomPage() {
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
           <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -599,7 +599,7 @@ export default function KomPage() {
         <ol className="relative">
           {LEVELS.map((lvl) => (
             <li key={lvl.level} className="border-t border-border/50 last:border-b">
-              <Link
+              <Link prefetch={false}
                 href={`/kom/${lvl.level}`}
                 className="relative flex flex-col sm:flex-row gap-4 sm:gap-0 py-10 sm:py-14 group"
               >
@@ -738,7 +738,7 @@ export default function KomPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link
+              <Link prefetch={false}
                 href={`/helpdesk?q=${encodeURIComponent('Bagaimana cara mendaftar program KOM di GBI BEC dan apa syarat-syaratnya?')}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
               >

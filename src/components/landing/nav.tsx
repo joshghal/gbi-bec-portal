@@ -83,9 +83,9 @@ export default function Nav({ hideLinks = false }: { hideLinks?: boolean } = {})
             }}
           >
             {/* Brand — plain img avoids Next/Image IntersectionObserver + layout watcher init */}
-            <Link href="/" className="shrink-0 flex items-center">
+            <Link href="/" prefetch={false} className="shrink-0 flex items-center">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.png" alt="GBI Sukawarna" width={100} height={28} style={{ width: "100px", height: "28px" }} />
+              <img src="/logo.webp" alt="GBI Sukawarna" width={100} height={28} style={{ width: "100px", height: "28px" }} decoding="async" fetchPriority="low" />
             </Link>
 
             {/* Desktop links */}

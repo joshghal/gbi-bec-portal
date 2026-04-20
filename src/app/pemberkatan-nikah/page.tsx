@@ -287,7 +287,7 @@ export default function PemberkatanNikahPage() {
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
           <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -441,7 +441,7 @@ export default function PemberkatanNikahPage() {
                   jemaat resmi GBI Sukawarna
                 </strong>{' '}
                 (memiliki KAJ) dan telah lulus{' '}
-                <Link
+                <Link prefetch={false}
                   href="/kom/100"
                   className="text-foreground/85 underline decoration-foreground/30 underline-offset-4 hover:decoration-foreground/70 transition-colors"
                 >
@@ -737,7 +737,7 @@ export default function PemberkatanNikahPage() {
                 <ArrowRight className="w-4 h-4" />
                 Hubungi Unit Pernikahan
               </a>
-              <Link
+              <Link prefetch={false}
                 href={`/helpdesk?q=${encodeURIComponent('Apa syarat Pemberkatan Nikah di GBI BEC dan bagaimana cara mendaftarnya?')}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors"
                 style={{

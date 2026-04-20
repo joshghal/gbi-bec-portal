@@ -1,13 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import {
-  fadeUp,
-  fadeUpSmall,
-  staggerContainer,
-  viewportOnce,
-} from '@/components/landing/animations';
 import { WaIcon as WhatsAppIcon, InstagramIcon, YouTubeIcon, ChatIcon, ArrowRightIcon } from '@/components/landing/icons';
 
 /* ── Contact data ─────────────────────────────────────────────── */
@@ -49,9 +40,6 @@ const SOCIALS = [
   },
 ];
 
-/* ── Inline SVG icons ─────────────────────────────────────────── */
-
-
 /* ── Section component ────────────────────────────────────────── */
 
 export default function ContactSection() {
@@ -66,44 +54,25 @@ export default function ContactSection() {
             PART 1: The Headline
         ═══════════════════════════════════════════════════════ */}
         <div className="pt-16 lg:pt-20 pb-12 lg:pb-16">
-          <motion.h2
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewportOnce}
+          <h2
             className="font-serif font-bold text-white leading-[1.05]"
             style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)' }}
           >
             Kami Siap Membantu
-          </motion.h2>
+          </h2>
 
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="visible"
-            viewport={viewportOnce}
-            className="mt-5 text-lg lg:text-xl text-white/55 max-w-xl leading-relaxed"
-          >
+          <p className="mt-5 text-lg lg:text-xl text-white/55 max-w-xl leading-relaxed">
             Jangan ragu menghubungi kami melalui WhatsApp
             atau tanya AI kami 24/7.
-          </motion.p>
+          </p>
         </div>
 
         {/* ═══════════════════════════════════════════════════════
             PART 2: Editorial Contact Grid
         ═══════════════════════════════════════════════════════ */}
-        <motion.div
-          variants={staggerContainer(0.15)}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="grid grid-cols-1 lg:grid-cols-5 gap-5 lg:gap-6"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 lg:gap-6">
           {/* ── Left: Featured primary contact (~40%) ──────────── */}
-          <motion.div
-            variants={fadeUpSmall}
-            className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-8 lg:p-10 flex flex-col justify-between"
-          >
+          <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-8 lg:p-10 flex flex-col justify-between">
             <div>
               <p className="text-xs tracking-[0.2em] font-medium uppercase text-white/40 mb-6">
                 Kontak Utama
@@ -123,25 +92,20 @@ export default function ContactSection() {
             </div>
 
             <div className="mt-8">
-              <motion.a
+              <a
                 href={PRIMARY_CONTACT.waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.98 }}
-                className="inline-flex items-center gap-2.5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
+                className="inline-flex items-center gap-2.5 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-[transform,background-color] hover:bg-white/90 hover:scale-[1.03] active:scale-[0.98]"
               >
                 <WhatsAppIcon className="h-4.5 w-4.5" />
                 Hubungi via WhatsApp
-              </motion.a>
+              </a>
             </div>
-          </motion.div>
+          </div>
 
           {/* ── Right: Secondary contacts stacked (~60%) ───────── */}
-          <motion.div
-            variants={fadeUpSmall}
-            className="lg:col-span-3 flex flex-col"
-          >
+          <div className="lg:col-span-3 flex flex-col">
             {SECONDARY_CONTACTS.map((contact, i) => (
               <div key={contact.name}>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-7 lg:py-8">
@@ -162,17 +126,15 @@ export default function ContactSection() {
                   </div>
 
                   {/* WhatsApp button */}
-                  <motion.a
+                  <a
                     href={contact.waLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-white/75 transition-colors hover:bg-white/[0.12] hover:text-white w-full sm:w-auto"
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-5 py-2.5 text-sm font-medium text-white/75 transition-[transform,background-color,color] hover:bg-white/[0.12] hover:text-white hover:scale-[1.03] active:scale-[0.98] w-full sm:w-auto"
                   >
                     <WhatsAppIcon className="h-4 w-4" />
                     Hubungi via WhatsApp
-                  </motion.a>
+                  </a>
                 </div>
 
                 {/* Divider between contacts, not after last */}
@@ -181,25 +143,18 @@ export default function ContactSection() {
                 )}
               </div>
             ))}
-          </motion.div>
-        </motion.div>
+          </div>
+        </div>
 
         {/* ═══════════════════════════════════════════════════════
             Social Media Row
         ═══════════════════════════════════════════════════════ */}
         <div className="mt-16 h-px bg-white/10" />
 
-        <motion.div
-          variants={staggerContainer(0.1, 0.2)}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="py-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10"
-        >
+        <div className="py-8 flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-10">
           {SOCIALS.map((social) => (
-            <motion.a
+            <a
               key={social.label}
-              variants={fadeUpSmall}
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
@@ -211,22 +166,16 @@ export default function ContactSection() {
                 <YouTubeIcon className="h-5 w-5 shrink-0" />
               )}
               <span className="text-sm">{social.handle}</span>
-            </motion.a>
+            </a>
           ))}
-        </motion.div>
+        </div>
 
         {/* ═══════════════════════════════════════════════════════
             CTA: Chatbot Promo
         ═══════════════════════════════════════════════════════ */}
         <div className="h-px bg-white/10" />
 
-        <motion.div
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          className="my-16 lg:my-20"
-        >
+        <div className="my-16 lg:my-20">
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-8 lg:p-12">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
               <div className="max-w-lg">
@@ -259,7 +208,7 @@ export default function ContactSection() {
               </Link>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

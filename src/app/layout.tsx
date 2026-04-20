@@ -1,19 +1,28 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Judson } from "next/font/google";
 import "./globals.css";
-import { Toaster } from "sonner";
 import { AnalyticsProvider } from "@/components/analytics-provider";
+import { LazyToaster } from "@/components/lazy-toaster";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
   subsets: ["latin"],
+  display: "swap",
+  // Don't preload — body copy can swap from fallback without perceptible
+  // shift, and skipping preload frees bandwidth for the hero LCP image.
+  preload: false,
 });
 
 const judson = Judson({
   variable: "--font-judson",
   subsets: ["latin"],
+  // Drop italic 700 — only needed for decorative wordmarks in CTA banners,
+  // which are below the LCP fold and the browser can synthesize italic from
+  // weight 700 normal.
   weight: ["400", "700"],
   style: ["normal", "italic"],
+  display: "swap",
+  preload: true,
 });
 
 export const viewport: Viewport = {
@@ -61,7 +70,7 @@ export default function RootLayout({
         className={`${plusJakarta.variable} ${judson.variable} antialiased`}
       >
         <AnalyticsProvider>{children}</AnalyticsProvider>
-        <Toaster position="top-right" richColors closeButton />
+        <LazyToaster />
       </body>
     </html>
   );

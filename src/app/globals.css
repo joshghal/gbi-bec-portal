@@ -94,6 +94,12 @@
   }
 }
 
+/* Hero title staggered entrance — used in ActivityHero (no framer-motion) */
+@keyframes heroWordIn {
+  from { opacity: 0; filter: blur(8px); }
+  to   { opacity: 1; filter: blur(0px); }
+}
+
 /* Rich-text HTML output — used in landing Kabar Terbaru excerpts */
 .excerpt-html strong { font-weight: 600; color: inherit; }
 .excerpt-html em { font-style: italic; }

@@ -347,7 +347,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
           <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50 flex-wrap">
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -356,7 +356,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
             </li>
             <li aria-hidden="true" className="text-foreground/30">/</li>
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/kom"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -716,7 +716,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Link
+              <Link prefetch={false}
                 href={`/helpdesk?q=${encodeURIComponent(`Bagaimana cara mendaftar KOM ${kom.level} — ${kom.title} di GBI BEC dan apa syaratnya?`)}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
               >

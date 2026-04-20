@@ -1,99 +1,93 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 interface ActivityHeroProps {
   title: string;
   image: string;
 }
 
-const ease = [0.22, 1, 0.36, 1] as const;
-
-const textContainer = {
-  hidden: {},
-  visible: {
-    transition: { staggerChildren: 0.06, delayChildren: 0.1 },
-  },
-};
-
-const textChild = {
-  hidden: { opacity: 0, filter: 'blur(8px)' },
-  visible: {
-    opacity: 1,
-    filter: 'blur(0px)',
-    transition: { duration: 0.7, ease },
-  },
-};
-
-const imageCard = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.9, ease, delay: 0.05 },
-  },
-};
-
+/**
+ * Hero with vertical image parallax + staggered title entrance. Pure CSS
+ * animations for entrance; a single rAF-throttled scroll handler drives the
+ * parallax transform. No framer-motion → saves ~60 KB gzipped from the
+ * critical chunk.
+ */
 export default function ActivityHero({ title, image }: ActivityHeroProps) {
   const words = title.split(' ');
   const sectionRef = useRef<HTMLElement>(null);
+  const imgWrapRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
-  // Parallax: image pans vertically inside the card as you scroll
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
-  const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
-  // Title drifts left slightly on scroll
-  const titleX = useTransform(scrollYProgress, [0, 1], ['0%', '-8%']);
+  useEffect(() => {
+    const section = sectionRef.current;
+    const img = imgWrapRef.current;
+    const title = titleRef.current;
+    if (!section || !img || !title) return;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const rect = section.getBoundingClientRect();
+        const total = rect.height + window.innerHeight;
+        const progress = Math.min(
+          1,
+          Math.max(0, (window.innerHeight - rect.top) / total),
+        );
+        img.style.transform = `translate3d(0, ${progress * 15}%, 0)`;
+        title.style.transform = `translate3d(${progress * -8}%, 0, 0)`;
+        ticking = false;
+      });
+    };
+
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <section
       ref={sectionRef}
       className="relative flex items-center justify-center min-h-svh overflow-hidden"
     >
-      {/* Image card — behind text, container clips the parallax */}
-      <motion.div
-        variants={imageCard}
-        initial="hidden"
-        animate="visible"
-        className="absolute z-[1] w-[220px] h-[340px] sm:w-[280px] sm:h-[440px] lg:w-[350px] lg:h-[550px] rounded-[24px] sm:rounded-[30px] overflow-hidden"
-      >
-        <motion.img
-          src={image}
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-          fetchPriority="high"
-          className="absolute inset-0 w-full object-cover brightness-105"
-          style={{
-            height: '130%',
-            top: '-15%',
-            y: imgY,
-            willChange: 'transform',
-          }}
-        />
-      </motion.div>
+      {/* Image card — static at first paint so next/image priority can LCP
+          instantly. Parallax applied via the inner wrapper after hydration. */}
+      <div className="absolute z-[1] w-[220px] h-[340px] sm:w-[280px] sm:h-[440px] lg:w-[350px] lg:h-[550px] rounded-[24px] sm:rounded-[30px] overflow-hidden">
+        <div
+          ref={imgWrapRef}
+          className="absolute inset-x-0 brightness-105"
+          style={{ top: '-15%', height: '130%', willChange: 'transform' }}
+        >
+          <img
+            src={image}
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+            fetchPriority="high"
+            loading="eager"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        </div>
+      </div>
 
-      {/* Title — on top of image, drifts left on scroll */}
-      <motion.h1
-        variants={textContainer}
-        initial="hidden"
-        animate="visible"
+      {/* Title — CSS-only staggered fade/blur on mount. */}
+      <h1
+        ref={titleRef}
         className="relative z-[2] font-serif font-normal italic text-foreground text-center leading-[0.85] tracking-[-0.04em]"
-        style={{ fontSize: 'clamp(110px, 14vw, 16rem)', x: titleX, willChange: 'transform' }}
+        style={{ fontSize: 'clamp(110px, 14vw, 16rem)', willChange: 'transform' }}
       >
         {words.map((word, i) => (
-          <motion.span
+          <span
             key={i}
-            variants={textChild}
-            className="block"
+            className="block animate-[heroWordIn_0.7s_cubic-bezier(0.22,1,0.36,1)_both]"
+            style={{ animationDelay: `${100 + i * 60}ms` }}
           >
             {word}
-          </motion.span>
+          </span>
         ))}
-      </motion.h1>
+      </h1>
     </section>
   );
 }

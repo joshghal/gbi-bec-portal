@@ -298,7 +298,7 @@ export default function CreativeMinistryPage() {
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
           <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
             <li>
-              <Link
+              <Link prefetch={false}
                 href="/"
                 className="hover:text-foreground/80 transition-colors underline-offset-2 hover:underline"
               >
@@ -714,7 +714,7 @@ export default function CreativeMinistryPage() {
                 <Phone className="w-4 h-4" />
                 Hubungi Ibu Lia
               </a>
-              <Link
+              <Link prefetch={false}
                 href={`/helpdesk?q=${encodeURIComponent('Bagaimana cara bergabung dengan Creative Ministry GBI BEC?')}`}
                 className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors"
                 style={{

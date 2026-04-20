@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 
 interface FAQItem {
   q: string;
@@ -84,19 +83,22 @@ export default function FAQAccordion({ items }: { items: FAQItem[] }) {
                 </svg>
               </span>
             </button>
-            <motion.div
-              initial={false}
-              animate={{
-                height: isOpen ? 'auto' : 0,
+            {/* Height animation via `display: grid` + animated
+                grid-template-rows between 0fr and 1fr. Pure CSS, keeps the
+                answer always mounted in the DOM for SEO. */}
+            <div
+              className="grid transition-[grid-template-rows,opacity] duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+              style={{
+                gridTemplateRows: isOpen ? '1fr' : '0fr',
                 opacity: isOpen ? 1 : 0,
               }}
-              transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-              style={{ overflow: 'hidden' }}
             >
-              <p className="pb-6 text-base sm:text-lg text-foreground/70 leading-relaxed">
-                {renderAnswer(item.a)}
-              </p>
-            </motion.div>
+              <div className="overflow-hidden">
+                <p className="pb-6 text-base sm:text-lg text-foreground/70 leading-relaxed">
+                  {renderAnswer(item.a)}
+                </p>
+              </div>
+            </div>
           </div>
         );
       })}
