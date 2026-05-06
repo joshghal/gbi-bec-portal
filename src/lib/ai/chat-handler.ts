@@ -18,7 +18,7 @@ export async function callChatAI(options: {
   temperature?: number;
   maxTokens?: number;
 }): Promise<ChatCompletionResult> {
-  const { messages, temperature = 0.3, maxTokens = 1500 } = options;
+  const { messages, temperature = 0.2, maxTokens = 1500 } = options;
 
   const apiKey = process.env.ASI1_API_KEY;
   if (!apiKey) {
