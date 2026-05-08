@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
     const ref = await db.collection('updates').add(doc);
     logAdminAction(request, 'create', 'kabar', { resourceId: ref.id, resourceTitle: doc.title });
     revalidatePath('/kabar');
+    revalidatePath('/sitemap.xml');
     return NextResponse.json({ id: ref.id, ...doc }, { status: 201 });
   } catch (error) {
     console.error('Create update error:', error);

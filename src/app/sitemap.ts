@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { getAdminFirestore } from '@/lib/firebase-admin';
 
+export const revalidate = 600;
+
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -28,55 +30,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/kom`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/ibadah-raya`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 0.8,
+      priority: 1,
     },
     {
       url: `${siteUrl}/mclass`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/baptisan`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/penyerahan-anak`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/pemberkatan-nikah`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/creative-ministry`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/formulir`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${siteUrl}/tanya-jawab`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.7,
+      priority: 1,
     },
     {
       url: `${siteUrl}/saran`,
@@ -88,7 +84,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${siteUrl}/kom/${level}`,
       lastModified: new Date(),
       changeFrequency: 'daily' as const,
-      priority: 0.5,
+      priority: 1,
+    })),
+    ...['baptis', 'mclass', 'penyerahan-anak'].map((slug) => ({
+      url: `${siteUrl}/formulir/${slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
     })),
   ];
 

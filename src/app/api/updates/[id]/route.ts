@@ -46,6 +46,7 @@ export async function PUT(
     await ref.update(update);
     logAdminAction(request, 'update', 'kabar', { resourceId: id, resourceTitle: existing.data()?.title });
     revalidatePath('/kabar');
+    revalidatePath('/sitemap.xml');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update update error:', error);
@@ -76,6 +77,7 @@ export async function DELETE(
     await ref.delete();
     logAdminAction(request, 'delete', 'kabar', { resourceId: id, resourceTitle: title });
     revalidatePath('/kabar');
+    revalidatePath('/sitemap.xml');
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete update error:', error);
