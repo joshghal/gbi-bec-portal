@@ -17,7 +17,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 export const metadata: Metadata = {
   title: 'Baptisan Air — Baptisan Selam GBI BEC',
   description:
-    'Baptisan selam (full immersion) di GBI BEC Bandung — untuk jemaat usia 12 tahun ke atas. Diselenggarakan setiap dua bulan sekali, gratis, sesuai praktik Alkitab.',
+    'Baptisan selam (full immersion) di GBI BEC Bandung — untuk jemaat usia 12 tahun ke atas. Diselenggarakan setiap dua bulan sekali, sesuai praktik Alkitab.',
   keywords: [
     'baptisan air',
     'baptisan selam',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Baptisan Air — GBI BEC',
     description:
-      'Baptisan selam bagi jemaat usia 12+ di GBI Baranangsiang Evening Church Bandung. Dua bulan sekali, gratis, terbuka untuk semua.',
+      'Baptisan selam bagi jemaat usia 12+ di GBI Baranangsiang Evening Church Bandung. Dua bulan sekali, terbuka untuk semua.',
     url: `${siteUrl}/baptisan`,
     type: 'website',
   },
@@ -64,7 +64,7 @@ const CHECKLIST = [
 const INFO_ITEMS = [
   {
     title: 'Usia minimal 12 tahun',
-    desc: 'Baptisan air di GBI BEC terbuka bagi jemaat berusia 12 tahun ke atas. Tidak ada biaya pendaftaran — sepenuhnya gratis.',
+    desc: 'Baptisan air di GBI BEC terbuka bagi jemaat berusia 12 tahun ke atas. Tidak ada biaya pendaftaran.',
   },
   {
     title: 'Jadwal dua bulan sekali',
@@ -95,7 +95,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah ada biaya untuk Baptisan Air?',
-    a: 'Tidak. Baptisan air di GBI BEC tidak dipungut biaya (gratis) — sama seperti seluruh kegiatan dan layanan gereja.',
+    a: 'Tidak. Baptisan air di GBI BEC tidak dipungut biaya — sama seperti seluruh kegiatan dan layanan gereja.',
   },
   {
     q: 'Apa saja yang perlu saya bawa saat hari Baptisan?',
@@ -314,12 +314,6 @@ export default function BaptisanPage() {
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Selam</dd>
             </div>
-            <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
-                Biaya
-              </dt>
-              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
-            </div>
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
                 Sertifikat
@@ -471,12 +465,6 @@ export default function BaptisanPage() {
                     Usia minimal
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">12 tahun</dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
                 </div>
                 <div>
                   <dt className="text-foreground/50 text-xs uppercase tracking-wider">
@@ -641,10 +629,9 @@ export default function BaptisanPage() {
                 className="mt-4 text-sm sm:text-base leading-relaxed"
                 style={{ color: 'rgba(255,255,255,0.65)' }}
               >
-                Pendaftaran gratis — cukup isi data diri, pilih tanggal
-                baptisan terdekat, lalu siapkan dokumen yang diminta. Ada
-                pertanyaan sebelum mendaftar? Tanya AI kami atau hubungi Call
-                Centre BEC.
+                Cukup isi data diri, pilih tanggal baptisan terdekat, lalu
+                siapkan dokumen yang diminta. Ada pertanyaan sebelum
+                mendaftar? Tanya AI kami atau hubungi Call Centre BEC.
               </p>
             </div>
 

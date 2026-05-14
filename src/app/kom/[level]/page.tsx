@@ -25,6 +25,20 @@ interface KomData {
   audience: string;
   series: { code: string; name: string; count: number; topics: string[] }[];
   jadwal?: string;
+  /** What makes this level distinct from other levels. Unique long-form prose. */
+  whyThisLevel?: string;
+  /** The signature pedagogical/experiential element of this level. */
+  signatureExperience?: string;
+  /** What graduates take away when they complete this level. */
+  graduateOutcome?: string;
+  /** Per-level intro for the series section, replaces shared boilerplate. */
+  seriesIntro?: string;
+  /** Time/effort commitment specific to this level. */
+  commitmentFraming?: string;
+  /** Signals/markers indicating the participant is ready for this level. */
+  readinessSignal?: string;
+  /** Common misconceptions or wrong expectations about this level. */
+  commonMisconceptions?: string;
 }
 
 const KOM_DATA: Record<string, KomData> = {
@@ -109,6 +123,20 @@ const KOM_DATA: Record<string, KomData> = {
         topics: ['Pelayanan konseling', 'Pelayanan khotbah'],
       },
     ],
+    whyThisLevel:
+      'KOM 200 berbeda dari level fondasi karena fokusnya bergeser dari mengenal iman ke membentuk karakter seorang pelayan. Tulang punggung level ini adalah delapan ucapan bahagia dari Khotbah di Bukit (Matius 5:3–10) — Yesus mengucapkannya tepat sebelum memulai pelayanan publik kepada para murid yang Ia panggil. Setiap ucapan bahagia dijadikan satu sesi mandiri dengan studi mendalam dan refleksi pribadi, sehingga peserta tidak hanya menghafal, melainkan dibentuk pelan-pelan menjadi pribadi yang miskin hatinya, lemah lembut, lapar akan kebenaran, murah hati, dan berani dianiaya karena kebenaran. Inilah karakter dasar yang Yesus harapkan dari setiap orang yang Ia sebut pelayan-Nya.',
+    signatureExperience:
+      'Hal yang paling membedakan KOM 200 dari level lain adalah penekanan pada penerapan iman dalam pernikahan, pengasuhan anak, dan dunia kerja. Sembilan sesi dalam seri "Kehidupan Kristen" membahas isu-isu yang sangat praktis dan sering dihindari di mimbar — komunikasi pribadi yang sehat, membangun dan membina persahabatan, pengendalian emosi yang dewasa, prinsip memilih pasangan hidup, kehidupan nikah Kristiani, mendidik anak dengan kasih dan disiplin, panggilan dan integritas di dunia kerja, strategi kehidupan yang berhasil, hingga pengelolaan keuangan pribadi yang bijak. Materi-materi ini dibawakan dengan studi kasus nyata, diskusi kelompok kecil, dan tugas refleksi mingguan yang harus dibawa langsung ke kehidupan rumah dan kantor — bukan sekadar hafalan teori.',
+    graduateOutcome:
+      'Lulusan KOM 200 keluar dengan tiga bekal yang khas: karakter pelayan yang terbentuk lebih jelas melalui delapan ucapan bahagia, kemampuan studi Alkitab induktif yang memungkinkan mereka menggali Firman secara mandiri tanpa bergantung pada tafsiran orang lain, dan pemahaman awal tentang dua bidang pelayanan praktis — konseling dan khotbah. Banyak alumni KOM 200 di GBI BEC kemudian terlibat aktif sebagai pengajar kelompok sel, pelayan ibadah, mentor bagi peserta KOM 100, atau pemimpin doa di komunitas mereka masing-masing. Sertifikat KOM 200 juga menjadi prasyarat resmi untuk melanjutkan ke KOM 300 — Prajurit Tuhan, level berikutnya yang fokus pada peperangan rohani dan ketahanan.',
+    seriesIntro:
+      'Empat seri di KOM 200 dibangun berurutan: dimulai dari pembentukan karakter melalui delapan ucapan bahagia (seri 210), dilanjutkan ke fondasi pengetahuan Alkitab termasuk pengantar Perjanjian Lama, Perjanjian Baru, studi induktif, dan agama-agama dunia (seri 220), kemudian penerapan iman di rumah tangga, persahabatan, pernikahan, pengasuhan anak, dan dunia kerja (seri 230), dan ditutup dengan pengenalan dasar pelayanan konseling dan khotbah (seri 240). Total 23 sesi, dirancang agar peserta tidak hanya menambah pengetahuan, tetapi juga mengalami pembentukan karakter yang nyata terasa di rumah dan tempat kerja.',
+    commitmentFraming:
+      'Peserta KOM 200 diharapkan menyiapkan waktu sekitar 90 menit setiap minggu untuk kelas online di malam Kamis, ditambah 1-2 jam untuk membaca materi pendamping dan mengerjakan tugas refleksi. Khusus untuk seri Kehidupan Kristen (seri 230), banyak sesi mengandung studi kasus rumah tangga yang lebih bermanfaat jika dibahas bersama pasangan atau anggota keluarga di rumah, sehingga komitmen waktu di luar kelas bisa lebih panjang. Peserta yang sedang dalam masa pacaran atau persiapan menikah biasanya merasakan manfaat ekstra dari sesi memilih pasangan hidup dan kehidupan nikah Kristiani.',
+    readinessSignal:
+      'Tanda kamu siap mengikuti KOM 200 antara lain: sudah lulus KOM 100 (atau sudah memahami dasar-dasar iman Kristen seperti keselamatan, baptisan, dan kehidupan dalam gereja lokal), bersedia membaca materi sebelum kelas dan terlibat dalam diskusi kelompok kecil, terbuka untuk membahas isu-isu personal seperti komunikasi, emosi, dan keuangan secara jujur, serta memiliki kerinduan untuk bertumbuh sebagai pelayan — bukan sekadar ingin menambah pengetahuan teologis. Jika kamu merasa belum siap untuk seri Kehidupan Kristen yang sangat aplikatif, masih bisa mengikuti KOM 200 untuk seri-seri lainnya dan mengulang bagian itu di kesempatan berikutnya.',
+    commonMisconceptions:
+      'Beberapa salah paham yang sering muncul tentang KOM 200: pertama, banyak menganggap level ini hanya untuk orang yang ingin masuk pelayanan formal di gereja — padahal materinya sangat praktis untuk siapa saja yang ingin tumbuh sebagai pelayan di rumah dan tempat kerja. Kedua, ada anggapan bahwa karena membahas pernikahan dan pengasuhan anak, KOM 200 hanya cocok untuk yang sudah menikah — sebenarnya peserta lajang juga sangat dianjurkan ikut karena materinya membentuk perspektif sebelum mereka memasuki tahap-tahap itu. Ketiga, sering dianggap KOM 200 berat karena ada studi Alkitab Perjanjian Lama dan Perjanjian Baru — padahal pengantarnya disusun ramah pemula, tidak menuntut latar belakang teologi formal.',
   },
   '300': {
     level: 300,
@@ -190,6 +218,20 @@ const KOM_DATA: Record<string, KomData> = {
         topics: ['Mengenali musim-musim kehidupan', 'Panggilan dan tujuan hidup', 'Timeline pelayanan', 'Pembuat sejarah dan pengubah masa depan'],
       },
     ],
+    whyThisLevel:
+      'KOM 400 adalah level puncak dari seluruh program KOM — bukan lagi tentang pengenalan iman atau keterlibatan pelayanan, melainkan tentang kesiapan mengambil peran kepemimpinan rohani dan membina hidup orang lain. Strukturnya unik karena keempat serinya berjudul berbahasa Inggris — Authentic, Broken Hearted, Courageous, dan Destiny Driven — yang membentuk arc pembentukan pemimpin secara berurutan: dari fondasi karakter yang otentik, melalui kehancuran hati yang membawa terobosan, menuju keberanian untuk memuridkan, dan akhirnya menemukan tujuan hidup yang lebih besar dari diri sendiri. Kurikulum dikembangkan tahun 2015, lebih kontemporer dibanding tiga level sebelumnya, dan mengintegrasikan pemikiran kepemimpinan modern dengan teologi pemuridan klasik.',
+    signatureExperience:
+      'Yang paling membedakan KOM 400 dari semua level sebelumnya adalah penekanan pada brokenness — sebuah seri utuh tentang bagaimana kehancuran hati justru menjadi gerbang terobosan rohani yang sesungguhnya. Topik seperti "Hidup bebas dari ketersinggungan" dan "Anak-anak dalam keluarga rohani" membawa peserta ke dalam refleksi yang sangat personal, jujur, dan kadang menyakitkan. KOM 400 sering dijalani dalam suasana yang lebih intim dan reflektif dibanding level-level lebih awal — banyak sesi dipakai untuk pemeriksaan diri yang mendalam, doa pribadi, sharing pengalaman dengan mentor, dan komitmen perubahan pola hidup. Karena bobotnya yang berat, peserta umumnya datang dengan kesiapan rohani yang sudah terbangun melalui KOM 100, 200, dan 300 sebelumnya.',
+    graduateOutcome:
+      'Lulusan KOM 400 dilepas dengan satu kompetensi inti yang membedakan mereka dari lulusan level lain: kemampuan dan kesediaan untuk menginvestasikan hidup mereka ke dalam beberapa orang secara intensif. Bukan hanya mengajar di depan banyak orang, tetapi mendampingi sedikit orang dalam jangka waktu panjang — sebagaimana Yesus melakukannya dengan dua belas murid-Nya. Banyak alumni KOM 400 menjadi pemimpin kelompok sel inti, pendamping rohani jangka panjang, atau mengambil peran kepemimpinan di pelayanan profesional masing-masing. Beberapa konsep kontemporer yang menjadi tools praktis seperti tujuh nilai hidup yang berkenan, tujuh unsur kepemimpinan kredibel, dan timeline pelayanan memberi mereka kerangka konkret untuk menjalani sisa hidup mereka secara strategis dan berkenan kepada Tuhan.',
+    seriesIntro:
+      'Empat seri di KOM 400 dirancang sebagai perjalanan internal sebelum menjadi perjalanan eksternal. Authentic (seri 410) membangun fondasi diri yang otentik — fondasi kehidupan, kehidupan batiniah, kehidupan pribadi pemimpin, dan tujuh kekuatan hidup. Broken Hearted (seri 420) membongkar topeng dan ego — terobosan melalui kehancuran hati, perilaku-karakter-kondisi hati, identitas sebagai anak rohani, dan hidup bebas dari ketersinggungan. Courageous (seri 430) menumbuhkan keberanian memuridkan — tujuh nilai hidup yang berkenan, tujuh unsur kepemimpinan kredibel, mencetak murid, menginvestasikan hidup. Destiny Driven (seri 440) menutup dengan kerangka masa depan — mengenali musim hidup, panggilan dan tujuan, timeline pelayanan, menjadi pengubah masa depan. Total 16 sesi yang menuntut keterlibatan emosional dan komitmen perubahan, bukan sekadar mengikuti kelas.',
+    commitmentFraming:
+      'Peserta KOM 400 diharapkan menyiapkan komitmen yang lebih besar dibanding level-level sebelumnya — bukan dalam hal waktu kelas (tetap sekitar 90 menit per minggu), tetapi dalam hal kedalaman refleksi pribadi dan keterbukaan untuk dibimbing. Banyak sesi memerlukan jurnal refleksi yang ditulis pribadi, percakapan satu-satu dengan mentor atau gembala, dan kadang-kadang doa-doa pemulihan yang mendalam. Karena tema-tema seperti brokenness, ketersinggungan, dan identitas rohani menyentuh area yang sangat personal, peserta dianjurkan tidak menjalani level ini di tengah krisis hidup yang akut — tetapi datang dalam kondisi yang sudah cukup stabil untuk masuk ke proses introspeksi yang dalam.',
+    readinessSignal:
+      'Tanda kamu siap mengikuti KOM 400 antara lain: sudah lulus KOM 300 dan terlibat aktif dalam suatu pelayanan (kelompok sel, ibadah, doa, atau bidang lain), memiliki rasa tanggung jawab terhadap kehidupan rohani orang lain — bukan hanya kerinduan untuk bertumbuh sendiri, terbuka untuk diperiksa di area-area yang sensitif seperti motif pelayanan, luka-luka masa lalu, dan pola-pola karakter yang mungkin perlu dibongkar, dan bersedia mengikat diri pada satu atau dua orang sebagai mentor atau yang dimentori dalam jangka waktu lama. Jika kamu masih sering merasa pelayanan adalah beban atau kewajiban, sebaiknya tunda dulu dan perkuat fondasi melalui KOM 200 atau KOM 300.',
+    commonMisconceptions:
+      'Beberapa salah paham yang sering muncul tentang KOM 400: pertama, banyak menganggap level ini hanya untuk calon pendeta atau pemimpin gereja senior — padahal kompetensi memuridkan justru sangat dibutuhkan di kelompok sel, di keluarga, dan di tempat kerja, bukan eksklusif untuk peran formal di gereja. Kedua, beberapa peserta datang berharap akan mendapat tools manajerial atau leadership corporate — KOM 400 memang membahas kepemimpinan, tetapi sudut pandangnya rohani dan pemuridan, bukan strategi bisnis atau organisasi. Ketiga, ada anggapan bahwa karena keempat serinya berjudul Inggris, materinya akan sulit dipahami — sebenarnya semua sesi diajarkan dalam Bahasa Indonesia dengan istilah yang dijelaskan kontekstual sesuai budaya jemaat Indonesia.',
   },
 };
 
@@ -494,6 +536,72 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
                 {kom.audience}
               </p>
             </div>
+
+            {kom.whyThisLevel && (
+              <div>
+                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                  Apa yang membuat level ini berbeda
+                </p>
+                <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                  {kom.whyThisLevel}
+                </p>
+              </div>
+            )}
+
+            {kom.signatureExperience && (
+              <div>
+                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                  Pengalaman khas yang akan kamu temui
+                </p>
+                <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                  {kom.signatureExperience}
+                </p>
+              </div>
+            )}
+
+            {kom.graduateOutcome && (
+              <div>
+                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                  Yang akan kamu bawa pulang sebagai lulusan
+                </p>
+                <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                  {kom.graduateOutcome}
+                </p>
+              </div>
+            )}
+
+            {kom.readinessSignal && (
+              <div>
+                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                  Bagaimana mengetahui kamu sudah siap
+                </p>
+                <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                  {kom.readinessSignal}
+                </p>
+              </div>
+            )}
+
+            {kom.commitmentFraming && (
+              <div>
+                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                  Komitmen waktu dan keterlibatan
+                </p>
+                <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                  {kom.commitmentFraming}
+                </p>
+              </div>
+            )}
+
+            {kom.commonMisconceptions && (
+              <div>
+                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                  Salah paham yang sering muncul
+                </p>
+                <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
+                  {kom.commonMisconceptions}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Desktop sticky aside */}
@@ -535,14 +643,6 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
                     {prereqList ? `Lulus ${prereqList}` : 'Tidak ada'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">
-                    Gratis
                   </dd>
                 </div>
               </dl>
@@ -603,8 +703,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
           Empat seri dalam level ini.
         </h2>
         <p className="text-base sm:text-lg text-foreground/70 leading-relaxed mb-10">
-          Materi KOM {kom.level} dibagi menjadi empat seri — setiap seri
-          mencakup beberapa sesi mingguan yang saling melengkapi.
+          {kom.seriesIntro ?? `Materi KOM ${kom.level} dibagi menjadi empat seri — setiap seri mencakup beberapa sesi mingguan yang saling melengkapi.`}
         </p>
 
         <ol className="relative">
@@ -710,8 +809,8 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
                 className="mt-4 text-sm sm:text-base leading-relaxed"
                 style={{ color: 'rgba(255,255,255,0.65)' }}
               >
-                Pendaftaran gratis. Ada pertanyaan sebelum mendaftar?
-                Hubungi koordinator KOM untuk info lanjutan.
+                Ada pertanyaan sebelum mendaftar? Hubungi koordinator KOM
+                untuk info lanjutan.
               </p>
             </div>
 

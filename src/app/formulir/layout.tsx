@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Formulir',
-  description: 'Formulir pendaftaran GBI BEC — baptisan, penyerahan anak, pendaftaran KOM, permohonan doa, dan M-Class. Gratis dan mudah diisi.',
+  description: 'Formulir pendaftaran GBI BEC — baptisan, penyerahan anak, pendaftaran KOM, permohonan doa, dan M-Class. Mudah diisi dan cepat diproses.',
   keywords: ['formulir gereja', 'pendaftaran baptisan', 'formulir KOM', 'GBI BEC', 'pendaftaran gereja Bandung', 'penyerahan anak'],
   alternates: { canonical: '/formulir' },
   openGraph: {

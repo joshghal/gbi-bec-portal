@@ -16,7 +16,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 export const metadata: Metadata = {
   title: 'Pemberkatan Nikah — GBI BEC',
   description:
-    'Pemberkatan pernikahan di GBI BEC Bandung — syarat, dokumen, dan tahapan konseling pranikah. Pendaftaran minimal 5 bulan sebelum tanggal pernikahan. Gratis untuk jemaat ber-KAJ.',
+    'Pemberkatan pernikahan di GBI BEC Bandung — syarat, dokumen, dan tahapan konseling pranikah. Pendaftaran minimal 5 bulan sebelum tanggal pernikahan untuk jemaat ber-KAJ.',
   keywords: [
     'pemberkatan nikah',
     'pemberkatan pernikahan GBI',
@@ -111,7 +111,7 @@ const INFO_ITEMS = [
     desc: 'Urus keanggotaan (via M-Class → KAJ) dan kelas KOM 100 terlebih dahulu. Idealnya sudah rampung beberapa bulan sebelum pendaftaran pernikahan.',
   },
   {
-    title: 'Gratis, tanpa biaya pendaftaran',
+    title: 'Tanpa biaya pendaftaran',
     desc: 'Pelayanan pemberkatan pernikahan di GBI BEC tidak dipungut biaya. Yang perlu diurus hanya kelengkapan dokumen dan komitmen mengikuti konseling.',
   },
 ];
@@ -139,7 +139,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah ada biaya untuk Pemberkatan Nikah?',
-    a: 'Tidak. Pelayanan pemberkatan pernikahan di GBI BEC tidak dipungut biaya (gratis). Yang perlu diurus hanya kelengkapan dokumen, mengikuti konseling pranikah, dan koordinasi teknis dengan unit pernikahan.',
+    a: 'Tidak. Pelayanan pemberkatan pernikahan di GBI BEC tidak dipungut biaya. Yang perlu diurus hanya kelengkapan dokumen, mengikuti konseling pranikah, dan koordinasi teknis dengan unit pernikahan.',
   },
   {
     q: 'Bagaimana alur pendaftaran dan tahapan prosesnya?',
@@ -326,12 +326,6 @@ export default function PemberkatanNikahPage() {
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Wajib</dd>
             </div>
-            <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
-                Biaya
-              </dt>
-              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
-            </div>
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
                 Kontak
@@ -498,12 +492,6 @@ export default function PemberkatanNikahPage() {
                   <dd className="mt-0.5 text-foreground/85 font-medium">
                     Pranikah + kelas BPN
                   </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
                 </div>
                 <div>
                   <dt className="text-foreground/50 text-xs uppercase tracking-wider">

@@ -36,11 +36,11 @@ function buildScheduleContent(formType: string, dates: FormDate[]): string {
     .sort((a, b) => a.date.localeCompare(b.date));
 
   if (upcoming.length === 0) {
-    return `Jadwal ${cfg.label} GBI Baranangsiang: Belum ada jadwal yang tersedia saat ini. Silakan hubungi admin untuk informasi lebih lanjut. Pendaftaran dan kegiatan ${cfg.label} tidak dipungut biaya (gratis).`;
+    return `Jadwal ${cfg.label} GBI Baranangsiang: Belum ada jadwal yang tersedia saat ini. Silakan hubungi admin untuk informasi lebih lanjut. Pendaftaran dan kegiatan ${cfg.label} tidak dipungut biaya.`;
   }
 
   const dateList = upcoming.map(d => formatDateID(d.date)).join(', ');
-  return `Jadwal ${cfg.label} GBI Baranangsiang yang tersedia: ${dateList}. Pendaftaran dapat dilakukan melalui formulir di website. Pendaftaran dan kegiatan ${cfg.label} tidak dipungut biaya (gratis).`;
+  return `Jadwal ${cfg.label} GBI Baranangsiang yang tersedia: ${dateList}. Pendaftaran dapat dilakukan melalui formulir di website. Pendaftaran dan kegiatan ${cfg.label} tidak dipungut biaya.`;
 }
 
 export async function syncScheduleToKB(formType: string, dates: FormDate[]) {

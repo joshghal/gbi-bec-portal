@@ -125,7 +125,7 @@ Deploy with: `firebase deploy --only firestore:indexes --project baranangsiang-e
 - `doa_kesaksian` — Prayer & testimony
 - `pelayanan_jemaat` — Congregational care services
 
-All activities state "tidak dipungut biaya (gratis)".
+All activities state "tidak dipungut biaya". Do NOT use the word "gratis" — removed sitewide for tone reasons.
 
 Re-ingest: `npx tsx scripts/ingest.ts` (requires embedding service running)
 

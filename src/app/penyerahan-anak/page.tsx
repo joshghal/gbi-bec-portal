@@ -16,7 +16,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 export const metadata: Metadata = {
   title: 'Penyerahan Anak — GBI BEC',
   description:
-    'Penyerahan anak di GBI BEC Bandung — komitmen orang tua mendidik anak dalam Tuhan, dilakukan bersama kedua orang tua di hadapan jemaat. Gratis, dokumen lengkap diserahkan ke diaken BEC.',
+    'Penyerahan anak di GBI BEC Bandung — komitmen orang tua mendidik anak dalam Tuhan, dilakukan bersama kedua orang tua di hadapan jemaat. Dokumen lengkap diserahkan ke diaken BEC.',
   keywords: [
     'penyerahan anak',
     'penyerahan anak GBI',
@@ -101,7 +101,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah ada biaya untuk Penyerahan Anak?',
-    a: 'Tidak. Penyerahan anak di GBI BEC tidak dipungut biaya (gratis) — sama seperti seluruh kegiatan dan layanan gereja.',
+    a: 'Tidak. Penyerahan anak di GBI BEC tidak dipungut biaya — sama seperti seluruh kegiatan dan layanan gereja.',
   },
   {
     q: 'Apa saja dokumen yang perlu disiapkan?',
@@ -299,12 +299,6 @@ export default function PenyerahanAnakPage() {
                 Fisik ke diaken
               </dd>
             </div>
-            <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
-                Biaya
-              </dt>
-              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
-            </div>
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
                 Catatan
@@ -464,12 +458,6 @@ export default function PenyerahanAnakPage() {
                   <dd className="mt-0.5 text-foreground/85 font-medium">
                     Fisik · diserahkan ke diaken BEC
                   </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
                 </div>
                 <div>
                   <dt className="text-foreground/50 text-xs uppercase tracking-wider">

@@ -17,7 +17,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id';
 export const metadata: Metadata = {
   title: 'M-Class — Kelas Membership GBI BEC',
   description:
-    'M-Class (Membership Class) di GBI BEC Bandung — kelas satu hari untuk mengenal visi gereja, kehidupan bergereja, dan mendapatkan Kartu Anggota Jemaat (KAJ). Gratis, jadwal setiap bulan.',
+    'M-Class (Membership Class) di GBI BEC Bandung — kelas satu hari untuk mengenal visi gereja, kehidupan bergereja, dan mendapatkan Kartu Anggota Jemaat (KAJ). Jadwal setiap bulan.',
   keywords: [
     'M-Class',
     'Membership Class',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'M-Class — Kelas Membership GBI BEC',
     description:
-      'Kelas wajib untuk menjadi anggota resmi GBI BEC dan memperoleh Kartu Anggota Jemaat (KAJ). Gratis, jadwal setiap bulan di Bandung.',
+      'Kelas wajib untuk menjadi anggota resmi GBI BEC dan memperoleh Kartu Anggota Jemaat (KAJ). Jadwal setiap bulan di Bandung.',
     url: `${siteUrl}/mclass`,
     type: 'website',
   },
@@ -100,7 +100,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah ada biaya untuk mengikuti M-Class?',
-    a: 'Tidak. M-Class tidak dipungut biaya (gratis) — sama seperti seluruh kegiatan dan layanan di GBI BEC.',
+    a: 'Tidak. M-Class tidak dipungut biaya — sama seperti seluruh kegiatan dan layanan di GBI BEC.',
   },
   {
     q: 'Apa itu KAJ dan bagaimana hubungannya dengan M-Class?',
@@ -163,7 +163,7 @@ export default function MClassPage() {
       '@type': 'WebPage',
       name: 'M-Class — Kelas Membership GBI BEC',
       description:
-        'M-Class (Membership Class) di GBI BEC Bandung — kelas satu hari untuk mengenal kehidupan bergereja dan memperoleh Kartu Anggota Jemaat (KAJ). Gratis, jadwal setiap bulan.',
+        'M-Class (Membership Class) di GBI BEC Bandung — kelas satu hari untuk mengenal kehidupan bergereja dan memperoleh Kartu Anggota Jemaat (KAJ). Jadwal setiap bulan.',
       url: `${siteUrl}/mclass`,
       inLanguage: 'id-ID',
       isPartOf: { '@type': 'WebSite', name: 'GBI BEC', url: siteUrl },
@@ -300,12 +300,6 @@ export default function MClassPage() {
                 Usia
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">15+ tahun</dd>
-            </div>
-            <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
-                Biaya
-              </dt>
-              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
             </div>
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
@@ -462,12 +456,6 @@ export default function MClassPage() {
                   <dd className="mt-0.5 text-foreground/85 font-medium">
                     Usia 15+ · sudah pernah beribadah di BEC
                   </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
                 </div>
                 <div>
                   <dt className="text-foreground/50 text-xs uppercase tracking-wider">

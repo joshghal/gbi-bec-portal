@@ -15,7 +15,7 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
   title: 'Materi KOM — Kehidupan Orientasi Melayani',
   description:
-    'Program Kehidupan Orientasi Melayani (KOM) di GBI BEC Bandung — pengajaran Firman Tuhan berjenjang. 4 level, 82 sesi, gratis, sertifikat resmi kurikulum nasional GBI.',
+    'Program Kehidupan Orientasi Melayani (KOM) di GBI BEC Bandung — pengajaran Firman Tuhan berjenjang. 4 level, 82 sesi, sertifikat resmi kurikulum nasional GBI.',
   keywords: [
     'KOM',
     'Kehidupan Orientasi Melayani',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Materi KOM — GBI BEC',
     description:
-      'Program KOM di GBI BEC Bandung — berjenjang, gratis, bersertifikat resmi kurikulum nasional GBI.',
+      'Program KOM di GBI BEC Bandung — berjenjang, bersertifikat resmi kurikulum nasional GBI.',
     url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://gbibec.id'}/kom`,
     type: 'website',
   },
@@ -137,7 +137,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah ada biaya untuk mengikuti KOM?',
-    a: 'Tidak. Seluruh program KOM di GBI BEC tidak dipungut biaya (gratis) — baik materi, sertifikat, maupun proses pendaftaran.',
+    a: 'Tidak. Seluruh program KOM di GBI BEC tidak dipungut biaya — baik materi, sertifikat, maupun proses pendaftaran.',
   },
   {
     q: 'Apakah KOM 100 wajib untuk Baptisan Air dan Pemberkatan Nikah?',
@@ -203,7 +203,7 @@ export default function KomPage() {
       '@type': 'WebPage',
       name: 'Materi KOM — Kehidupan Orientasi Melayani',
       description:
-        'Program Kehidupan Orientasi Melayani (KOM) di GBI BEC Bandung — pengajaran Firman Tuhan berjenjang. 4 level, 82 sesi, gratis, sertifikat resmi kurikulum nasional GBI.',
+        'Program Kehidupan Orientasi Melayani (KOM) di GBI BEC Bandung — pengajaran Firman Tuhan berjenjang. 4 level, 82 sesi, sertifikat resmi kurikulum nasional GBI.',
       url: `${siteUrl}/kom`,
       inLanguage: 'id-ID',
       isPartOf: { '@type': 'WebSite', name: 'GBI BEC', url: siteUrl },
@@ -220,7 +220,7 @@ export default function KomPage() {
       name: 'Program KOM — Kehidupan Orientasi Melayani',
       alternateName: 'Kehidupan Orientasi Melayani',
       description:
-        'Program pengajaran Firman Tuhan berjenjang di GBI BEC Bandung — 4 level progresif dengan total 82 sesi, gratis, sertifikat resmi kurikulum nasional Gereja Bethel Indonesia. Diluncurkan tahun 2005 oleh Divisi Pengajaran GBI Jalan Gatot Subroto Jakarta.',
+        'Program pengajaran Firman Tuhan berjenjang di GBI BEC Bandung — 4 level progresif dengan total 82 sesi, sertifikat resmi kurikulum nasional Gereja Bethel Indonesia. Diluncurkan tahun 2005 oleh Divisi Pengajaran GBI Jalan Gatot Subroto Jakarta.',
       url: `${siteUrl}/kom`,
       programType: 'Ministry Training',
       educationalProgramMode: 'online',
@@ -356,12 +356,6 @@ export default function KomPage() {
                 Durasi
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">82 sesi</dd>
-            </div>
-            <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
-                Biaya
-              </dt>
-              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
             </div>
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
@@ -511,14 +505,6 @@ export default function KomPage() {
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
                     82 sesi total
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">
-                    Gratis
                   </dd>
                 </div>
                 <div>
@@ -732,8 +718,8 @@ export default function KomPage() {
                 className="mt-4 text-sm sm:text-base leading-relaxed"
                 style={{ color: 'rgba(255,255,255,0.65)' }}
               >
-                Pendaftaran gratis — mulai dari KOM 100. Ada pertanyaan
-                sebelum mendaftar? Hubungi koordinator kami.
+                Mulai dari KOM 100. Ada pertanyaan sebelum mendaftar?
+                Hubungi koordinator kami.
               </p>
             </div>
 

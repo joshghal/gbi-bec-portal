@@ -118,7 +118,7 @@ const INFO_ITEMS = [
     desc: 'Sebagian besar anggota memulai dari nol. Pelatih setiap unit membimbing dari dasar — yang dibutuhkan hanya kemauan untuk hadir rutin dan hati yang mau melayani.',
   },
   {
-    title: 'Gratis, tanpa iuran',
+    title: 'Tanpa iuran',
     desc: 'Semua pelayanan Creative Ministry tidak dipungut biaya. Gereja menyediakan kebutuhan kostum dan perlengkapan untuk ibadah.',
   },
   {
@@ -146,7 +146,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'Apakah ada biaya untuk ikut Creative Ministry?',
-    a: 'Tidak. Seluruh pelayanan Creative Ministry tidak dipungut biaya (gratis). Gereja juga menyediakan kebutuhan kostum dan perlengkapan untuk keperluan ibadah.',
+    a: 'Tidak. Seluruh pelayanan Creative Ministry tidak dipungut biaya. Gereja juga menyediakan kebutuhan kostum dan perlengkapan untuk keperluan ibadah.',
   },
   {
     q: 'Saya tidak punya pengalaman sebelumnya, boleh ikut?',
@@ -337,12 +337,6 @@ export default function CreativeMinistryPage() {
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Mulai 7 thn</dd>
             </div>
-            <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
-                Biaya
-              </dt>
-              <dd className="mt-0.5 text-foreground/85 font-medium">Gratis</dd>
-            </div>
             <div className="col-span-2 sm:col-span-1">
               <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
                 Audisi
@@ -490,14 +484,6 @@ export default function CreativeMinistryPage() {
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
                     Mulai 7 tahun
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
-                    Biaya
-                  </dt>
-                  <dd className="mt-0.5 text-foreground/85 font-medium">
-                    Gratis
                   </dd>
                 </div>
                 <div>

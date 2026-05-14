@@ -57,7 +57,7 @@ export default async function OgImage() {
             textAlign: 'center',
           }}
         >
-          Kehidupan Orientasi Melayani · 4 Level · 82 Sesi · Gratis
+          Kehidupan Orientasi Melayani · 4 Level · 82 Sesi
         </div>
       </div>
     ),

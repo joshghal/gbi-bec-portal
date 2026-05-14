@@ -240,7 +240,7 @@ const chatExchanges = [
     a: "Baptisan air di GBI BEC dapat ",
     highlight: "diikuti oleh usia 12 tahun ke atas ",
     aSuffix:
-      " dengan persyaratan mengisi formulir, pas foto 3x4, dan membawa baju ganti serta handuk. Baptisan diadakan setiap 2 bulan sekali secara gratis, dan peserta harus hadir satu jam sebelum pelaksanaan. Surat baptis dapat diambil setelah mengikuti KOM 100.",
+      " dengan persyaratan mengisi formulir, pas foto 3x4, dan membawa baju ganti serta handuk. Baptisan diadakan setiap 2 bulan sekali, dan peserta harus hadir satu jam sebelum pelaksanaan. Surat baptis dapat diambil setelah mengikuti KOM 100.",
   },
   {
     q: "Apa saja syarat pemberkatan nikah?",
