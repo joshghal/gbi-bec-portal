@@ -191,7 +191,7 @@ export default async function KabarDetailPage(
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl md:text-4xl font-bold leading-tight font-serif">{update.title}</h1>
+        <h1 className="text-3xl md:text-4xl font-bold leading-tight font-serif [word-spacing:-0.05em]">{update.title}</h1>
 
         {/* Image */}
         {update.imageUrl && (
