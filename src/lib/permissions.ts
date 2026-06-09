@@ -35,7 +35,7 @@ export const DEFAULT_ROLES: Record<string, Role> = {
   content_editor: {
     label: 'Editor Konten',
     description: 'Mengelola basis pengetahuan chatbot',
-    permissions: ['page:knowledge-base', 'page:kabar', 'page:kegiatan', 'page:pengumuman', 'page:cool-group'],
+    permissions: ['page:knowledge-base', 'page:kabar', 'page:khotbah', 'page:kegiatan', 'page:pengumuman', 'page:cool-group'],
     isSystem: true,
   },
   viewer: {
@@ -68,6 +68,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin/pertanyaan-tak-terjawab': 'page:chat-misses',
   '/admin/pengguna': 'page:admin-users',
   '/admin/kabar': 'page:kabar',
+  '/admin/khotbah': 'page:khotbah',
   '/admin/kegiatan': 'page:kegiatan',
   '/admin/pengumuman': 'page:pengumuman',
   '/admin/cool-group': 'page:cool-group',
@@ -89,6 +90,7 @@ export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:chat-misses', label: 'Pertanyaan Tak Terjawab' },
   { id: 'page:admin-users', label: 'Kelola Admin' },
   { id: 'page:kabar', label: 'Kabar Terbaru' },
+  { id: 'page:khotbah', label: 'Catatan Khotbah (Live)' },
   { id: 'page:kegiatan', label: 'Kegiatan Kami' },
   { id: 'page:pengumuman', label: 'Pengumuman' },
   { id: 'page:cool-group', label: 'COOL Group' },

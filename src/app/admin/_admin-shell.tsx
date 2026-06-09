@@ -27,6 +27,7 @@ import {
   ScrollText,
   Search,
   X,
+  FileAudio,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -56,6 +57,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin', label: 'Basis Pengetahuan', icon: FileText, permission: 'page:knowledge-base' },
       { href: '/admin/posters', label: 'Poster', icon: Image, permission: 'page:posters' },
       { href: '/admin/kabar', label: 'Kabar Terbaru', icon: Newspaper, permission: 'page:kabar' },
+      { href: '/admin/khotbah', label: 'Catatan Khotbah', icon: FileAudio, permission: 'page:khotbah' },
       { href: '/admin/kegiatan', label: 'Kegiatan Kami', icon: CalendarDays, permission: 'page:kegiatan' },
       { href: '/admin/pengumuman', label: 'Pengumuman', icon: Megaphone, permission: 'page:pengumuman' },
       { href: '/admin/cool-group', label: 'COOL Group', icon: UsersRound, permission: 'page:cool-group' },
