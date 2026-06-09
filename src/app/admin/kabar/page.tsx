@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Loader2, ExternalLink, Pin, RefreshCw } from 'lucide-react';
+import { Plus, Pencil, Trash2, Loader2, ExternalLink, Pin, RefreshCw, Sparkles, CheckCircle2, Circle, AlertCircle } from 'lucide-react';
 import { generateSlug, stripHtml } from '@/lib/slug';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
@@ -11,6 +11,7 @@ import { DateInput } from '@/components/ui/date-input';
 import { ImageUpload } from '@/components/ui/image-upload';
 import { Label } from '@/components/ui/label';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { SearchableSelect } from '@/components/ui/searchable-select';
 import { toastApiError } from '@/lib/api-toast';
@@ -91,6 +92,107 @@ export default function KabarPage() {
 
   // Instagram sync
   const [syncing, setSyncing] = useState(false);
+
+  // AI: catatan khotbah -> kabar + poster
+  const [aiOpen, setAiOpen] = useState(false);
+  const [aiNotes, setAiNotes] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiStage, setAiStage] = useState<'' | 'content' | 'poster' | 'done'>('');
+  const [aiError, setAiError] = useState('');
+  const [aiPosterFailed, setAiPosterFailed] = useState(false);
+
+  // Progress steps shown in the "Dari Khotbah" dialog
+  const AI_STEPS = [
+    { key: 'content', label: 'Merapikan konten khotbah', note: 'Menyusun judul, ringkasan & konten.' },
+    { key: 'poster', label: 'Membuat poster', note: 'Gemini membuat gambar — bisa ~20 detik.' },
+    { key: 'done', label: 'Menyiapkan pratinjau', note: 'Membuka editor untuk ditinjau.' },
+  ] as const;
+
+  function aiStepStatus(key: string): 'done' | 'active' | 'pending' | 'warn' {
+    const order = ['content', 'poster', 'done'];
+    const cur = order.indexOf(aiStage);
+    const idx = order.indexOf(key);
+    if (key === 'poster' && aiPosterFailed && cur > idx) return 'warn';
+    if (cur > idx) return 'done';
+    if (cur === idx) return 'active';
+    return 'pending';
+  }
+
+  async function handleGenerateFromNotes() {
+    if (aiNotes.trim().length < 20) {
+      setAiError('Tempelkan catatan khotbah terlebih dahulu.');
+      return;
+    }
+    setAiLoading(true);
+    setAiError('');
+    setAiPosterFailed(false);
+    setAiStage('content');
+    try {
+      const token = await user?.getIdToken();
+      const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+
+      // 1) Generate kabar content (title, ringkasan, konten, kategori, tanggal)
+      const cRes = await fetch('/api/updates/generate-content', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ notes: aiNotes.trim() }),
+      });
+      if (!cRes.ok) throw new Error('content');
+      const draft = await cRes.json();
+
+      setEditingId(null);
+      setForm({
+        title: draft.title ?? '',
+        excerpt: draft.excerpt ?? '',
+        content: draft.content ?? '',
+        category: draft.category ?? 'Ibadah',
+        date: draft.date ?? EMPTY_FORM.date,
+        color: draft.color ?? COLOR_SWATCHES[0].value,
+        imageUrl: '',
+        isVideo: false,
+        pinned: false,
+        published: false,
+      });
+
+      // 2) Generate the Style-A poster (slower — Gemini + compose)
+      setAiStage('poster');
+      try {
+        const pRes = await fetch('/api/updates/generate-poster', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({
+            theme: draft.theme,
+            serviceType: draft.serviceType,
+            speaker: draft.speaker,
+            date: draft.date,
+          }),
+        });
+        if (pRes.ok) {
+          const { imageUrl } = await pRes.json();
+          if (imageUrl) setForm(prev => ({ ...prev, imageUrl }));
+        } else {
+          setAiPosterFailed(true);
+          toast.warning('Konten dibuat, tetapi poster gagal. Anda bisa upload gambar manual.');
+        }
+      } catch {
+        setAiPosterFailed(true);
+        toast.warning('Konten dibuat, tetapi poster gagal. Anda bisa upload gambar manual.');
+      }
+
+      // 3) Mark complete, let the user see the finished steps, then hand off
+      setAiStage('done');
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setAiOpen(false);
+      setAiNotes('');
+      setFormError('');
+      setDialogOpen(true);
+    } catch {
+      setAiError('Gagal membuat kabar dari catatan. Coba lagi.');
+    } finally {
+      setAiLoading(false);
+      setAiStage('');
+    }
+  }
 
   async function handleInstagramSync() {
     setSyncing(true);
@@ -295,8 +397,8 @@ export default function KabarPage() {
     <RequirePermission permission="page:kabar">
       <div className="min-h-0 flex-1">
         {/* Header */}
-        <header className="border-b bg-card px-6 py-4">
-          <div className="flex items-center justify-between gap-4">
+        <header className="border-b bg-card px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             <div className="flex items-center gap-2.5">
               <h1 className="font-semibold text-lg">Kabar Terbaru</h1>
               {!loading && (
@@ -305,9 +407,9 @@ export default function KabarPage() {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Section visibility toggle */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2.5 mr-auto sm:mr-0">
                 <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:block">
                   Tampilkan di halaman utama
                 </span>
@@ -317,20 +419,24 @@ export default function KabarPage() {
                   disabled={togglingSection || loading}
                 />
               </div>
-              <Button variant="outline" size="sm" onClick={handleInstagramSync} disabled={syncing}>
-                <RefreshCw className={`w-4 h-4 mr-1.5 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'Memicu...' : 'Sync Instagram'}
+              <Button variant="outline" size="sm" onClick={handleInstagramSync} disabled={syncing} title="Sync Instagram">
+                <RefreshCw className={`w-4 h-4 sm:mr-1.5 ${syncing ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">{syncing ? 'Memicu...' : 'Sync Instagram'}</span>
               </Button>
-              <Button onClick={openAdd} size="sm">
-                <Plus className="w-4 h-4 mr-1.5" />
-                Tambah
+              <Button variant="outline" size="sm" onClick={() => { setAiNotes(''); setAiError(''); setAiStage(''); setAiPosterFailed(false); setAiOpen(true); }} title="Buat dari Catatan Khotbah">
+                <Sparkles className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Dari Khotbah</span>
+              </Button>
+              <Button onClick={openAdd} size="sm" title="Tambah Kabar">
+                <Plus className="w-4 h-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Tambah</span>
               </Button>
             </div>
           </div>
         </header>
 
         {/* Content */}
-        <main className="p-6">
+        <main className="p-4 sm:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin mr-2" />
@@ -345,8 +451,8 @@ export default function KabarPage() {
               Belum ada kabar terbaru. Klik &ldquo;Tambah&rdquo; untuk membuat yang pertama.
             </div>
           ) : (
-            <div className="rounded-lg border bg-card overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="rounded-lg border bg-card overflow-x-auto">
+              <table className="w-full text-sm min-w-[420px]">
                 <thead>
                   <tr className="border-b bg-muted/50">
                     <th className="text-left px-4 py-3 font-medium text-muted-foreground">Judul</th>
@@ -375,7 +481,7 @@ export default function KabarPage() {
                               {update.pinned && (
                                 <Pin className="w-3 h-3 text-primary shrink-0 -rotate-45" />
                               )}
-                              <span className="truncate block max-w-[200px] font-medium" title={update.title}>
+                              <span className="truncate block max-w-[140px] sm:max-w-[200px] font-medium" title={update.title}>
                                 {update.title}
                               </span>
                             </div>
@@ -583,6 +689,74 @@ export default function KabarPage() {
             <Button onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               {editingId ? 'Simpan Perubahan' : 'Tambah Kabar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI: Generate from sermon notes */}
+      <Dialog open={aiOpen} onOpenChange={open => { if (!aiLoading) setAiOpen(open); }}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              Buat dari Catatan Khotbah
+            </DialogTitle>
+            <DialogDescription>
+              Tempelkan catatan khotbah mentah. AI akan merapikannya menjadi kabar dan membuatkan poster.
+              Anda dapat meninjau dan menyunting sebelum dipublikasikan.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogBody className="space-y-3">
+            {aiLoading ? (
+              <div className="rounded-lg border bg-muted/30 px-4 py-5 space-y-4">
+                {AI_STEPS.map((s, i) => {
+                  const st = aiStepStatus(s.key);
+                  return (
+                    <div key={s.key} className="flex items-start gap-3">
+                      <div className="mt-0.5 shrink-0">
+                        {st === 'done' && <CheckCircle2 className="w-5 h-5 text-primary" />}
+                        {st === 'active' && <Loader2 className="w-5 h-5 text-primary animate-spin" />}
+                        {st === 'warn' && <AlertCircle className="w-5 h-5 text-amber-500" />}
+                        {st === 'pending' && <Circle className="w-5 h-5 text-muted-foreground/30" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-sm font-medium ${
+                          st === 'pending' ? 'text-muted-foreground/50'
+                            : st === 'warn' ? 'text-amber-600'
+                            : 'text-foreground'
+                        }`}>
+                          {i + 1}. {s.label}
+                        </p>
+                        {st === 'active' && <p className="text-xs text-muted-foreground mt-0.5">{s.note}</p>}
+                        {st === 'warn' && <p className="text-xs text-amber-600/80 mt-0.5">Poster gagal — Anda bisa upload gambar manual.</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <>
+                <Textarea
+                  value={aiNotes}
+                  onChange={e => setAiNotes(e.target.value)}
+                  rows={12}
+                  className="min-h-[260px] font-mono text-xs leading-relaxed"
+                  placeholder={'Kotbah BEC, 7 Juni 2026\n\n*Ps. Franky Kuncoro*\n\n*Menyembah dalam Roh*\n\n* Tidak cuma menyanyi\n* ...'}
+                />
+                {aiError && <p className="text-sm text-destructive">{aiError}</p>}
+              </>
+            )}
+          </DialogBody>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAiOpen(false)} disabled={aiLoading}>
+              Batal
+            </Button>
+            <Button onClick={handleGenerateFromNotes} disabled={aiLoading || aiNotes.trim().length < 20}>
+              {aiLoading ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Sparkles className="w-4 h-4 mr-1.5" />}
+              {aiLoading ? 'Memproses...' : 'Buat Kabar'}
             </Button>
           </DialogFooter>
         </DialogContent>
