@@ -45,8 +45,12 @@ export async function PUT(
 
     await ref.update(update);
     logAdminAction(request, 'update', 'kabar', { resourceId: id, resourceTitle: existing.data()?.title });
+    const existingSlug = existing.data()?.slug as string | undefined;
+    const newSlug = (update.slug as string | undefined) ?? existingSlug;
     revalidatePath('/kabar');
     revalidatePath('/sitemap.xml');
+    if (existingSlug) revalidatePath(`/kabar/${existingSlug}`);
+    if (newSlug && newSlug !== existingSlug) revalidatePath(`/kabar/${newSlug}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Update update error:', error);
@@ -74,10 +78,12 @@ export async function DELETE(
     }
 
     const title = existing.data()?.title;
+    const slug = existing.data()?.slug as string | undefined;
     await ref.delete();
     logAdminAction(request, 'delete', 'kabar', { resourceId: id, resourceTitle: title });
     revalidatePath('/kabar');
     revalidatePath('/sitemap.xml');
+    if (slug) revalidatePath(`/kabar/${slug}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete update error:', error);
