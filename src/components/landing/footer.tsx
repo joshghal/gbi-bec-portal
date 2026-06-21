@@ -112,6 +112,12 @@ export default function Footer() {
               GBI Baranangsiang Evening Church
             </p>
             <p className="mt-1 text-sm text-white/60">BEC Sukawarna</p>
+            {/* Crawlable nickname signal — appears site-wide so search engines
+                associate "GBI Barsi" / "BEC" with this church. */}
+            <p className="mt-2 text-xs leading-relaxed text-white/40">
+              Dikenal juga sebagai GBI Barsi, GBIBarsi, dan GBI BEC — bagian dari
+              GBI Sukawarna, Bandung.
+            </p>
           </div>
 
           {/* Kegiatan */}

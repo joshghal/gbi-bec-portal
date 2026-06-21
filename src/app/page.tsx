@@ -13,14 +13,28 @@ import ContactSection from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
 import LandingLoader from '@/components/landing/landing-loader';
 import GrainOverlay from '@/components/grain-overlay';
+import { JsonLd } from '@/components/json-ld';
+import {
+  jsonLdGraph,
+  churchEntity,
+  parentOrganizationEntity,
+  websiteEntity,
+} from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'GBI Baranangsiang Evening Church',
-  description: 'Gereja Bethel Indonesia Baranangsiang Evening Church (BEC) — ibadah setiap Minggu pukul 17:00 WIB di Jl. Baranang Siang No.8, Bandung.',
-  keywords: ['GBI BEC', 'Baranangsiang Evening Church', 'gereja Bandung', 'GBI Bandung', 'ibadah Bandung', 'gereja Bethel Indonesia'],
+  // Real name + the nicknames people actually search ("GBI Barsi", "BEC").
+  // The title tag is a direct ranking factor — this is the single strongest
+  // legitimate place to surface the brand aliases. `absolute` bypasses the
+  // root layout's "%s | GBI BEC" template so the tag stays tight (~49 chars).
+  title: {
+    absolute: 'GBI Baranangsiang Evening Church (GBI Barsi · BEC)',
+  },
+  description:
+    'GBI Baranangsiang Evening Church (GBI Barsi / BEC), bagian dari GBI Sukawarna — ibadah setiap Minggu pukul 17:00 WIB di Jl. Baranang Siang No.8, Bandung.',
   openGraph: {
-    title: 'GBI Baranangsiang Evening Church',
-    description: 'Ibadah setiap Minggu pukul 17:00 WIB. Bergabunglah bersama komunitas BEC di Bandung.',
+    title: 'GBI Baranangsiang Evening Church (GBI Barsi · BEC)',
+    description:
+      'Ibadah setiap Minggu pukul 17:00 WIB. Bergabunglah bersama komunitas GBI Barsi / BEC di Bandung — bagian dari GBI Sukawarna.',
     url: '/',
     type: 'website',
   },
@@ -33,37 +47,19 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GBI Baranangsiang Evening Church',
-    description: 'Ibadah setiap Minggu pukul 17:00 WIB. Bergabunglah bersama komunitas BEC di Bandung.',
+    title: 'GBI Baranangsiang Evening Church (GBI Barsi · BEC)',
+    description:
+      'Ibadah setiap Minggu pukul 17:00 WIB. Komunitas GBI Barsi / BEC di Bandung, bagian dari GBI Sukawarna.',
   },
 };
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Church',
-  name: 'GBI Baranangsiang Evening Church',
-  alternateName: 'GBI BEC',
-  url: 'https://gbibec.id',
-  telephone: '+6287823420950',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'Jl. Baranang Siang No.8',
-    addressLocality: 'Sumur Bandung',
-    addressRegion: 'Bandung',
-    postalCode: '40113',
-    addressCountry: 'ID',
-  },
-  openingHoursSpecification: {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: 'Sunday',
-    opens: '17:00',
-    closes: '19:00',
-  },
-  sameAs: [
-    'https://www.instagram.com/sukawarna.bec/',
-    'https://www.youtube.com/@gbibaranangsiangsukawarna7008',
-  ],
-};
+// One linked entity graph (Church ←→ parent GBI Sukawarna ←→ WebSite),
+// referenced by @id across the site. See src/lib/seo.ts.
+const jsonLd = jsonLdGraph(
+  churchEntity(),
+  parentOrganizationEntity(),
+  websiteEntity(),
+);
 
 // Revalidate every 60 seconds so content stays fresh without being fully static
 export const revalidate = 60;
@@ -73,10 +69,7 @@ export default async function LandingPage() {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <LandingLoader data={data}>
         <GrainOverlay />
         <SmoothScroll>
