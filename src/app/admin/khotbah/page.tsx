@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,7 @@ interface SermonCapture {
 }
 
 const STATUS_BADGE: Record<string, string> = {
+  capturing: 'bg-red-100 text-red-700 animate-pulse',
   captured: 'bg-emerald-100 text-emerald-700',
   failed: 'bg-red-100 text-red-700',
 };
@@ -56,6 +57,10 @@ export default function KhotbahPage() {
   const [actioning, setActioning] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // Per-capture loaded transcript text (lazy via ?includeTranscript=1)
+  const [transcripts, setTranscripts] = useState<Record<string, string>>({});
+  const [loadingTranscript, setLoadingTranscript] = useState<Set<string>>(new Set());
+  const [regenerating, setRegenerating] = useState<string | null>(null);
 
   const fetchCaptures = useCallback(async () => {
     if (!user) return;
@@ -75,6 +80,39 @@ export default function KhotbahPage() {
   }, [user]);
 
   useEffect(() => { fetchCaptures(); }, [fetchCaptures]);
+
+  // Auto-refresh the list every 20s when at least one capture is in progress.
+  // Stops polling once all captures are 'captured' or 'failed' to avoid noise.
+  const hasLiveCapture = captures.some((c) => c.status === 'capturing');
+  useEffect(() => {
+    if (!hasLiveCapture) return;
+    const interval = setInterval(fetchCaptures, 20000);
+    return () => clearInterval(interval);
+  }, [hasLiveCapture, fetchCaptures]);
+
+  // Auto-refresh expanded transcripts every 20s when their capture is still live.
+  useEffect(() => {
+    if (!user) return;
+    if (!hasLiveCapture) return;
+    const liveExpanded = captures
+      .filter((c) => c.status === 'capturing' && expanded.has(c.id))
+      .map((c) => c.id);
+    if (liveExpanded.length === 0) return;
+    const interval = setInterval(async () => {
+      const token = await user.getIdToken();
+      for (const id of liveExpanded) {
+        try {
+          const res = await fetch(`/api/sermon-captures/${id}?includeTranscript=1`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!res.ok) continue;
+          const data = await res.json();
+          setTranscripts((prev) => ({ ...prev, [id]: data.transcript ?? '' }));
+        } catch { /* silent */ }
+      }
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [user, hasLiveCapture, captures, expanded]);
 
   function toggleExpand(id: string) {
     setExpanded((prev) => {
@@ -105,6 +143,45 @@ export default function KhotbahPage() {
       toastApiError(err, 'Gagal membuat draft kabar.');
     } finally {
       setActioning(null);
+    }
+  }
+
+  async function loadTranscript(cap: SermonCapture) {
+    if (!user || transcripts[cap.id]) return;
+    setLoadingTranscript((prev) => new Set(prev).add(cap.id));
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${cap.id}?includeTranscript=1`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      setTranscripts((prev) => ({ ...prev, [cap.id]: data.transcript ?? '' }));
+    } catch (err) {
+      toastApiError(err, 'Gagal memuat transcript.');
+    } finally {
+      setLoadingTranscript((prev) => { const n = new Set(prev); n.delete(cap.id); return n; });
+    }
+  }
+
+  async function handleRegenerate(cap: SermonCapture) {
+    if (!user) return;
+    setRegenerating(cap.id);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${cap.id}/regenerate-summary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+      toast.success(`Ringkasan baru dibuat dengan ${result.model ?? 'Gemini 2.5 Pro'} (${(result.summary as string).length} chars).`);
+      // Update locally without a full refetch
+      setCaptures((prev) => prev.map((c) => c.id === cap.id ? { ...c, latestSummary: result.summary, snapshotCount: 1 } : c));
+    } catch (err) {
+      toastApiError(err, 'Gagal regenerate ringkasan.');
+    } finally {
+      setRegenerating(null);
     }
   }
 
@@ -145,9 +222,18 @@ export default function KhotbahPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Otomatis terisi setiap Minggu — capture dari 5 ibadah live via Gemini 3.1 + ASI1 Mini.
+            Otomatis terisi setiap Minggu — capture dari 5 ibadah live via Gemini 3.1 Live + Gemini 2.5 Pro.
             Klik tombol <em>→ Buat Draft Kabar</em> untuk membuat draft di halaman Kabar.
           </p>
+          {hasLiveCapture && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-red-600">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-red-500"></span>
+              </span>
+              Ada capture sedang LIVE. Halaman ini auto-refresh tiap 20 detik. Expand baris untuk melihat transcript pool tumbuh real-time.
+            </div>
+          )}
         </header>
 
         <main className="p-6">
@@ -249,12 +335,50 @@ export default function KhotbahPage() {
                           <span>videoId: <code className="font-mono">{cap.videoId}</code></span>
                         </div>
                         <div>
-                          <div className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
-                            <FileText className="w-3 h-3" /> Ringkasan terakhir
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                              <FileText className="w-3 h-3" /> Ringkasan terakhir
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleRegenerate(cap)}
+                              disabled={regenerating === cap.id || cap.transcriptChars < 200}
+                              title="Generate ringkasan baru pakai Gemini 2.5 Pro dari transcript yang tersimpan"
+                            >
+                              {regenerating === cap.id ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                              ) : (
+                                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                              )}
+                              Generate Summary (Gemini 2.5 Pro)
+                            </Button>
                           </div>
                           <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3">
-                            {cap.latestSummary || <em className="text-muted-foreground">— tidak ada ringkasan —</em>}
+                            {cap.latestSummary || <em className="text-muted-foreground">— tidak ada ringkasan. Klik "Generate Summary" untuk membuat. —</em>}
                           </div>
+                        </div>
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                              <ScrollText className="w-3 h-3" /> Transcript ({cap.transcriptChars.toLocaleString()} chars)
+                            </div>
+                            {!transcripts[cap.id] && !loadingTranscript.has(cap.id) && cap.transcriptChars > 0 && (
+                              <Button size="sm" variant="ghost" onClick={() => loadTranscript(cap)} className="h-7 px-2 text-xs">
+                                Muat transcript
+                              </Button>
+                            )}
+                            {loadingTranscript.has(cap.id) && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                                <Loader2 className="w-3 h-3 animate-spin" /> memuat…
+                              </span>
+                            )}
+                          </div>
+                          {transcripts[cap.id] && (
+                            <div className="whitespace-pre-wrap text-xs bg-card rounded border p-3 max-h-96 overflow-y-auto font-mono leading-relaxed">
+                              {transcripts[cap.id]}
+                            </div>
+                          )}
                         </div>
                         {cap.endReason === 'max-duration' && (
                           <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2">
