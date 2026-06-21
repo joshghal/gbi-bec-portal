@@ -73,7 +73,7 @@ export async function POST(
 
     const videoTitle: string = cap.title ?? '';
     const videoTitleLine = videoTitle
-      ? `METADATA — Judul video YouTube: "${videoTitle}"\n(Gunakan untuk mengisi baris pertama nama pembicara — JANGAN tebak dari sumber lain.)\n\n`
+      ? `METADATA — Judul video YouTube: "${videoTitle}"\n(Sumber fallback untuk nama pembicara saja, kalau salah satu sumber catatan punya nama yang lebih lengkap — termasuk gelar akademik seperti S.E., M.Th, S.S., M.A., D.Min — PAKAI yang lebih lengkap itu, bukan ini.)\n\n`
       : '';
 
     const userMsg = `${videoTitleLine}Kamu diberikan DUA sumber catatan untuk SATU khotbah yang sama. Tugasmu adalah menggabungkan keduanya menjadi SATU catatan final.
@@ -95,14 +95,15 @@ ${manualNotes}
 ═══════════════════════════════════════════════════════
 
 ATURAN PENGGABUNGAN:
-1. **Bible refs:** prioritaskan dari catatan manual (notetaker catat lebih akurat). Kalau ada di salah satu sumber saja, tetap sertakan. Kutip ayat lengkap jika tersedia di salah satu sumber.
-2. **Struktur (urutan poin, judul section):** ikuti yang paling jelas dari kedua sumber. Boleh hybrid.
-3. **Penekanan/KAPITAL:** ikuti pola dari notetaker (mereka tahu mana yang ditekankan pembicara).
-4. **Konten penjelasan:** gunakan dari kedua sumber. Hindari duplikasi dan kontradiksi.
-5. **Tema khotbah (baris kedua):** ambil yang lebih tajam dan singkat.
-6. **JANGAN menambahkan informasi yang tidak ada di SALAH SATU dari dua sumber.** Tidak ada konten hasil tebakan.
-7. **JANGAN mengutip "AI berkata..." atau "Notetaker berkata..."** — output adalah catatan yang menyatu, bukan komparasi.
-8. Output HANYA catatan akhir, tanpa pengantar/penutup AI/komentar. Tutup dengan "Tuhan Yesus memberkati."`;
+1. **Nama pembicara (Baris 1):** PILIH versi yang paling lengkap dari ketiga sumber (manual, AI, metadata). Manual biasanya yang paling lengkap karena notetaker punya akses Bible app / WhatsApp grup yang nampilkan nama beserta gelar akademik (cth: "Pdt. Stevannus Yordan, S.E., M.Th" mengalahkan "Ps. Stevannus" atau "Ps. Stevannus Yordan"). Pertahankan SEMUA gelar (S.E., M.Th, S.S., M.A., D.Min, B.A., dll) persis seperti ditulis notetaker — termasuk format koma/spasi-nya.
+2. **Bible refs:** prioritaskan dari catatan manual (notetaker catat lebih akurat). Kalau ada di salah satu sumber saja, tetap sertakan. Kutip ayat lengkap jika tersedia di salah satu sumber.
+3. **Struktur (urutan poin, judul section):** ikuti yang paling jelas dari kedua sumber. Boleh hybrid.
+4. **Penekanan/KAPITAL:** ikuti pola dari notetaker (mereka tahu mana yang ditekankan pembicara).
+5. **Konten penjelasan:** gunakan dari kedua sumber. Hindari duplikasi dan kontradiksi.
+6. **Tema khotbah (baris kedua):** ambil yang lebih tajam dan singkat.
+7. **JANGAN menambahkan informasi yang tidak ada di SALAH SATU dari dua sumber.** Tidak ada konten hasil tebakan.
+8. **JANGAN mengutip "AI berkata..." atau "Notetaker berkata..."** — output adalah catatan yang menyatu, bukan komparasi.
+9. Output HANYA catatan akhir, tanpa pengantar/penutup AI/komentar. Tutup dengan "Tuhan Yesus memberkati."`;
 
     const geminiResp = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
