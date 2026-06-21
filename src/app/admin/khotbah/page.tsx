@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText } from 'lucide-react';
+import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,15 @@ interface SermonCapture {
   url: string;
   transcriptChars: number;
   latestSummary: string;
+  finalSummary?: string | null;
+  summaryModel?: string | null;
+  manualNotes?: string | null;
+  manualNotesUpdatedAt?: string | null;
+  combinedSummary?: string | null;
+  combinedSummaryModel?: string | null;
+  combinedAt?: string | null;
+  combinedStale?: boolean;
+  stopRequested?: boolean;
   snapshotCount: number;
   status: string;
   endReason?: string;
@@ -45,6 +54,8 @@ const STATUS_BADGE: Record<string, string> = {
 const END_REASON_BADGE: Record<string, string> = {
   'stream-ended': 'bg-blue-50 text-blue-700',
   'max-duration': 'bg-amber-50 text-amber-700',
+  'audio-silent': 'bg-orange-50 text-orange-700',
+  'manual-stop': 'bg-violet-50 text-violet-700',
   'sigint': 'bg-gray-100 text-gray-700',
 };
 
@@ -61,6 +72,14 @@ export default function KhotbahPage() {
   const [transcripts, setTranscripts] = useState<Record<string, string>>({});
   const [loadingTranscript, setLoadingTranscript] = useState<Set<string>>(new Set());
   const [regenerating, setRegenerating] = useState<string | null>(null);
+  // Manual notes editor — per capture
+  const [editingNotesFor, setEditingNotesFor] = useState<string | null>(null);
+  const [notesDraft, setNotesDraft] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [combining, setCombining] = useState<string | null>(null);
+  // Stop & Summarize confirmation
+  const [stopConfirmFor, setStopConfirmFor] = useState<SermonCapture | null>(null);
+  const [stopping, setStopping] = useState(false);
 
   const fetchCaptures = useCallback(async () => {
     if (!user) return;
@@ -182,6 +201,84 @@ export default function KhotbahPage() {
       toastApiError(err, 'Gagal regenerate ringkasan.');
     } finally {
       setRegenerating(null);
+    }
+  }
+
+  async function handleSaveNotes(cap: SermonCapture) {
+    if (!user) return;
+    setSavingNotes(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${cap.id}/manual-notes`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: notesDraft }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+      const cleared = notesDraft.trim().length === 0;
+      toast.success(cleared ? 'Catatan manual dihapus.' : `Catatan manual disimpan (${result.manualNotesLength} chars).`);
+      setCaptures((prev) => prev.map((c) => c.id === cap.id ? {
+        ...c,
+        manualNotes: cleared ? null : notesDraft,
+        manualNotesUpdatedAt: cleared ? null : new Date().toISOString(),
+        combinedSummary: cleared ? null : c.combinedSummary,
+        combinedStale: cleared ? false : (c.combinedSummary ? true : c.combinedStale),
+      } : c));
+      setEditingNotesFor(null);
+      setNotesDraft('');
+    } catch (err) {
+      toastApiError(err, 'Gagal menyimpan catatan manual.');
+    } finally {
+      setSavingNotes(false);
+    }
+  }
+
+  async function handleCombine(cap: SermonCapture) {
+    if (!user) return;
+    setCombining(cap.id);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${cap.id}/combine-summary`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+      toast.success(`Catatan gabungan dibuat (${result.combinedLength} chars).`);
+      setCaptures((prev) => prev.map((c) => c.id === cap.id ? {
+        ...c,
+        combinedSummary: result.summary,
+        combinedSummaryModel: result.model,
+        combinedAt: new Date().toISOString(),
+        combinedStale: false,
+      } : c));
+    } catch (err) {
+      toastApiError(err, 'Gagal menggabungkan ringkasan.');
+    } finally {
+      setCombining(null);
+    }
+  }
+
+  async function handleStopAndSummarize() {
+    if (!user || !stopConfirmFor) return;
+    setStopping(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${stopConfirmFor.id}/stop-and-summarize`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+      toast.success(result.message ?? 'Sinyal stop dikirim. Engine akan finalize dalam ~15 detik.');
+      // Mark as stopRequested locally; auto-refresh will pick up the captured status
+      setCaptures((prev) => prev.map((c) => c.id === stopConfirmFor.id ? { ...c, stopRequested: true } : c));
+      setStopConfirmFor(null);
+    } catch (err) {
+      toastApiError(err, 'Gagal mengirim sinyal stop.');
+    } finally {
+      setStopping(false);
     }
   }
 
@@ -334,30 +431,154 @@ export default function KhotbahPage() {
                           )}
                           <span>videoId: <code className="font-mono">{cap.videoId}</code></span>
                         </div>
+                        {/* Manual notes (from notetaker) */}
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                              <FileText className="w-3 h-3" /> Ringkasan terakhir
-                            </div>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleRegenerate(cap)}
-                              disabled={regenerating === cap.id || cap.transcriptChars < 200}
-                              title="Generate ringkasan baru pakai Gemini 2.5 Pro dari transcript yang tersimpan"
-                            >
-                              {regenerating === cap.id ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                              ) : (
-                                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                              <PenLine className="w-3 h-3" /> Catatan Manual (Notetaker)
+                              {cap.manualNotes && (
+                                <span className="text-[10px] text-muted-foreground">
+                                  · {cap.manualNotes.length.toLocaleString()} chars
+                                  {cap.manualNotesUpdatedAt && ` · ${new Date(cap.manualNotesUpdatedAt).toLocaleString('id-ID')}`}
+                                </span>
                               )}
-                              Generate Summary (Gemini 2.5 Pro)
-                            </Button>
+                            </div>
+                            {editingNotesFor !== cap.id && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => { setEditingNotesFor(cap.id); setNotesDraft(cap.manualNotes ?? ''); }}
+                              >
+                                <PenLine className="w-3.5 h-3.5 mr-1.5" />
+                                {cap.manualNotes ? 'Edit Catatan' : 'Tambah Catatan'}
+                              </Button>
+                            )}
                           </div>
-                          <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3">
-                            {cap.latestSummary || <em className="text-muted-foreground">— tidak ada ringkasan. Klik "Generate Summary" untuk membuat. —</em>}
+                          {editingNotesFor === cap.id ? (
+                            <div className="space-y-2">
+                              <textarea
+                                value={notesDraft}
+                                onChange={(e) => setNotesDraft(e.target.value)}
+                                placeholder="Paste catatan dari notetaker di sini — bisa freeform/bullet, gaya bebas. Sistem akan menggabungkan dengan ringkasan AI saat tombol &quot;Gabungkan&quot; ditekan."
+                                rows={10}
+                                className="w-full text-sm bg-card rounded border p-3 font-mono leading-relaxed focus:outline-none focus:ring-1 focus:ring-primary"
+                              />
+                              <div className="flex items-center justify-end gap-2">
+                                <Button size="sm" variant="ghost" onClick={() => { setEditingNotesFor(null); setNotesDraft(''); }} disabled={savingNotes}>
+                                  Batal
+                                </Button>
+                                <Button size="sm" onClick={() => handleSaveNotes(cap)} disabled={savingNotes}>
+                                  {savingNotes && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
+                                  Simpan
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            cap.manualNotes ? (
+                              <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3 max-h-64 overflow-y-auto">
+                                {cap.manualNotes}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
+                                — belum ada catatan manual. Klik &quot;Tambah Catatan&quot; untuk paste dari notetaker. —
+                              </div>
+                            )
+                          )}
+                        </div>
+
+                        {/* AI summary (Gemini 2.5 Pro) — primary catatan when no manual/combined */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1.5">
+                            <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                              <Sparkles className="w-3 h-3" /> Ringkasan AI (Gemini 2.5 Pro)
+                              {cap.summaryModel && (
+                                <span className="text-[10px] text-muted-foreground">· model: {cap.summaryModel}</span>
+                              )}
+                            </div>
+                            {cap.status === 'capturing' ? (
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setStopConfirmFor(cap)}
+                                disabled={cap.stopRequested}
+                                title="Stop live capture sekarang lalu generate summary dari transcript yang sudah masuk"
+                              >
+                                {cap.stopRequested ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                ) : (
+                                  <Square className="w-3.5 h-3.5 mr-1.5" />
+                                )}
+                                {cap.stopRequested ? 'Stopping…' : 'Stop & Summarize'}
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleRegenerate(cap)}
+                                disabled={regenerating === cap.id || cap.transcriptChars < 200}
+                                title="Generate ringkasan baru pakai Gemini 2.5 Pro dari transcript yang tersimpan"
+                              >
+                                {regenerating === cap.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                ) : (
+                                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                                )}
+                                Generate Summary
+                              </Button>
+                            )}
+                          </div>
+                          <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3 max-h-80 overflow-y-auto">
+                            {(cap.finalSummary || cap.latestSummary) || (
+                              <em className="text-muted-foreground">
+                                {cap.status === 'capturing'
+                                  ? '— ringkasan akan dibuat otomatis saat capture selesai, atau klik "Stop & Summarize" untuk mengakhiri lebih awal. —'
+                                  : '— tidak ada ringkasan. Klik "Generate Summary" untuk membuat. —'}
+                              </em>
+                            )}
                           </div>
                         </div>
+
+                        {/* Combined section — visible if BOTH inputs exist OR a combined output exists */}
+                        {(cap.combinedSummary || (cap.manualNotes && (cap.finalSummary || cap.latestSummary))) && (
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                                <Combine className="w-3 h-3" /> Catatan Gabungan (AI + Notetaker) <span className="text-primary">✨</span>
+                                {cap.combinedAt && (
+                                  <span className="text-[10px] text-muted-foreground">· {new Date(cap.combinedAt).toLocaleString('id-ID')}</span>
+                                )}
+                                {cap.combinedStale && (
+                                  <span className="text-[10px] font-medium bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
+                                    sumber berubah — perlu re-combine
+                                  </span>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant={cap.combinedSummary ? 'outline' : 'default'}
+                                onClick={() => handleCombine(cap)}
+                                disabled={combining === cap.id || !cap.manualNotes || !(cap.finalSummary || cap.latestSummary)}
+                                title="Gabungkan catatan manual + ringkasan AI lewat Gemini 2.5 Pro"
+                              >
+                                {combining === cap.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                ) : (
+                                  <Combine className="w-3.5 h-3.5 mr-1.5" />
+                                )}
+                                {cap.combinedSummary ? 'Re-combine' : 'Gabungkan AI + Manual'}
+                              </Button>
+                            </div>
+                            {cap.combinedSummary ? (
+                              <div className="whitespace-pre-wrap text-sm bg-primary/5 border border-primary/30 rounded p-3 max-h-96 overflow-y-auto">
+                                {cap.combinedSummary}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
+                                — kedua sumber sudah ada. Klik &quot;Gabungkan AI + Manual&quot; untuk produksi catatan terpadu (sumber yang akan dipakai untuk Draft Kabar). —
+                              </div>
+                            )}
+                          </div>
+                        )}
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
@@ -395,6 +616,31 @@ export default function KhotbahPage() {
           )}
         </main>
       </div>
+
+      <Dialog open={stopConfirmFor !== null} onOpenChange={(open) => { if (!open) setStopConfirmFor(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Stop Live Capture & Generate Summary?</DialogTitle>
+            <DialogDescription>
+              Engine akan menghentikan capture <strong>{stopConfirmFor?.title}</strong> sekarang dan langsung menjalankan
+              ringkasan final pakai Gemini 2.5 Pro pada {stopConfirmFor?.transcriptChars.toLocaleString()} karakter transcript
+              yang sudah masuk. Audio yang belum tertangkap tidak akan dipulihkan setelah ini.
+              <br /><br />
+              Aksi ini biasanya dipakai kalau pastor sudah selesai khotbah meskipun stream belum mati di YouTube.
+              Estimasi penyelesaian: ~15-30 detik setelah konfirmasi.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogBody />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStopConfirmFor(null)} disabled={stopping}>Batal</Button>
+            <Button variant="destructive" onClick={handleStopAndSummarize} disabled={stopping}>
+              {stopping && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
+              <Square className="w-4 h-4 mr-1.5" />
+              Stop & Summarize
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
         <DialogContent className="max-w-sm">

@@ -40,8 +40,10 @@ export async function POST(
     const title = `Catatan Khotbah - Ibadah Raya - ${sermonDateLabel}${serviceLabel}`;
     const slug = await generateUniqueSlug(title, db);
 
-    const content = summaryToTipTapHtml(cap.latestSummary ?? '', cap.summarySnapshots ?? []);
-    const excerptText = firstSentenceOf(cap.latestSummary ?? '').slice(0, 145);
+    // Priority: combined (merged AI+notetaker) > final (AI only) > latest (legacy)
+    const sourceSummary: string = cap.combinedSummary || cap.finalSummary || cap.latestSummary || '';
+    const content = summaryToTipTapHtml(sourceSummary, cap.summarySnapshots ?? []);
+    const excerptText = firstSentenceOf(sourceSummary).slice(0, 145);
     const excerpt = excerptText ? `<p>${escapeHtml(excerptText)}…</p>` : `<p>Catatan khotbah ${sermonDateLabel}${serviceLabel}.</p>`;
 
     const now = new Date().toISOString();
