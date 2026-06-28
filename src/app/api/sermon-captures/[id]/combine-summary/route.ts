@@ -24,7 +24,10 @@ PENEKANAN (CAPS): Gunakan KAPITAL HEMAT untuk 3-7 kata kunci sepanjang catatan.
 BAHASA: 100% Bahasa Indonesia.
 ATURAN: JANGAN menambahkan info yang tidak ada di sumber. Tutup dengan "Tuhan Yesus memberkati."`;
 
-const GEMINI_MODEL = 'gemini-2.5-pro';
+// Combine uses the strongest Gemini reasoning model available (best at faithful,
+// grounded instruction-following). Falls back down the chain if the key lacks
+// access to a newer preview model, so the combine never hard-fails on model choice.
+const GEMINI_MODELS = ['gemini-3.1-pro-preview', 'gemini-3-pro-preview', 'gemini-2.5-pro'];
 
 // POST /api/sermon-captures/[id]/combine-summary
 // Merges manualNotes (from notetaker) + AI summary (finalSummary || latestSummary)
@@ -76,65 +79,94 @@ export async function POST(
       ? `METADATA — Judul video YouTube: "${videoTitle}"\n(Sumber fallback untuk nama pembicara saja, kalau salah satu sumber catatan punya nama yang lebih lengkap — termasuk gelar akademik seperti S.E., M.Th, S.S., M.A., D.Min — PAKAI yang lebih lengkap itu, bukan ini.)\n\n`
       : '';
 
-    const userMsg = `${videoTitleLine}Kamu diberikan DUA sumber catatan untuk SATU khotbah yang sama. Tugasmu adalah menggabungkan keduanya menjadi SATU catatan final.
+    const userMsg = `${videoTitleLine}Kamu diberikan DUA sumber catatan untuk SATU khotbah yang sama. Tugasmu: PAKAI CATATAN MANUAL sebagai kerangka, lalu PERKAYA setiap poinnya dengan penjelasan dari RINGKASAN AI, sehingga jadi SATU catatan final yang utuh, kaya, dan mengalir mulus (polished).
+
+PRINSIP UTAMA — manual = kerangka, AI = pengayaan:
+• CATATAN MANUAL = KERANGKA DASAR. Ikuti struktur, urutan poin, alur, framing, penekanan, dan kalimat kunci pembicara dari catatan manual. Inilah tulang punggung — JANGAN diubah jadi kerangka tematik milik AI.
+• RINGKASAN AI = SUMBER PENGAYAAN. Isinya bagus & lengkap — pakai untuk MENJELASKAN dan MENGELABORASI setiap poin di catatan manual: isi penjelasan yang kurang/hilang di manual, dan KUTIP TEKS AYAT LENGKAP untuk referensi yang manual sebut.
+• TUGAS INTI: ambil tiap poin/bullet di catatan manual, lalu "daging-i" dengan penjelasan yang relevan dari ringkasan AI. Tidak boleh ada poin manual yang dibiarkan telanjang tanpa penjelasan kalau AI punya penjelasannya.
 
 ═══════════════════════════════════════════════════════
-SUMBER 1 — RINGKASAN AI (dihasilkan otomatis dari transkrip Gemini Live)
+SUMBER 1 — RINGKASAN AI (otomatis dari transkrip Gemini Live) — SUMBER PENGAYAAN
 ═══════════════════════════════════════════════════════
-Karakteristik: cakupan lengkap (mencatat semua yang diucapkan), tapi mungkin kurang nuance, salah dengar referensi ayat, atau missing insight.
+Penjelasan & teks ayat di sini umumnya BAGUS — tambang materi ini untuk mengelaborasi poin-poin manual. (Kelemahan: kadang salah dengar referensi ayat, dan urutannya bukan alur asli pembicara — jadi JANGAN ikuti strukturnya, ikuti manual.)
 
 ${aiSummary}
 
 ═══════════════════════════════════════════════════════
-SUMBER 2 — CATATAN MANUAL (dari notetaker manusia yang hadir langsung)
+SUMBER 2 — CATATAN MANUAL (notetaker manusia yang hadir langsung) — KERANGKA DASAR
 ═══════════════════════════════════════════════════════
-Karakteristik: tidak selengkap AI dari sisi cakupan kata-kata, tapi PUNYA insight yang lebih dalam, penekanan/aplikasi yang lebih akurat, dan referensi Alkitab yang lebih reliable.
+Ini kerangka yang WAJIB diikuti: struktur, urutan poin, framing, penekanan, kalimat kunci pembicara, dan referensi Alkitab yang akurat.
 
 ${manualNotes}
 
 ═══════════════════════════════════════════════════════
 
 ATURAN PENGGABUNGAN:
-1. **Nama pembicara (Baris 1):** PILIH versi yang paling lengkap dari ketiga sumber (manual, AI, metadata). Manual biasanya yang paling lengkap karena notetaker punya akses Bible app / WhatsApp grup yang nampilkan nama beserta gelar akademik (cth: "Pdt. Stevannus Yordan, S.E., M.Th" mengalahkan "Ps. Stevannus" atau "Ps. Stevannus Yordan"). Pertahankan SEMUA gelar (S.E., M.Th, S.S., M.A., D.Min, B.A., dll) persis seperti ditulis notetaker — termasuk format koma/spasi-nya.
-2. **Bible refs:** prioritaskan dari catatan manual (notetaker catat lebih akurat). Kalau ada di salah satu sumber saja, tetap sertakan. Kutip ayat lengkap jika tersedia di salah satu sumber.
-3. **Struktur (urutan poin, judul section):** ikuti yang paling jelas dari kedua sumber. Boleh hybrid.
-4. **Penekanan/KAPITAL:** ikuti pola dari notetaker (mereka tahu mana yang ditekankan pembicara).
-5. **Konten penjelasan:** gunakan dari kedua sumber. Hindari duplikasi dan kontradiksi.
-6. **Tema khotbah (baris kedua):** ambil yang lebih tajam dan singkat.
-7. **JANGAN menambahkan informasi yang tidak ada di SALAH SATU dari dua sumber.** Tidak ada konten hasil tebakan.
-8. **JANGAN mengutip "AI berkata..." atau "Notetaker berkata..."** — output adalah catatan yang menyatu, bukan komparasi.
-9. Output HANYA catatan akhir, tanpa pengantar/penutup AI/komentar. Tutup dengan "Tuhan Yesus memberkati."`;
+1. **Nama pembicara (Baris 1):** PILIH versi paling lengkap dari ketiga sumber (manual, AI, metadata). Pertahankan SEMUA gelar (S.E., M.Th, S.S., M.A., D.Min, B.A., dll) persis seperti ditulis notetaker — termasuk format koma/spasi-nya.
+2. **Tema (Baris 2):** PAKAI tema/judul yang dipakai PEMBICARA seperti di catatan manual (mis. "Masa Depan Penuh Harapan"), bukan tema bikinan AI.
+3. **Kerangka = manual:** ikuti urutan poin, penanda/judul section, dan alur dari catatan manual. Pertahankan kalimat kunci pembicara (mis. pertanyaan pembuka, "Tuhan simpan misi di hati kita", penomoran 1/2 milik pembicara). JANGAN menyusun ulang ke kerangka tematik AI.
+4. **Pengayaan = AI:** untuk SETIAP poin/bullet manual yang terlalu singkat atau tanpa penjelasan, AMBIL penjelasan/elaborasi yang sesuai dari ringkasan AI dan kembangkan poin itu jadi utuh dan jelas.
+5. **Bible refs & teks ayat:** referensi & keakuratannya ikut manual; KUTIP teks ayat LENGKAP dari ringkasan AI untuk setiap ayat yang manual sebut.
+6. **Penekanan/KAPITAL:** ikuti pola notetaker.
+7. **Batas:** elaborasi dari AI boleh dipakai sebebasnya untuk MEMPERKAYA poin manual, TAPI JANGAN menambah POIN BESAR / section baru yang tidak ada di manual, dan jangan mengarang di luar kedua sumber.
+8. **POLISH (penting):** hasil harus mengalir sebagai SATU catatan utuh — transisi halus, format konsisten (header untuk poin besar, bullet untuk elaborasi), tanpa pengulangan/nesting yang janggal, tanpa kalimat yang terasa ditempel. Gaya catatan jemaat BEC.
+9. **JANGAN mengutip "AI berkata..." atau "Notetaker berkata..."** — output adalah catatan yang menyatu. Output HANYA catatan akhir, tanpa pengantar/komentar. Tutup dengan "Tuhan Yesus memberkati."`;
 
-    const geminiResp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: SUMMARY_SYSTEM }] },
-          contents: [{ role: 'user', parts: [{ text: userMsg }] }],
-          generationConfig: { temperature: 0.35, maxOutputTokens: 8192 },
-        }),
-      },
-    );
-    if (!geminiResp.ok) {
-      const errText = await geminiResp.text();
-      console.error('Gemini API error:', errText);
-      return NextResponse.json({ error: `Gemini API ${geminiResp.status}: ${errText.slice(0, 200)}` }, { status: 502 });
+    const requestBody = JSON.stringify({
+      systemInstruction: { parts: [{ text: SUMMARY_SYSTEM }] },
+      contents: [{ role: 'user', parts: [{ text: userMsg }] }],
+      // Low temperature → deterministic, faithful merge (less creative drift).
+      generationConfig: { temperature: 0.2, maxOutputTokens: 16384 },
+    });
+
+    // Try models in order; first one returning usable text wins. Keeps the
+    // combine working even if the key lacks access to a newer preview model.
+    let combined = '';
+    let usedModel = '';
+    const modelErrors: string[] = [];
+    for (const model of GEMINI_MODELS) {
+      try {
+        const resp = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody },
+        );
+        if (!resp.ok) {
+          modelErrors.push(`${model} → ${resp.status}: ${(await resp.text()).slice(0, 150)}`);
+          continue;
+        }
+        const json = (await resp.json()) as {
+          candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+        };
+        const text = (json.candidates?.[0]?.content?.parts ?? [])
+          .map((p) => p.text ?? '')
+          .join('')
+          .trim();
+        if (!text) {
+          modelErrors.push(`${model}: empty output`);
+          continue;
+        }
+        combined = text;
+        usedModel = model;
+        break;
+      } catch (e) {
+        modelErrors.push(`${model}: ${e instanceof Error ? e.message : String(e)}`);
+      }
     }
-    const geminiJson = await geminiResp.json() as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
-    };
-    const combined = geminiJson.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? '';
+
     if (!combined) {
-      return NextResponse.json({ error: 'Empty output from Gemini' }, { status: 502 });
+      console.error('All Gemini models failed for combine:', modelErrors);
+      return NextResponse.json(
+        { error: `Gemini combine failed: ${modelErrors.join(' | ').slice(0, 300)}` },
+        { status: 502 },
+      );
     }
 
     // Persist to Firestore
     const now = new Date().toISOString();
     await ref.update({
       combinedSummary: combined,
-      combinedSummaryModel: GEMINI_MODEL,
+      combinedSummaryModel: usedModel,
       combinedAt: now,
       combinedStale: false,
     });
@@ -159,7 +191,7 @@ ATURAN PENGGABUNGAN:
     logAdminAction(request, 'update', 'sermon-capture', { resourceId: id, resourceTitle: `combine-summary: ${videoTitle}` });
     return NextResponse.json({
       summary: combined,
-      model: GEMINI_MODEL,
+      model: usedModel,
       manualNotesLength: manualNotes.length,
       aiSummaryLength: aiSummary.length,
       combinedLength: combined.length,
