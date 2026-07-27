@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check } from 'lucide-react';
+import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check, Columns2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { KhotbahCompare } from '@/components/khotbah-compare';
 
 interface SermonCapture {
   id: string;
@@ -85,6 +86,7 @@ export default function KhotbahPage() {
   // Active sub-tab per capture (catatan detail segmented control)
   const [activeTab, setActiveTab] = useState<Record<string, SubTab>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [compareMode, setCompareMode] = useState<Record<string, boolean>>({});
 
   const fetchCaptures = useCallback(async () => {
     if (!user) return;
@@ -452,33 +454,58 @@ export default function KhotbahPage() {
                         {(() => {
                         const activeSub: SubTab = activeTab[cap.id] ?? (cap.combinedSummary ? 'combined' : 'ai');
                         const combinedReady = !!(cap.manualNotes && (cap.finalSummary || cap.latestSummary));
+                        const compareOn = !!compareMode[cap.id];
                         return (
                         <div>
-                          <div className="inline-flex items-center gap-0.5 rounded-lg border bg-muted/40 p-0.5 mb-3">
-                            {([
-                              { key: 'manual' as const, label: 'Catatan Manual', Icon: PenLine, dot: !!cap.manualNotes },
-                              { key: 'ai' as const, label: 'Ringkasan AI', Icon: Sparkles, dot: !!(cap.finalSummary || cap.latestSummary) },
-                              { key: 'combined' as const, label: 'Catatan Gabungan', Icon: Combine, dot: !!cap.combinedSummary },
-                            ]).map(({ key, label, Icon, dot }) => {
-                              const on = activeSub === key;
-                              return (
-                                <button
-                                  key={key}
-                                  onClick={() => setActiveTab((prev) => ({ ...prev, [cap.id]: key }))}
-                                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${on ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-                                >
-                                  <Icon className="w-3.5 h-3.5" />
-                                  {label}
-                                  {key === 'combined' && cap.combinedStale ? (
-                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="perlu re-combine" />
-                                  ) : dot ? (
-                                    <span className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
-                                  ) : null}
-                                </button>
-                              );
-                            })}
+                          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            {compareOn ? (
+                              <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                                <Columns2 className="w-3.5 h-3.5" /> Mode banding
+                              </div>
+                            ) : (
+                              <div className="inline-flex items-center gap-0.5 rounded-lg border bg-muted/40 p-0.5">
+                                {([
+                                  { key: 'manual' as const, label: 'Catatan Manual', Icon: PenLine, dot: !!cap.manualNotes },
+                                  { key: 'ai' as const, label: 'Ringkasan AI', Icon: Sparkles, dot: !!(cap.finalSummary || cap.latestSummary) },
+                                  { key: 'combined' as const, label: 'Catatan Gabungan', Icon: Combine, dot: !!cap.combinedSummary },
+                                ]).map(({ key, label, Icon, dot }) => {
+                                  const on = activeSub === key;
+                                  return (
+                                    <button
+                                      key={key}
+                                      onClick={() => setActiveTab((prev) => ({ ...prev, [cap.id]: key }))}
+                                      className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${on ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                    >
+                                      <Icon className="w-3.5 h-3.5" />
+                                      {label}
+                                      {key === 'combined' && cap.combinedStale ? (
+                                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="perlu re-combine" />
+                                      ) : dot ? (
+                                        <span className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+                                      ) : null}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                            <button
+                              onClick={() => setCompareMode((prev) => ({ ...prev, [cap.id]: !prev[cap.id] }))}
+                              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors ${compareOn ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-muted-foreground hover:text-foreground'}`}
+                              title="Bandingkan Manual / AI / Gabungan berdampingan"
+                            >
+                              <Columns2 className="w-3.5 h-3.5" />
+                              Bandingkan
+                            </button>
                           </div>
 
+                          {compareOn ? (
+                            <KhotbahCompare
+                              manual={cap.manualNotes ?? null}
+                              ai={cap.finalSummary || cap.latestSummary || null}
+                              combined={cap.combinedSummary ?? null}
+                            />
+                          ) : (
+                          <>
                           {/* Manual notes (from notetaker) */}
                           {activeSub === 'manual' && (
                           <div>
@@ -649,6 +676,8 @@ export default function KhotbahPage() {
                               </div>
                             )}
                           </div>
+                          )}
+                          </>
                           )}
                         </div>
                         );
