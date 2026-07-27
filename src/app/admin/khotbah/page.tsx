@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square } from 'lucide-react';
+import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -51,6 +51,8 @@ const STATUS_BADGE: Record<string, string> = {
   failed: 'bg-red-100 text-red-700',
 };
 
+type SubTab = 'manual' | 'ai' | 'combined';
+
 const END_REASON_BADGE: Record<string, string> = {
   'stream-ended': 'bg-blue-50 text-blue-700',
   'max-duration': 'bg-amber-50 text-amber-700',
@@ -80,6 +82,9 @@ export default function KhotbahPage() {
   // Stop & Summarize confirmation
   const [stopConfirmFor, setStopConfirmFor] = useState<SermonCapture | null>(null);
   const [stopping, setStopping] = useState(false);
+  // Active sub-tab per capture (catatan detail segmented control)
+  const [activeTab, setActiveTab] = useState<Record<string, SubTab>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const fetchCaptures = useCallback(async () => {
     if (!user) return;
@@ -260,6 +265,18 @@ export default function KhotbahPage() {
     }
   }
 
+  async function handleCopyCombined(cap: SermonCapture) {
+    if (!cap.combinedSummary) return;
+    try {
+      await navigator.clipboard.writeText(cap.combinedSummary);
+      setCopiedId(cap.id);
+      toast.success('Catatan gabungan disalin ke clipboard.');
+      setTimeout(() => setCopiedId((c) => (c === cap.id ? null : c)), 1500);
+    } catch {
+      toast.error('Gagal menyalin ke clipboard.');
+    }
+  }
+
   async function handleStopAndSummarize() {
     if (!user || !stopConfirmFor) return;
     setStopping(true);
@@ -431,142 +448,194 @@ export default function KhotbahPage() {
                           )}
                           <span>videoId: <code className="font-mono">{cap.videoId}</code></span>
                         </div>
-                        {/* Manual notes (from notetaker) */}
+                        {/* Catatan detail — segmented control (Manual · AI · Gabungan) */}
+                        {(() => {
+                        const activeSub: SubTab = activeTab[cap.id] ?? (cap.combinedSummary ? 'combined' : 'ai');
+                        const combinedReady = !!(cap.manualNotes && (cap.finalSummary || cap.latestSummary));
+                        return (
                         <div>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                              <PenLine className="w-3 h-3" /> Catatan Manual (Notetaker)
-                              {cap.manualNotes && (
-                                <span className="text-[10px] text-muted-foreground">
-                                  · {cap.manualNotes.length.toLocaleString()} chars
-                                  {cap.manualNotesUpdatedAt && ` · ${new Date(cap.manualNotesUpdatedAt).toLocaleString('id-ID')}`}
-                                </span>
-                              )}
-                            </div>
-                            {editingNotesFor !== cap.id && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => { setEditingNotesFor(cap.id); setNotesDraft(cap.manualNotes ?? ''); }}
-                              >
-                                <PenLine className="w-3.5 h-3.5 mr-1.5" />
-                                {cap.manualNotes ? 'Edit Catatan' : 'Tambah Catatan'}
-                              </Button>
-                            )}
+                          <div className="inline-flex items-center gap-0.5 rounded-lg border bg-muted/40 p-0.5 mb-3">
+                            {([
+                              { key: 'manual' as const, label: 'Catatan Manual', Icon: PenLine, dot: !!cap.manualNotes },
+                              { key: 'ai' as const, label: 'Ringkasan AI', Icon: Sparkles, dot: !!(cap.finalSummary || cap.latestSummary) },
+                              { key: 'combined' as const, label: 'Catatan Gabungan', Icon: Combine, dot: !!cap.combinedSummary },
+                            ]).map(({ key, label, Icon, dot }) => {
+                              const on = activeSub === key;
+                              return (
+                                <button
+                                  key={key}
+                                  onClick={() => setActiveTab((prev) => ({ ...prev, [cap.id]: key }))}
+                                  className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${on ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                                >
+                                  <Icon className="w-3.5 h-3.5" />
+                                  {label}
+                                  {key === 'combined' && cap.combinedStale ? (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-amber-500" title="perlu re-combine" />
+                                  ) : dot ? (
+                                    <span className={`h-1.5 w-1.5 rounded-full ${on ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+                                  ) : null}
+                                </button>
+                              );
+                            })}
                           </div>
-                          {editingNotesFor === cap.id ? (
-                            <div className="space-y-2">
-                              <textarea
-                                value={notesDraft}
-                                onChange={(e) => setNotesDraft(e.target.value)}
-                                placeholder="Paste catatan dari notetaker di sini — bisa freeform/bullet, gaya bebas. Sistem akan menggabungkan dengan ringkasan AI saat tombol &quot;Gabungkan&quot; ditekan."
-                                rows={10}
-                                className="w-full text-sm bg-card rounded border p-3 font-mono leading-relaxed focus:outline-none focus:ring-1 focus:ring-primary"
-                              />
-                              <div className="flex items-center justify-end gap-2">
-                                <Button size="sm" variant="ghost" onClick={() => { setEditingNotesFor(null); setNotesDraft(''); }} disabled={savingNotes}>
-                                  Batal
-                                </Button>
-                                <Button size="sm" onClick={() => handleSaveNotes(cap)} disabled={savingNotes}>
-                                  {savingNotes && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
-                                  Simpan
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            cap.manualNotes ? (
-                              <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3 max-h-64 overflow-y-auto">
-                                {cap.manualNotes}
-                              </div>
-                            ) : (
-                              <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
-                                — belum ada catatan manual. Klik &quot;Tambah Catatan&quot; untuk paste dari notetaker. —
-                              </div>
-                            )
-                          )}
-                        </div>
 
-                        {/* AI summary (Gemini 2.5 Pro) — primary catatan when no manual/combined */}
-                        <div>
-                          <div className="flex items-center justify-between mb-1.5">
-                            <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                              <Sparkles className="w-3 h-3" /> Ringkasan AI (Gemini 2.5 Pro)
-                              {cap.summaryModel && (
-                                <span className="text-[10px] text-muted-foreground">· model: {cap.summaryModel}</span>
-                              )}
-                            </div>
-                            {cap.status === 'capturing' ? (
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                onClick={() => setStopConfirmFor(cap)}
-                                disabled={cap.stopRequested}
-                                title="Stop live capture sekarang lalu generate summary dari transcript yang sudah masuk"
-                              >
-                                {cap.stopRequested ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                                ) : (
-                                  <Square className="w-3.5 h-3.5 mr-1.5" />
-                                )}
-                                {cap.stopRequested ? 'Stopping…' : 'Stop & Summarize'}
-                              </Button>
-                            ) : (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handleRegenerate(cap)}
-                                disabled={regenerating === cap.id || cap.transcriptChars < 200}
-                                title="Generate ringkasan baru pakai Gemini 2.5 Pro dari transcript yang tersimpan"
-                              >
-                                {regenerating === cap.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                                ) : (
-                                  <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-                                )}
-                                Generate Summary
-                              </Button>
-                            )}
-                          </div>
-                          <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3 max-h-80 overflow-y-auto">
-                            {(cap.finalSummary || cap.latestSummary) || (
-                              <em className="text-muted-foreground">
-                                {cap.status === 'capturing'
-                                  ? '— ringkasan akan dibuat otomatis saat capture selesai, atau klik "Stop & Summarize" untuk mengakhiri lebih awal. —'
-                                  : '— tidak ada ringkasan. Klik "Generate Summary" untuk membuat. —'}
-                              </em>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Combined section — visible if BOTH inputs exist OR a combined output exists */}
-                        {(cap.combinedSummary || (cap.manualNotes && (cap.finalSummary || cap.latestSummary))) && (
+                          {/* Manual notes (from notetaker) */}
+                          {activeSub === 'manual' && (
                           <div>
                             <div className="flex items-center justify-between mb-1.5">
                               <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                                <Combine className="w-3 h-3" /> Catatan Gabungan (AI + Notetaker) <span className="text-primary">✨</span>
+                                <PenLine className="w-3 h-3" /> Catatan Manual (Notetaker)
+                                {cap.manualNotes && (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    · {cap.manualNotes.length.toLocaleString()} chars
+                                    {cap.manualNotesUpdatedAt && ` · ${new Date(cap.manualNotesUpdatedAt).toLocaleString('id-ID')}`}
+                                  </span>
+                                )}
+                              </div>
+                              {editingNotesFor !== cap.id && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => { setEditingNotesFor(cap.id); setNotesDraft(cap.manualNotes ?? ''); }}
+                                >
+                                  <PenLine className="w-3.5 h-3.5 mr-1.5" />
+                                  {cap.manualNotes ? 'Edit Catatan' : 'Tambah Catatan'}
+                                </Button>
+                              )}
+                            </div>
+                            {editingNotesFor === cap.id ? (
+                              <div className="space-y-2">
+                                <textarea
+                                  value={notesDraft}
+                                  onChange={(e) => setNotesDraft(e.target.value)}
+                                  placeholder="Paste catatan dari notetaker di sini — bisa freeform/bullet, gaya bebas. Sistem akan menggabungkan dengan ringkasan AI saat tombol &quot;Gabungkan&quot; ditekan."
+                                  rows={10}
+                                  className="w-full text-sm bg-card rounded border p-3 font-mono leading-relaxed focus:outline-none focus:ring-1 focus:ring-primary"
+                                />
+                                <div className="flex items-center justify-end gap-2">
+                                  <Button size="sm" variant="ghost" onClick={() => { setEditingNotesFor(null); setNotesDraft(''); }} disabled={savingNotes}>
+                                    Batal
+                                  </Button>
+                                  <Button size="sm" onClick={() => handleSaveNotes(cap)} disabled={savingNotes}>
+                                    {savingNotes && <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />}
+                                    Simpan
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              cap.manualNotes ? (
+                                <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3 max-h-64 overflow-y-auto">
+                                  {cap.manualNotes}
+                                </div>
+                              ) : (
+                                <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
+                                  — belum ada catatan manual. Klik &quot;Tambah Catatan&quot; untuk paste dari notetaker. —
+                                </div>
+                              )
+                            )}
+                          </div>
+                          )}
+
+                          {/* AI summary (Gemini 2.5 Pro) */}
+                          {activeSub === 'ai' && (
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                                <Sparkles className="w-3 h-3" /> Ringkasan AI (Gemini 2.5 Pro)
+                                {cap.summaryModel && (
+                                  <span className="text-[10px] text-muted-foreground">· model: {cap.summaryModel}</span>
+                                )}
+                              </div>
+                              {cap.status === 'capturing' ? (
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => setStopConfirmFor(cap)}
+                                  disabled={cap.stopRequested}
+                                  title="Stop live capture sekarang lalu generate summary dari transcript yang sudah masuk"
+                                >
+                                  {cap.stopRequested ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                  ) : (
+                                    <Square className="w-3.5 h-3.5 mr-1.5" />
+                                  )}
+                                  {cap.stopRequested ? 'Stopping…' : 'Stop & Summarize'}
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleRegenerate(cap)}
+                                  disabled={regenerating === cap.id || cap.transcriptChars < 200}
+                                  title="Generate ringkasan baru pakai Gemini 2.5 Pro dari transcript yang tersimpan"
+                                >
+                                  {regenerating === cap.id ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                  ) : (
+                                    <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                                  )}
+                                  Generate Summary
+                                </Button>
+                              )}
+                            </div>
+                            <div className="whitespace-pre-wrap text-sm bg-card rounded border p-3 max-h-80 overflow-y-auto">
+                              {(cap.finalSummary || cap.latestSummary) || (
+                                <em className="text-muted-foreground">
+                                  {cap.status === 'capturing'
+                                    ? '— ringkasan akan dibuat otomatis saat capture selesai, atau klik "Stop & Summarize" untuk mengakhiri lebih awal. —'
+                                    : '— tidak ada ringkasan. Klik "Generate Summary" untuk membuat. —'}
+                                </em>
+                              )}
+                            </div>
+                          </div>
+                          )}
+
+                          {/* Combined section */}
+                          {activeSub === 'combined' && (
+                          <div>
+                            <div className="flex items-center justify-between mb-1.5 gap-2">
+                              <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 min-w-0">
+                                <Combine className="w-3 h-3 shrink-0" /> <span className="truncate">Catatan Gabungan (AI + Notetaker)</span> <span className="text-primary">✨</span>
                                 {cap.combinedAt && (
-                                  <span className="text-[10px] text-muted-foreground">· {new Date(cap.combinedAt).toLocaleString('id-ID')}</span>
+                                  <span className="text-[10px] text-muted-foreground shrink-0">· {new Date(cap.combinedAt).toLocaleString('id-ID')}</span>
                                 )}
                                 {cap.combinedStale && (
-                                  <span className="text-[10px] font-medium bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full">
+                                  <span className="text-[10px] font-medium bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full shrink-0">
                                     sumber berubah — perlu re-combine
                                   </span>
                                 )}
                               </div>
-                              <Button
-                                size="sm"
-                                variant={cap.combinedSummary ? 'outline' : 'default'}
-                                onClick={() => handleCombine(cap)}
-                                disabled={combining === cap.id || !cap.manualNotes || !(cap.finalSummary || cap.latestSummary)}
-                                title="Gabungkan catatan manual + ringkasan AI lewat Gemini 2.5 Pro"
-                              >
-                                {combining === cap.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                                ) : (
-                                  <Combine className="w-3.5 h-3.5 mr-1.5" />
+                              <div className="flex items-center gap-2 shrink-0">
+                                {cap.combinedSummary && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => handleCopyCombined(cap)}
+                                    title="Salin catatan gabungan ke clipboard"
+                                  >
+                                    {copiedId === cap.id ? (
+                                      <Check className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
+                                    ) : (
+                                      <Clipboard className="w-3.5 h-3.5 mr-1.5" />
+                                    )}
+                                    {copiedId === cap.id ? 'Tersalin' : 'Salin'}
+                                  </Button>
                                 )}
-                                {cap.combinedSummary ? 'Re-combine' : 'Gabungkan AI + Manual'}
-                              </Button>
+                                <Button
+                                  size="sm"
+                                  variant={cap.combinedSummary ? 'outline' : 'default'}
+                                  onClick={() => handleCombine(cap)}
+                                  disabled={combining === cap.id || !combinedReady}
+                                  title="Gabungkan catatan manual + ringkasan AI lewat Gemini 2.5 Pro"
+                                >
+                                  {combining === cap.id ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                  ) : (
+                                    <Combine className="w-3.5 h-3.5 mr-1.5" />
+                                  )}
+                                  {cap.combinedSummary ? 'Re-combine' : 'Gabungkan AI + Manual'}
+                                </Button>
+                              </div>
                             </div>
                             {cap.combinedSummary ? (
                               <div className="whitespace-pre-wrap text-sm bg-primary/5 border border-primary/30 rounded p-3 max-h-96 overflow-y-auto">
@@ -574,11 +643,16 @@ export default function KhotbahPage() {
                               </div>
                             ) : (
                               <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
-                                — kedua sumber sudah ada. Klik &quot;Gabungkan AI + Manual&quot; untuk produksi catatan terpadu (sumber yang akan dipakai untuk Draft Kabar). —
+                                {combinedReady
+                                  ? '— kedua sumber sudah ada. Klik "Gabungkan AI + Manual" untuk produksi catatan terpadu (sumber yang akan dipakai untuk Draft Kabar). —'
+                                  : '— butuh Catatan Manual + Ringkasan AI sebelum bisa digabung. Lengkapi kedua tab tersebut dulu. —'}
                               </div>
                             )}
                           </div>
-                        )}
+                          )}
+                        </div>
+                        );
+                        })()}
                         <div>
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">

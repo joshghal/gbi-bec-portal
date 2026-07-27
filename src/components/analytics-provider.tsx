@@ -2,12 +2,31 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+
+// The site owner's own admin browsing pollutes GA4. Skip page_views for /admin
+// routes while signed in as this account. (Self-traffic exclusion.)
+const OWNER_EMAIL = 'joshuag.profesional@gmail.com';
 
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const ready = useRef(false); // analytics module loaded + initialized
   const pending = useRef<string[]>([]); // page paths awaiting flush
   const lastPath = useRef<string | null>(null);
+  const ownerEmail = useRef<string | null>(null); // set once Firebase auth resolves
+
+  // Whether a given path should be excluded from analytics (owner on /admin).
+  const isExcluded = (path: string) =>
+    ownerEmail.current === OWNER_EMAIL && path.startsWith('/admin');
+
+  // Track the signed-in email so we can suppress the owner's own admin traffic.
+  // Read-only subscription — no admin verification side effects here.
+  useEffect(() => {
+    return onAuthStateChanged(auth, (u) => {
+      ownerEmail.current = u?.email ?? null;
+    });
+  }, []);
 
   // One-time bootstrap. Loads firebase/analytics OFF the LCP critical path,
   // but WITHOUT requiring a user interaction — so fast, non-interacting visits
@@ -42,9 +61,11 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
         initAnalytics().then(() => {
           ready.current = true;
           // Flush page views buffered before the chunk finished loading.
+          // Re-check exclusion at flush time: auth may have resolved after a
+          // path was buffered, so an owner's /admin hit is dropped here too.
           const paths = pending.current;
           pending.current = [];
-          for (const p of paths) trackPageView(p);
+          for (const p of paths) if (!isExcluded(p)) trackPageView(p);
         }),
       );
     };
@@ -68,6 +89,9 @@ export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!pathname || lastPath.current === pathname) return;
     lastPath.current = pathname;
+
+    // Owner's own /admin browsing is self-traffic — don't count it.
+    if (isExcluded(pathname)) return;
 
     if (ready.current) {
       import('@/lib/analytics').then(({ trackPageView }) =>
