@@ -410,7 +410,7 @@ export function FormDirect({ formConfig }: { formConfig: FormConfig }) {
                       <span>{getLabel(step)}</span>{!step.optional && (
                         <span className="text-destructive text-[10px] leading-none">*</span>
                       )}{step.optional && (
-                        <span className="font-normal ml-1 opacity-60">(opsional)</span>
+                        <span className="font-normal ml-1 text-muted-foreground">(opsional)</span>
                       )}
                     </Label>
 

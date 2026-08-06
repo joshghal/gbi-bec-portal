@@ -266,7 +266,7 @@ export default function IbadahRayaPage() {
           aria-label="Breadcrumb"
           className="mb-8 lg:mb-12"
         >
-          <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
+          <ol className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <li>
               <a
                 href="/"
@@ -276,7 +276,7 @@ export default function IbadahRayaPage() {
               </a>
             </li>
             <li aria-hidden="true" className="text-foreground/30">/</li>
-            <li aria-current="page" className="text-foreground/70">
+            <li aria-current="page" className="text-foreground">
               Ibadah Raya
             </li>
           </ol>
@@ -294,7 +294,7 @@ export default function IbadahRayaPage() {
             href="https://www.youtube.com/@gbibaranangsiangsukawarna7008"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary underline-offset-2 hover:underline"
+            className="text-primary underline underline-offset-2"
           >
             YouTube GBI Baranangsiang
           </a>
@@ -317,10 +317,10 @@ export default function IbadahRayaPage() {
               className="flex flex-col sm:flex-row gap-2 sm:gap-8 py-6 border-t border-border/50 last:border-b"
             >
               <div className="shrink-0 sm:w-48 pt-1">
-                <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-foreground/40">
+                <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-muted-foreground">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <p className="mt-1 text-sm sm:text-base font-medium text-foreground/60">
+                <p className="mt-1 text-sm sm:text-base font-medium text-foreground/80">
                   {step.duration}
                 </p>
               </div>

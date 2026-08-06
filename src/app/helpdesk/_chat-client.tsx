@@ -292,6 +292,7 @@ export default function ChatClient() {
         <button
           onClick={form.showFormCards}
           disabled={form.isActive || form.isSummary}
+          aria-label="Formulir"
           className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium ring-1 ring-foreground/[0.08] hover:bg-foreground/[0.04] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           <ClipboardList className="w-3.5 h-3.5" />
@@ -299,6 +300,7 @@ export default function ChatClient() {
         </button>
         <Link
           href="/kom"
+          aria-label="Materi KOM"
           className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-medium ring-1 ring-foreground/[0.08] hover:bg-foreground/[0.04] transition-colors"
         >
           <BookOpen className="w-3.5 h-3.5" />
@@ -412,7 +414,7 @@ export default function ChatClient() {
                 disabled={isLoading}
                 className="flex-1 min-h-10 max-h-32 resize-none field-sizing-content border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-transparent"
               />
-              <Button type="submit" disabled={isLoading || !input.trim()} className="shrink-0 rounded-xl">
+              <Button type="submit" aria-label="Kirim pesan" disabled={isLoading || !input.trim()} className="shrink-0 rounded-xl">
                 <Send className="w-4 h-4" />
               </Button>
             </>

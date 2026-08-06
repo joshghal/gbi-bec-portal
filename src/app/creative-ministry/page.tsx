@@ -296,7 +296,7 @@ export default function CreativeMinistryPage() {
         className="max-w-6xl mx-auto px-6 lg:px-12 pt-10 lg:pt-14 pb-16 lg:pb-24"
       >
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
-          <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
+          <ol className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <li>
               <Link prefetch={false}
                 href="/"
@@ -306,7 +306,7 @@ export default function CreativeMinistryPage() {
               </Link>
             </li>
             <li aria-hidden="true" className="text-foreground/30">/</li>
-            <li aria-current="page" className="text-foreground/70">
+            <li aria-current="page" className="text-foreground">
               Creative Ministry
             </li>
           </ol>
@@ -320,25 +320,25 @@ export default function CreativeMinistryPage() {
         <div className="lg:hidden mt-8 border-t border-b border-border/60 py-5 space-y-6">
           <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Cabang
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">6 unit</dd>
             </div>
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Latihan
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Sabtu</dd>
             </div>
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Usia
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Mulai 7 thn</dd>
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Audisi
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Tidak ada</dd>
@@ -346,7 +346,7 @@ export default function CreativeMinistryPage() {
           </dl>
 
           <nav aria-label="Navigasi halaman">
-            <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+            <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
               Di halaman ini
             </p>
             <ul className="flex flex-wrap gap-x-3 gap-y-2 text-sm">
@@ -393,7 +393,7 @@ export default function CreativeMinistryPage() {
         <div className="mt-10 lg:mt-14 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10 lg:gap-16">
           <div className="space-y-10 max-w-2xl">
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Apa itu
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -408,12 +408,12 @@ export default function CreativeMinistryPage() {
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Filosofi
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
                 Bagi kami, seni adalah{' '}
-                <em className="text-foreground/60">
+                <em className="text-foreground/80">
                   bahasa pujian yang sama kudusnya
                 </em>{' '}
                 seperti doa dan khotbah. Setiap suara yang bergema, setiap
@@ -424,7 +424,7 @@ export default function CreativeMinistryPage() {
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Untuk siapa
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -440,7 +440,7 @@ export default function CreativeMinistryPage() {
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Tanpa audisi, tanpa biaya
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -458,12 +458,12 @@ export default function CreativeMinistryPage() {
           {/* Right — sticky aside (desktop only) */}
           <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
             <div className="border-t border-border/60 pt-5">
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-5">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-5">
                 Gambaran Cepat
               </p>
               <dl className="space-y-4 text-sm">
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Cabang
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -471,7 +471,7 @@ export default function CreativeMinistryPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Jadwal
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -479,7 +479,7 @@ export default function CreativeMinistryPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Usia
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -487,7 +487,7 @@ export default function CreativeMinistryPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Audisi
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -501,7 +501,7 @@ export default function CreativeMinistryPage() {
               aria-label="Navigasi halaman"
               className="mt-10 border-t border-border/60 pt-5"
             >
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-4">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-4">
                 Di halaman ini
               </p>
               <ul className="space-y-2.5 text-sm">
@@ -565,11 +565,11 @@ export default function CreativeMinistryPage() {
               <div className="relative flex flex-col sm:flex-row gap-4 sm:gap-0 py-8 sm:py-10">
                 {/* Meta column */}
                 <div className="shrink-0 sm:w-52 sm:pt-1">
-                  <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-foreground/40">
+                  <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-muted-foreground">
                     {unit.title}
                   </span>
-                  <p className="mt-2 text-xs text-foreground/55">{unit.age}</p>
-                  <p className="mt-0.5 text-xs text-foreground/55">
+                  <p className="mt-2 text-xs text-muted-foreground">{unit.age}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {unit.schedule}
                   </p>
                 </div>

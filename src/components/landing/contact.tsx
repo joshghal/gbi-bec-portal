@@ -74,7 +74,7 @@ export default function ContactSection() {
           {/* ── Left: Featured primary contact (~40%) ──────────── */}
           <div className="lg:col-span-2 rounded-2xl border border-white/10 bg-white/[0.04] p-8 lg:p-10 flex flex-col justify-between">
             <div>
-              <p className="text-xs tracking-[0.2em] font-medium uppercase text-white/40 mb-6">
+              <p className="text-xs tracking-[0.2em] font-medium uppercase text-white/60 mb-6">
                 Kontak Utama
               </p>
               <h3 className="text-2xl lg:text-3xl font-semibold text-white leading-tight">
@@ -114,7 +114,7 @@ export default function ContactSection() {
                     <h3 className="text-lg font-semibold text-white">
                       {contact.name}
                     </h3>
-                    <p className="mt-0.5 text-sm text-white/40">
+                    <p className="mt-0.5 text-sm text-white/60">
                       {contact.role}
                     </p>
                     <a
@@ -183,7 +183,7 @@ export default function ContactSection() {
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
                     <ChatIcon className="h-5 w-5 text-white/70" />
                   </div>
-                  <p className="text-xs tracking-[0.15em] font-medium uppercase text-white/40">
+                  <p className="text-xs tracking-[0.15em] font-medium uppercase text-white/60">
                     AI Helpdesk
                   </p>
                 </div>

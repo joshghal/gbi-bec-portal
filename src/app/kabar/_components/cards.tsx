@@ -36,7 +36,7 @@ export function FeaturedCard({ update }: { update: Update }) {
             <span className="text-[10px] uppercase tracking-[0.2em] font-semibold" style={{ color: update.color }}>
               {update.category}
             </span>
-            <span className="text-[10px] text-muted-foreground/40 font-mono">
+            <span className="text-[10px] text-muted-foreground font-mono">
               {formatDateLong(update.date)}
             </span>
           </div>
@@ -46,7 +46,7 @@ export function FeaturedCard({ update }: { update: Update }) {
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3 max-w-xl">
             {stripHtml(update.excerpt)}
           </p>
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground/35 group-hover:text-muted-foreground/70 transition-colors mt-auto pt-2">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground group-hover:text-muted-foreground/70 transition-colors mt-auto pt-2">
             Selengkapnya
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
               <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -79,7 +79,7 @@ export function ImageCard({ update }: { update: Update }) {
             <span className="text-[9px] uppercase tracking-[0.2em] font-semibold" style={{ color: update.color }}>
               {update.category}
             </span>
-            <span className="text-[9px] text-muted-foreground/35 font-mono">
+            <span className="text-[9px] text-muted-foreground font-mono">
               {formatDate(update.date)}
             </span>
           </div>
@@ -103,7 +103,7 @@ export function TextCard({ update }: { update: Update }) {
           <span className="text-[9px] uppercase tracking-[0.2em] font-semibold" style={{ color: update.color }}>
             {update.category}
           </span>
-          <span className="text-[9px] text-muted-foreground/35 font-mono">
+          <span className="text-[9px] text-muted-foreground font-mono">
             {formatDate(update.date)}
           </span>
         </div>

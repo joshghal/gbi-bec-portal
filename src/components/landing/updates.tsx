@@ -202,7 +202,7 @@ export default function UpdatesSection() {
                     >
                       {update.category}
                     </span>
-                    <span className="text-[10px] text-muted-foreground/40 font-mono tabular-nums">
+                    <span className="text-[10px] text-muted-foreground font-mono tabular-nums">
                       {update.date}
                     </span>
                   </div>

@@ -171,7 +171,7 @@ export default function VideoParallaxSection() {
             </p>
 
             {/* Title — oversized brutalist */}
-            <h3
+            <h2
               ref={titleRef}
               className="mt-2 font-serif font-black leading-[0.9] tracking-[-0.03em]"
               style={{
@@ -180,7 +180,7 @@ export default function VideoParallaxSection() {
               }}
             >
               {data!.title}
-            </h3>
+            </h2>
 
             {/* Divider */}
             <div ref={dividerRef} className="mt-4 mb-4 w-full h-px origin-left" style={{ backgroundColor: 'rgba(255,255,255,0.15)' }} />

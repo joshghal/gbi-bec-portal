@@ -114,8 +114,8 @@ export default async function KabarPage() {
       />
       {/* Header */}
       <header className="border-b bg-card/80 backdrop-blur-sm px-4 sm:px-6 py-3 flex items-center gap-3 sticky top-0 z-20">
-        <Link href="/">
-          <Button variant="ghost" size="icon" className="shrink-0">
+        <Link href="/" aria-label="Kembali ke Beranda">
+          <Button variant="ghost" size="icon" className="shrink-0" aria-label="Kembali ke Beranda">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>

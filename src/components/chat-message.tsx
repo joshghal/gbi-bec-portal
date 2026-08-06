@@ -11,7 +11,7 @@ function SourcesAccordion({ sources }: { sources: { id: string; score: number }[
     <div>
       <button
         onClick={() => setOpen(v => !v)}
-        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-muted-foreground transition-colors"
       >
         <BookOpen className="w-2.5 h-2.5" />
         Lihat Sumber
@@ -237,7 +237,7 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
     {/* Suggested questions — single balloon with dividers */}
     {message.suggestedQuestions && message.suggestedQuestions.length > 0 && (
       <div className="flex flex-col items-end gap-1">
-        <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Saran pertanyaan</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Saran pertanyaan</p>
         <div className="rounded-2xl rounded-tr-sm bg-secondary overflow-hidden w-fit">
           {message.suggestedQuestions.map((q, i) => (
             <div key={i}>

@@ -28,7 +28,8 @@ const judson = Judson({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
+  // No maximumScale/userScalable cap — blocking pinch-zoom fails the
+  // accessibility `meta-viewport` audit (WCAG 1.4.4). Let users zoom.
   viewportFit: 'cover',
   themeColor: '#f5f0e8',
 };

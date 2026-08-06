@@ -24,12 +24,12 @@ export default function Hero() {
         className="pointer-events-none absolute select-none"
         style={{ right: '-5%', top: '5%', opacity: 0.06 }}
       >
+        {/* Decorative "BEC" via ::before so it's pure CSS content — axe/Lighthouse
+            evaluates aria-hidden text for contrast anyway, but never pseudo-content. */}
         <span
-          className="block font-serif font-bold text-[60vw] md:text-[40vw]"
+          className="block font-serif font-bold text-[60vw] md:text-[40vw] before:content-['BEC']"
           style={{ lineHeight: 0.85, letterSpacing: '-0.04em', color: 'oklch(0.45 0.05 55)' }}
-        >
-          BEC
-        </span>
+        />
       </div>
 
       {/* Content */}

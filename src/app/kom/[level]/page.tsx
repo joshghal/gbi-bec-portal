@@ -387,7 +387,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
       {/* Big statement (with breadcrumb as eyebrow) */}
       <section className="max-w-6xl mx-auto px-6 lg:px-12 pt-24 lg:pt-32 pb-16 lg:pb-24">
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
-          <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50 flex-wrap">
+          <ol className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground flex-wrap">
             <li>
               <Link prefetch={false}
                 href="/"
@@ -406,7 +406,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
               </Link>
             </li>
             <li aria-hidden="true" className="text-foreground/30">/</li>
-            <li aria-current="page" className="text-foreground/70">
+            <li aria-current="page" className="text-foreground">
               KOM {kom.level}
             </li>
           </ol>
@@ -418,7 +418,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
         <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-[-0.03em] leading-[1.05] mb-3">
           {kom.title}
         </h1>
-        <p className="font-serif text-xl sm:text-2xl italic text-foreground/50 mb-8">
+        <p className="font-serif text-xl sm:text-2xl italic text-foreground/75 mb-8">
           {kom.subtitle}
         </p>
 
@@ -426,7 +426,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
         <div className="lg:hidden mt-8 border-t border-b border-border/60 py-5 space-y-6">
           <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Level
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -434,7 +434,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
               </dd>
             </div>
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Sesi
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -442,7 +442,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
               </dd>
             </div>
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Prasyarat
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -451,7 +451,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
             </div>
             {kom.jadwal && (
               <div className="col-span-2 sm:col-span-3">
-                <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+                <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                   Jadwal
                 </dt>
                 <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -473,7 +473,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
           )}
 
           <nav aria-label="Navigasi halaman">
-            <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+            <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
               Di halaman ini
             </p>
             <ul className="flex flex-wrap gap-x-3 gap-y-2 text-sm">
@@ -511,7 +511,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
         <div className="mt-10 lg:mt-12 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10 lg:gap-16">
           <div className="space-y-10 max-w-2xl">
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Tentang
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -520,7 +520,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Yang akan dipelajari
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -529,7 +529,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Untuk siapa
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -539,7 +539,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
             {kom.whyThisLevel && (
               <div>
-                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                   Apa yang membuat level ini berbeda
                 </p>
                 <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -550,7 +550,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
             {kom.signatureExperience && (
               <div>
-                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                   Pengalaman khas yang akan kamu temui
                 </p>
                 <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -561,7 +561,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
             {kom.graduateOutcome && (
               <div>
-                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                   Yang akan kamu bawa pulang sebagai lulusan
                 </p>
                 <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -572,7 +572,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
             {kom.readinessSignal && (
               <div>
-                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                   Bagaimana mengetahui kamu sudah siap
                 </p>
                 <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -583,7 +583,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
             {kom.commitmentFraming && (
               <div>
-                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                   Komitmen waktu dan keterlibatan
                 </p>
                 <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -594,7 +594,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
 
             {kom.commonMisconceptions && (
               <div>
-                <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+                <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                   Salah paham yang sering muncul
                 </p>
                 <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -607,12 +607,12 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
           {/* Desktop sticky aside */}
           <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
             <div className="border-t border-border/60 pt-5">
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-5">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-5">
                 Gambaran Cepat
               </p>
               <dl className="space-y-4 text-sm">
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Level
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -620,7 +620,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Sesi
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -629,7 +629,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
                 </div>
                 {kom.jadwal && (
                   <div>
-                    <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                    <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                       Jadwal
                     </dt>
                     <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -638,7 +638,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
                   </div>
                 )}
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Prasyarat
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -663,7 +663,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
               aria-label="Navigasi halaman"
               className="mt-10 border-t border-border/60 pt-5"
             >
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-4">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-4">
                 Di halaman ini
               </p>
               <ul className="space-y-2.5 text-sm">
@@ -713,7 +713,7 @@ export default async function KomLevelPage({ params }: { params: Promise<{ level
               className="flex flex-col sm:flex-row gap-3 sm:gap-8 py-8 border-t border-border/50 last:border-b"
             >
               <div className="shrink-0 sm:w-48 pt-1">
-                <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-foreground/40">
+                <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-muted-foreground">
                   KOM {s.code} · {s.count} sesi
                 </span>
               </div>

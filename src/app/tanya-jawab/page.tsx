@@ -19,7 +19,7 @@ const C = {
   goldBorder: '#d4b068',
   white:    '#1a1714',
   muted:    '#6b6460',
-  dim:      '#b8b0a6',
+  dim:      '#6e675f',
   green:    '#2e7a56',
   greenBg:  '#eaf5ee',
   greenBorder: '#b8dfc3',
@@ -58,7 +58,7 @@ function QuestionCard({
       <button
         onClick={onVote}
         disabled={voted || isAnswered}
-        aria-label="Upvote"
+        aria-label={`Beri suara — ${question.votes} suara`}
         style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           justifyContent: 'center', gap: 2, flexShrink: 0, width: 56,

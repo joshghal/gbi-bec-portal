@@ -260,7 +260,7 @@ export default function MClassPage() {
         className="max-w-6xl mx-auto px-6 lg:px-12 pt-10 lg:pt-14 pb-16 lg:pb-24"
       >
         <nav aria-label="Breadcrumb" className="mb-8 lg:mb-12">
-          <ol className="flex items-center gap-2 text-xs sm:text-sm text-foreground/50">
+          <ol className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
             <li>
               <Link prefetch={false}
                 href="/"
@@ -270,7 +270,7 @@ export default function MClassPage() {
               </Link>
             </li>
             <li aria-hidden="true" className="text-foreground/30">/</li>
-            <li aria-current="page" className="text-foreground/70">
+            <li aria-current="page" className="text-foreground">
               M-Class
             </li>
           </ol>
@@ -284,25 +284,25 @@ export default function MClassPage() {
         <div className="lg:hidden mt-8 border-t border-b border-border/60 py-5 space-y-6">
           <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-4 text-sm">
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Durasi
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">1 hari</dd>
             </div>
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Jadwal
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">Bulanan</dd>
             </div>
             <div>
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Usia
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">15+ tahun</dd>
             </div>
             <div className="col-span-2 sm:col-span-1">
-              <dt className="text-foreground/45 text-[10px] uppercase tracking-wider">
+              <dt className="text-muted-foreground text-[10px] uppercase tracking-wider">
                 Syarat
               </dt>
               <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -312,7 +312,7 @@ export default function MClassPage() {
           </dl>
 
           <nav aria-label="Navigasi halaman">
-            <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+            <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
               Di halaman ini
             </p>
             <ul className="flex flex-wrap gap-x-3 gap-y-2 text-sm">
@@ -360,12 +360,12 @@ export default function MClassPage() {
           {/* Left — labeled mini-sections */}
           <div className="space-y-10 max-w-2xl">
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Apa itu
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
                 M-Class{' '}
-                <em className="text-foreground/60">(Membership Class)</em>{' '}
+                <em className="text-foreground/80">(Membership Class)</em>{' '}
                 adalah kelas khusus di{' '}
                 <strong className="font-medium text-foreground/90">
                   GBI BEC
@@ -378,7 +378,7 @@ export default function MClassPage() {
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Untuk siapa
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -393,12 +393,12 @@ export default function MClassPage() {
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Yang akan dipelajari
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
                 Materi dirangkum dalam tiga fokus —{' '}
-                <em className="text-foreground/60">
+                <em className="text-foreground/80">
                   to build, to know, to equip
                 </em>
                 . Kehidupan bergereja dan dasar-dasar pelayanan, visi-misi
@@ -409,7 +409,7 @@ export default function MClassPage() {
             </div>
 
             <div>
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-3">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-3">
                 Biaya & KAJ
               </p>
               <p className="text-base sm:text-lg text-foreground/75 leading-relaxed">
@@ -431,18 +431,18 @@ export default function MClassPage() {
           {/* Right — sticky aside (desktop only) */}
           <aside className="hidden lg:block lg:sticky lg:top-24 lg:self-start">
             <div className="border-t border-border/60 pt-5">
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-5">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-5">
                 Gambaran Cepat
               </p>
               <dl className="space-y-4 text-sm">
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Durasi
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">1 hari</dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Jadwal
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -450,7 +450,7 @@ export default function MClassPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Syarat
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -458,7 +458,7 @@ export default function MClassPage() {
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-foreground/50 text-xs uppercase tracking-wider">
+                  <dt className="text-muted-foreground text-xs uppercase tracking-wider">
                     Menuju
                   </dt>
                   <dd className="mt-0.5 text-foreground/85 font-medium">
@@ -472,7 +472,7 @@ export default function MClassPage() {
               aria-label="Navigasi halaman"
               className="mt-10 border-t border-border/60 pt-5"
             >
-              <p className="text-[10px] tracking-[0.25em] text-foreground/40 font-semibold uppercase mb-4">
+              <p className="text-[10px] tracking-[0.25em] text-muted-foreground font-semibold uppercase mb-4">
                 Di halaman ini
               </p>
               <ul className="space-y-2.5 text-sm">
@@ -534,7 +534,7 @@ export default function MClassPage() {
               className="flex flex-col sm:flex-row gap-2 sm:gap-8 py-6 border-t border-border/50 last:border-b"
             >
               <div className="shrink-0 sm:w-48 pt-1">
-                <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-foreground/40">
+                <span className="inline-block text-xs uppercase tracking-[0.15em] font-semibold text-muted-foreground">
                   Langkah {String(step.step).padStart(2, '0')}
                 </span>
               </div>

@@ -17,7 +17,7 @@ const C = {
   goldBorder: '#d4b068',
   white:      '#1a1714',
   muted:      '#6b6460',
-  dim:        '#b8b0a6',
+  dim:        '#6e675f',
   green:      '#2e7a56',
   greenBg:    '#eaf5ee',
   greenBorder:'#b8dfc3',
