@@ -48,3 +48,7 @@ public/posters/exports/
 next-env.d.ts
 test-results/
 package-lock.json
+
+# analytics pull outputs + local SA key
+analytics/out/
+analytics/analytics-sa.json

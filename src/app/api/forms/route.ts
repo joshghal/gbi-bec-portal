@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { syncToSheets, getSheetUrl } from '@/lib/google-sheets';
 import { generateSearchTerms } from '@/lib/search-utils';
+import { sendWelcomeMessage } from '@/lib/whatsapp';
 import type { FormType } from '@/lib/form-types';
 
 /**
@@ -25,7 +26,7 @@ async function generateRegNo(
   return `${prefix}-${String(seq).padStart(3, '0')}`;
 }
 
-const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer', 'mclass'];
+const VALID_TYPES: FormType[] = ['kom', 'baptism', 'child-dedication', 'prayer', 'mclass', 'member'];
 
 export async function POST(request: NextRequest) {
   try {
@@ -116,6 +117,23 @@ export async function POST(request: NextRequest) {
 
     // Sync to Google Sheets (awaited so Vercel doesn't kill the request)
     await syncToSheets('create', type, docRef.id, { data, status: 'pending', createdAt: now });
+
+    // Send WhatsApp welcome to new members (awaited on serverless; never blocks the
+    // response on failure — sendWelcomeMessage never throws and no-ops if unconfigured).
+    // Outcome is recorded on the submission doc so admins can see delivery status.
+    if (type === 'member') {
+      const result = await sendWelcomeMessage(data.noTelepon, data.namaLengkap);
+      if (result.ok) {
+        await docRef
+          .update({ welcomeSentAt: new Date().toISOString(), welcomeMessageId: result.messageId })
+          .catch(() => {});
+      } else if (!('skipped' in result && result.skipped)) {
+        console.error('[forms] welcome message failed for', docRef.id, result);
+        await docRef
+          .update({ welcomeError: result.error, welcomeErrorAt: new Date().toISOString() })
+          .catch(() => {});
+      }
+    }
 
     return NextResponse.json({ id: docRef.id, editToken });
   } catch (error) {

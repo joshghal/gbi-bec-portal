@@ -1,4 +1,4 @@
-export type FormType = 'kom' | 'baptism' | 'child-dedication' | 'prayer' | 'mclass';
+export type FormType = 'kom' | 'baptism' | 'child-dedication' | 'prayer' | 'mclass' | 'member';
 
 export type FormFieldType = 'text' | 'textarea' | 'date' | 'tel' | 'email' | 'select';
 

@@ -1,4 +1,4 @@
-import type { FormConfig } from './form-types';
+import type { FormConfig, FormType } from './form-types';
 
 export const FORM_CONFIGS: FormConfig[] = [
   {
@@ -106,6 +106,28 @@ export const FORM_CONFIGS: FormConfig[] = [
     ],
   },
   {
+    type: 'member',
+    title: 'Formulir Pendataan Jemaat',
+    description: 'Selamat datang di GBI BEC! Lengkapi data Anda sebagai jemaat',
+    icon: 'UserPlus',
+    sections: [
+      { title: 'Data Diri', fields: ['namaLengkap', 'noTelepon', 'email', 'tanggalLahir', 'alamat', 'jenisKelamin'] },
+      { title: 'Apakah Anda sudah mengikuti?', fields: ['baptis', 'wbi', 'cool', 'kom'] },
+    ],
+    steps: [
+      { field: 'namaLengkap', question: 'Siapa nama lengkap Anda?', label: 'Nama Lengkap', type: 'text', placeholder: 'cth. Budi Santoso' },
+      { field: 'noTelepon', question: 'Nomor Handphone/WhatsApp Anda?', label: 'No. Handphone/WA', type: 'tel', placeholder: '08xx xxxx xxxx' },
+      { field: 'email', question: 'Alamat email? (opsional)', label: 'Email', type: 'email', optional: true, placeholder: 'nama@email.com' },
+      { field: 'tanggalLahir', question: 'Kapan tanggal lahir Anda?', label: 'Tanggal Lahir', type: 'date' },
+      { field: 'alamat', question: 'Alamat domisili sekarang?', label: 'Alamat Domisili Sekarang', type: 'textarea', placeholder: 'Alamat tempat tinggal saat ini' },
+      { field: 'jenisKelamin', question: 'Jenis kelamin?', label: 'Jenis Kelamin', type: 'select', options: ['Laki-laki', 'Perempuan'] },
+      { field: 'baptis', question: 'Apakah Anda sudah baptis?', label: 'Baptis', type: 'select', options: ['Belum', 'Sudah'], half: true },
+      { field: 'wbi', question: 'Apakah Anda sudah mengikuti WBI (Wanita Bethel Indonesia)?', label: 'WBI (Wanita Bethel Indonesia)', type: 'select', options: ['Belum', 'Sudah'], half: true },
+      { field: 'cool', question: 'Apakah Anda sudah mengikuti COOL (Community of Love / komsel)?', label: 'COOL (Community of Love)', type: 'select', options: ['Belum', 'Sudah'], half: true },
+      { field: 'kom', question: 'Apakah Anda sudah mengikuti KOM (Komunitas Orientasi Melayani)? Pilih level jika sudah.', label: 'KOM (Komunitas Orientasi Melayani)', type: 'select', options: ['Belum', '100', '200', '300'], half: true },
+    ],
+  },
+  {
     type: 'mclass',
     title: 'Pendaftaran M-Class',
     description: 'Daftar kelas Membership',
@@ -123,12 +145,23 @@ export function getFormConfig(type: string): FormConfig | undefined {
   return FORM_CONFIGS.find(c => c.type === type);
 }
 
+/** Public URL slug for each form type. Folders under app/formulir/ use these slugs. */
+export const FORM_SLUG: Record<FormType, string> = {
+  kom: 'kom',
+  baptism: 'baptis',
+  'child-dedication': 'penyerahan-anak',
+  prayer: 'doa',
+  mclass: 'mclass',
+  member: 'anggota-baru',
+};
+
 export const FORM_TYPE_LABELS: Record<string, string> = {
   kom: 'KOM',
   baptism: 'Baptisan',
   'child-dedication': 'Penyerahan Anak',
   prayer: 'Pokok Doa',
   mclass: 'M-Class',
+  member: 'Jemaat Baru',
 };
 
 export const FORM_STATUS_LABELS: Record<string, string> = {

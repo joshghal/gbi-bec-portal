@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Loader2, Droplets, Baby, Heart, BookOpen, GraduationCap, Share2, FileEdit, Download } from 'lucide-react';
+import { ArrowLeft, Loader2, Droplets, Baby, Heart, BookOpen, GraduationCap, UserPlus, Share2, FileEdit, Download } from 'lucide-react';
 import QRCode from 'qrcode';
-import { FORM_CONFIGS } from '@/lib/form-config';
+import { FORM_CONFIGS, FORM_SLUG } from '@/lib/form-config';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,6 +22,7 @@ const ICON_MAP: Record<string, typeof Droplets> = {
   prayer:             Heart,
   mclass:             BookOpen,
   kom:                GraduationCap,
+  member:             UserPlus,
 };
 
 export default function FormsPage() {
@@ -46,7 +47,7 @@ export default function FormsPage() {
   );
 
   const handleShare = useCallback(async (formType: string, title: string) => {
-    const url = `${window.location.origin}/formulir/${formType}`;
+    const url = `${window.location.origin}/formulir/${FORM_SLUG[formType as keyof typeof FORM_SLUG] ?? formType}`;
     setQrFormTitle(title);
     setQrFormUrl(url);
     setQrOpen(true);
@@ -71,6 +72,7 @@ export default function FormsPage() {
       <header className="border-b bg-card px-4 py-3 flex items-center gap-3">
         <Link
           href="/"
+          aria-label="Kembali ke Beranda"
           className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-muted transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
@@ -128,7 +130,7 @@ export default function FormsPage() {
                     <Button
                       size="sm"
                       className="flex-1"
-                      onClick={() => router.push(`/formulir/${config.type}`)}
+                      onClick={() => router.push(`/formulir/${FORM_SLUG[config.type]}`)}
                     >
                       <FileEdit data-icon="inline-start" />
                       Isi Formulir

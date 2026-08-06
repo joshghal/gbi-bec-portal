@@ -23,6 +23,7 @@ export const DEFAULT_ROLES: Record<string, Role> = {
     label: 'Pengelola Formulir',
     description: 'Mengelola semua formulir pendaftaran',
     permissions: [
+      'page:forms/member',
       'page:forms/kom',
       'page:forms/baptism',
       'page:forms/child-dedication',
@@ -35,13 +36,14 @@ export const DEFAULT_ROLES: Record<string, Role> = {
   content_editor: {
     label: 'Editor Konten',
     description: 'Mengelola basis pengetahuan chatbot',
-    permissions: ['page:knowledge-base', 'page:kabar', 'page:khotbah', 'page:kegiatan', 'page:pengumuman', 'page:cool-group'],
+    permissions: ['page:knowledge-base', 'page:kabar', 'page:khotbah', 'page:kegiatan', 'page:pengumuman', 'page:cool-group', 'page:ibadah'],
     isSystem: true,
   },
   viewer: {
     label: 'Penonton',
     description: 'Hanya melihat data, tidak bisa mengubah',
     permissions: [
+      'page:forms/member:read',
       'page:forms/kom:read',
       'page:forms/baptism:read',
       'page:forms/child-dedication:read',
@@ -56,6 +58,7 @@ export const DEFAULT_ROLES: Record<string, Role> = {
 // Map route paths to required permissions
 export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin': 'page:knowledge-base',
+  '/admin/formulir/jemaat': 'page:forms/member',
   '/admin/formulir/kom': 'page:forms/kom',
   '/admin/formulir/baptis': 'page:forms/baptism',
   '/admin/formulir/penyerahan-anak': 'page:forms/child-dedication',
@@ -72,6 +75,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
   '/admin/kegiatan': 'page:kegiatan',
   '/admin/pengumuman': 'page:pengumuman',
   '/admin/cool-group': 'page:cool-group',
+  '/admin/ibadah': 'page:ibadah',
   '/admin/log': 'page:log',
 };
 
@@ -79,6 +83,7 @@ export const PAGE_PERMISSIONS: Record<string, string> = {
 export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:knowledge-base', label: 'Basis Pengetahuan' },
   { id: 'page:posters', label: 'Poster' },
+  { id: 'page:forms/member', label: 'Formulir Data Jemaat' },
   { id: 'page:forms/kom', label: 'Formulir KOM' },
   { id: 'page:forms/baptism', label: 'Formulir Baptisan' },
   { id: 'page:forms/child-dedication', label: 'Formulir Penyerahan Anak' },
@@ -94,6 +99,7 @@ export const ALL_PERMISSIONS: { id: string; label: string }[] = [
   { id: 'page:kegiatan', label: 'Kegiatan Kami' },
   { id: 'page:pengumuman', label: 'Pengumuman' },
   { id: 'page:cool-group', label: 'COOL Group' },
+  { id: 'page:ibadah', label: 'Slide Ibadah' },
   { id: 'page:log', label: 'Log Aktivitas' },
 ];
 

@@ -16,6 +16,7 @@ import {
   Baby,
   HandHeart,
   BookOpen,
+  UserPlus,
   ArrowLeft,
   LogOut,
   Loader2,
@@ -28,6 +29,7 @@ import {
   Search,
   X,
   FileAudio,
+  Presentation,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -61,11 +63,13 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/kegiatan', label: 'Kegiatan Kami', icon: CalendarDays, permission: 'page:kegiatan' },
       { href: '/admin/pengumuman', label: 'Pengumuman', icon: Megaphone, permission: 'page:pengumuman' },
       { href: '/admin/cool-group', label: 'COOL Group', icon: UsersRound, permission: 'page:cool-group' },
+      { href: '/admin/ibadah', label: 'Slide Ibadah', icon: Presentation, permission: 'page:ibadah' },
     ],
   },
   {
     label: 'Formulir',
     items: [
+      { href: '/admin/formulir/jemaat', label: 'Data Jemaat', icon: UserPlus, permission: 'page:forms/member' },
       { href: '/admin/formulir/kom', label: 'KOM', icon: GraduationCap, permission: 'page:forms/kom' },
       { href: '/admin/formulir/baptis', label: 'Baptisan', icon: Droplets, permission: 'page:forms/baptism' },
       { href: '/admin/formulir/penyerahan-anak', label: 'Penyerahan Anak', icon: Baby, permission: 'page:forms/child-dedication' },
