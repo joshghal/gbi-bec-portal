@@ -1,11 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, type Variants } from 'framer-motion';
 import { LandingButton } from '@/components/landing/landing-button';
-import {
-  wordSplitContainer,
-  wordSplitChild,
-} from './animations';
+import { wordSplitContainer } from './animations';
 
 const headingSegments = [
   { text: 'GBI', italic: false },
@@ -13,6 +10,15 @@ const headingSegments = [
   { text: 'Evening', italic: true },
   { text: 'Church', italic: false },
 ];
+
+// Transform-ONLY entrance for above-the-fold content. An opacity-0 initial makes
+// the element invisible in the server-rendered HTML, so Lighthouse waits for JS +
+// the animation before counting FCP/LCP (the perf killer). Sliding without fading
+// keeps the reveal while the text is painted on first render → fast, stable LCP.
+const wordUp: Variants = {
+  hidden: { y: 40 },
+  visible: { y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
 
 export default function Hero() {
   return (
@@ -36,9 +42,9 @@ export default function Hero() {
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-12">
         <div className="w-full max-w-6xl mx-auto">
           <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+            initial={{ y: 8 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut', delay: 0.1 }}
             className="text-xs uppercase tracking-[0.3em] text-muted-foreground mb-5"
           >
             Selamat Datang di
@@ -55,7 +61,7 @@ export default function Hero() {
             {headingSegments.map((segment, i) => (
               <motion.span
                 key={i}
-                variants={wordSplitChild}
+                variants={wordUp}
                 aria-hidden="true"
                 className={`inline-block mr-[0.25em] last:mr-0 ${segment.italic ? 'italic' : ''}`}
               >
@@ -74,8 +80,8 @@ export default function Hero() {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 12 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.65 }}
             className="text-lg tracking-wider text-foreground/80 mb-2"
           >
@@ -83,8 +89,8 @@ export default function Hero() {
           </motion.p>
 
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 12 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.75 }}
             className="text-sm text-muted-foreground mb-12"
           >
@@ -92,8 +98,8 @@ export default function Hero() {
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ y: 16 }}
+            animate={{ y: 0 }}
             transition={{ duration: 0.5, ease: 'easeOut', delay: 0.85 }}
             className="flex flex-wrap items-center gap-6"
           >

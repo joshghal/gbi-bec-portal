@@ -96,8 +96,10 @@
 
 /* Hero title staggered entrance — used in ActivityHero (no framer-motion) */
 @keyframes heroWordIn {
-  from { opacity: 0; filter: blur(8px); }
-  to   { opacity: 1; filter: blur(0px); }
+  /* Transform-only so the title is painted (visible) on first render — an
+     opacity/blur start makes Lighthouse wait for the animation before FCP/LCP. */
+  from { transform: translateY(0.35em); }
+  to   { transform: translateY(0); }
 }
 
 /* Rich-text HTML output — used in landing Kabar Terbaru excerpts */
