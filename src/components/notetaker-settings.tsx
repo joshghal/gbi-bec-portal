@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { AlertTriangle, Check, ChevronDown, ChevronRight, Clipboard, Link as LinkIcon, Loader2, Plus, Save, Send, Trash2, Users } from 'lucide-react';
+import { AlertTriangle, Check, ChevronDown, ChevronRight, Clipboard, Loader2, MessageCircle, Plus, Save, Send, Trash2, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toastApiError } from '@/lib/api-toast';
+import { SITE_URL } from '@/lib/seo';
 
 /**
  * Notulen configuration for the Sunday automation.
@@ -49,6 +50,9 @@ export function NotetakerSettings() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testingPhone, setTestingPhone] = useState<string | null>(null);
+  // Meta allow-list status keyed by the raw phone string as entered.
+  const [allowList, setAllowList] = useState<Record<string, string>>({});
+  const [checking, setChecking] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -85,26 +89,72 @@ export function NotetakerSettings() {
     setDirty(true);
   }
 
+  /**
+   * Functional variant, required for every list edit.
+   *
+   * Deriving a new array from the render-time `settings` snapshot loses edits: two
+   * updates that land in the same React pass (add-a-row then immediately type, or
+   * fast keystrokes across the name and phone fields) both start from the same
+   * stale array, so the second silently overwrites the first. Reading from `prev`
+   * makes each edit build on the previous one.
+   */
+  function patchWith(produce: (prev: Settings) => Partial<Settings>) {
+    setSettings((prev) => ({ ...prev, ...produce(prev) }));
+    setDirty(true);
+  }
+
   function updateList(key: 'recipients' | 'adminRecipients', index: number, field: keyof Recipient, value: string) {
-    patch({
-      [key]: settings[key].map((r, i) => (i === index ? { ...r, [field]: value } : r)),
-    } as Partial<Settings>);
+    patchWith((prev) => ({
+      [key]: prev[key].map((r, i) => (i === index ? { ...r, [field]: value } : r)),
+    }) as Partial<Settings>);
   }
 
   function addTo(key: 'recipients' | 'adminRecipients') {
-    patch({ [key]: [...settings[key], { name: '', phone: '' }] } as Partial<Settings>);
+    patchWith((prev) => ({ [key]: [...prev[key], { name: '', phone: '' }] }) as Partial<Settings>);
   }
 
   function removeFrom(key: 'recipients' | 'adminRecipients', index: number) {
-    patch({ [key]: settings[key].filter((_, i) => i !== index) } as Partial<Settings>);
+    patchWith((prev) => ({ [key]: prev[key].filter((_, i) => i !== index) }) as Partial<Settings>);
   }
+
+  /**
+   * Read Meta's 5-slot allow-list status for every registered number.
+   * Sends nothing — see checkRecipientAllowed() in lib/whatsapp.
+   */
+  const checkAllowList = useCallback(async () => {
+    if (!user) return;
+    setChecking(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch('/api/notetaker-settings/check-recipients', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.configured) return;
+      const next: Record<string, string> = {};
+      for (const r of data.results ?? []) next[r.phone] = r.status;
+      setAllowList(next);
+    } catch {
+      /* non-critical — the badges simply stay unknown */
+    } finally {
+      setChecking(false);
+    }
+  }, [user]);
+
+  // Probe once the card is opened and settings are loaded. Safe to run on open
+  // because the probe delivers no messages.
+  useEffect(() => {
+    if (open && loaded && settings.whatsappConfigured) checkAllowList();
+  }, [open, loaded, settings.whatsappConfigured, checkAllowList]);
 
   /**
    * Prove the WhatsApp config from here rather than discovering it on a Sunday.
    * Sends Meta's hello_world, which exercises token + phone number ID + the test
    * number's recipient allow-list in one call.
    */
-  async function handleTestSend(phone: string) {
+  async function handleTestSend(phone: string, name = '', slug = '') {
     if (!user || !phone) return;
     setTestingPhone(phone);
     try {
@@ -112,7 +162,7 @@ export function NotetakerSettings() {
       const res = await fetch('/api/notetaker-settings/test-send', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify({ phone, name, slug }),
       });
       const result = await res.json();
       if (!res.ok) {
@@ -123,7 +173,11 @@ export function NotetakerSettings() {
         });
         return;
       }
-      toast.success(`Pesan tes terkirim ke ${phone}. Cek WhatsApp nomor itu.`);
+      toast.success(
+        slug
+          ? `Link permanen terkirim ke ${name || phone} via WhatsApp.`
+          : `Pesan tes terkirim ke ${phone}. Cek WhatsApp nomor itu.`,
+      );
     } catch (err) {
       toastApiError(err, 'Gagal mengirim pesan tes.');
     } finally {
@@ -180,58 +234,77 @@ export function NotetakerSettings() {
               <Loader2 className="w-4 h-4 animate-spin" /> Memuat…
             </div>
           ) : (
-            <div className="space-y-5">
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Notulen membuka <strong>link permanen</strong> mereka, menulis catatan, lalu mengirim.
-                Itu menghentikan transkripsi, menggabungkan catatan dengan ringkasan AI,
-                dan menerbitkannya otomatis ke Kabar. Link permanen selalu aktif dan tidak butuh WhatsApp.
-              </p>
+            <div className="space-y-3">
+              {/* One control strip: the toggle, TTL and re-check all on a single line.
+                  Previously three separate blocks with prose, ~140px of height. */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-md border px-3 py-2">
+                <label className="flex items-center gap-2 text-xs">
+                  <Switch
+                    checked={settings.enabled}
+                    onCheckedChange={(checked: boolean) => patch({ enabled: checked })}
+                  />
+                  <span className="font-medium">Kirim link via WhatsApp</span>
+                </label>
 
-              {settings.whatsappConfigured === false && (
-                <div className="flex items-start gap-2 rounded-lg border p-3 text-xs text-muted-foreground">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>
-                    Pengiriman WhatsApp tidak aktif (<code>WHATSAPP_TOKEN</code> /{' '}
-                    <code>WHATSAPP_PHONE_NUMBER_ID</code> belum diisi). Ini <strong>tidak masalah</strong> —
-                    bagikan link permanen di bawah ke notulen, semuanya tetap berjalan.
-                  </span>
-                </div>
-              )}
+                <span className="h-4 w-px bg-border" aria-hidden />
 
-              <div className="flex items-center justify-between gap-4 rounded-lg border p-3">
-                <div>
-                  <Label className="text-sm">Kirim link otomatis via WhatsApp</Label>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Opsional. Kalau aktif dan WhatsApp terkonfigurasi, notulen juga dikirimi link sekali-pakai
-                    saat ibadah mulai. Link permanen tetap jalan meski ini nonaktif.
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.enabled}
-                  onCheckedChange={(checked: boolean) => patch({ enabled: checked })}
-                />
+                <label className="flex items-center gap-1.5 text-xs" htmlFor="ttl">
+                  <span className="text-muted-foreground">Link sekali-pakai berlaku</span>
+                  <Input
+                    id="ttl"
+                    type="number"
+                    min={1}
+                    max={72}
+                    value={settings.linkTtlHours}
+                    onChange={(e) => patch({ linkTtlHours: Number(e.target.value) })}
+                    className="h-7 w-14 px-2 text-xs"
+                  />
+                  <span className="text-muted-foreground">jam</span>
+                </label>
+
+                {settings.whatsappConfigured && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={checkAllowList}
+                    disabled={checking}
+                    className="ml-auto h-7 px-2 text-xs"
+                    title="Cek ulang status Terdaftar di Meta. Tidak mengirim pesan apa pun."
+                  >
+                    {checking ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : null}
+                    {checking ? 'Memeriksa…' : 'Cek status Meta'}
+                  </Button>
+                )}
               </div>
 
-              {phoneCount > TEST_NUMBER_RECIPIENT_CAP && (
-                <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              {/* Warnings only when they apply — no permanent prose blocks. */}
+              {settings.whatsappConfigured === false && (
+                <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                   <span>
-                    Ada <strong>{phoneCount} nomor</strong> terdaftar, tapi test number Meta hanya bisa
-                    mengirim ke <strong>{TEST_NUMBER_RECIPIENT_CAP}</strong>. Nomor di luar daftar penerima
-                    di Meta akan gagal terkirim (error 131030). Link permanen tetap jalan untuk semua orang —
-                    batas ini hanya soal pengiriman WhatsApp.
+                    WhatsApp nonaktif — bagikan link permanen di bawah, alur tetap jalan.
                   </span>
-                </div>
+                </p>
+              )}
+              {phoneCount > TEST_NUMBER_RECIPIENT_CAP && (
+                <p className="flex items-start gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-900">
+                  <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                  <span>
+                    {phoneCount} nomor terdaftar, tapi test number Meta hanya bisa mengirim ke{' '}
+                    {TEST_NUMBER_RECIPIENT_CAP}. Sisanya gagal (131030); link permanen tetap jalan.
+                  </span>
+                </p>
               )}
 
               <RecipientList
                 label="Notulen"
-                hint="Nama wajib. Nomor HP opsional — hanya dipakai kalau pengiriman WhatsApp aktif. Link permanen muncul setelah disimpan."
+                hint="Nama wajib · nomor HP opsional"
                 items={settings.recipients}
                 showLinks
                 canTest={settings.whatsappConfigured === true}
                 testingPhone={testingPhone}
                 onTest={handleTestSend}
+                allowList={allowList}
                 onChange={(i, f, v) => updateList('recipients', i, f, v)}
                 onAdd={() => addTo('recipients')}
                 onRemove={(i) => removeFrom('recipients', i)}
@@ -239,36 +312,23 @@ export function NotetakerSettings() {
 
               <RecipientList
                 label="Notifikasi admin"
-                hint="Dapat kabar saat catatan sudah terbit, atau saat perlu ditinjau manual. Butuh nomor HP + WhatsApp aktif. Kosongkan untuk memakai daftar notulen."
+                hint="Kabar saat catatan terbit / perlu ditinjau · butuh nomor HP"
                 items={settings.adminRecipients}
                 canTest={settings.whatsappConfigured === true}
                 testingPhone={testingPhone}
                 onTest={handleTestSend}
+                allowList={allowList}
                 onChange={(i, f, v) => updateList('adminRecipients', i, f, v)}
                 onAdd={() => addTo('adminRecipients')}
                 onRemove={(i) => removeFrom('adminRecipients', i)}
               />
 
-              <div className="flex items-center gap-3">
-                <Label htmlFor="ttl" className="text-sm shrink-0">Masa berlaku link</Label>
-                <Input
-                  id="ttl"
-                  type="number"
-                  min={1}
-                  max={72}
-                  value={settings.linkTtlHours}
-                  onChange={(e) => patch({ linkTtlHours: Number(e.target.value) })}
-                  className="w-24"
-                />
-                <span className="text-xs text-muted-foreground">jam</span>
-              </div>
-
-              <div className="flex justify-end gap-2 border-t pt-4">
-                <Button variant="outline" size="sm" onClick={fetchSettings} disabled={saving || loading}>
-                  Batalkan perubahan
+              <div className="flex items-center justify-end gap-2 border-t pt-2.5">
+                <Button variant="ghost" size="sm" onClick={fetchSettings} disabled={saving || loading} className="h-7 px-2 text-xs">
+                  Batalkan
                 </Button>
-                <Button size="sm" onClick={handleSave} disabled={!dirty || saving}>
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
+                <Button size="sm" onClick={handleSave} disabled={!dirty || saving} className="h-7 px-3 text-xs">
+                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Save className="w-3.5 h-3.5 mr-1.5" />}
                   Simpan
                 </Button>
               </div>
@@ -280,6 +340,17 @@ export function NotetakerSettings() {
   );
 }
 
+/**
+ * One dense row per person: status · name · phone · actions.
+ *
+ * Replaces a 3-stack bordered card per recipient (~96px each) with a single
+ * ~36px row, following the FieldGrid pattern — tabular data in one line — and
+ * Material's density guidance on tightening inter-action spacing.
+ *
+ * Actions stay VISIBLE rather than hover-revealed: hover-only affordances are
+ * invisible to keyboard and touch users, which trades accessibility for pixels.
+ * Each icon carries a title + aria-label instead.
+ */
 function RecipientList({
   label,
   hint,
@@ -288,6 +359,7 @@ function RecipientList({
   canTest = false,
   testingPhone = null,
   onTest,
+  allowList = {},
   onChange,
   onAdd,
   onRemove,
@@ -295,95 +367,140 @@ function RecipientList({
   label: string;
   hint: string;
   items: Recipient[];
-  /** Render each person's permanent bookmark link with a copy button. */
   showLinks?: boolean;
-  /** WhatsApp is configured, so a test send is possible. */
   canTest?: boolean;
   testingPhone?: string | null;
-  onTest?: (phone: string) => void;
+  onTest?: (phone: string, name?: string, slug?: string) => void;
+  allowList?: Record<string, string>;
   onChange: (index: number, field: keyof Recipient, value: string) => void;
   onAdd: () => void;
   onRemove: (index: number) => void;
 }) {
   return (
     <div>
-      <div className="mb-1.5">
-        <Label className="text-sm">{label}</Label>
-        <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
-      </div>
-      <div className="space-y-2">
-        {items.map((r, i) => (
-          <div key={i} className="rounded-lg border p-2 space-y-2">
-            <div className="flex items-center gap-2">
-              <Input
-                value={r.name}
-                onChange={(e) => onChange(i, 'name', e.target.value)}
-                placeholder="Nama"
-                className="flex-1"
-              />
-              <Input
-                value={r.phone ?? ''}
-                onChange={(e) => onChange(i, 'phone', e.target.value)}
-                placeholder="08xxxxxxxxxx (opsional)"
-                inputMode="tel"
-                className="flex-1"
-              />
-              {canTest && onTest && (r.phone ?? '').trim() && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onTest((r.phone ?? '').trim())}
-                  disabled={testingPhone !== null}
-                  className="shrink-0 text-muted-foreground"
-                  title="Kirim pesan tes (hello_world) ke nomor ini untuk memastikan konfigurasi WhatsApp benar"
-                >
-                  {testingPhone === (r.phone ?? '').trim() ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Send className="w-4 h-4" />
-                  )}
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemove(i)}
-                className="shrink-0 text-muted-foreground hover:text-destructive"
-                title={`Hapus ${r.name || 'baris ini'}`}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-            {showLinks && <PermanentLink slug={r.slug} name={r.name} />}
-          </div>
-        ))}
-        {items.length === 0 && (
-          <p className="text-xs text-muted-foreground italic py-1">— belum ada —</p>
-        )}
-        <Button variant="outline" size="sm" onClick={onAdd}>
-          <Plus className="w-3.5 h-3.5 mr-1.5" /> Tambah
+      <div className="flex items-baseline gap-2 mb-1">
+        <Label className="text-xs font-semibold">{label}</Label>
+        <span className="text-[11px] text-muted-foreground">{hint}</span>
+        <Button variant="ghost" size="sm" onClick={onAdd} className="ml-auto h-6 px-1.5 text-[11px]">
+          <Plus className="w-3 h-3 mr-1" /> Tambah
         </Button>
       </div>
+
+      {items.length === 0 ? (
+        <p className="rounded-md border border-dashed px-2.5 py-1.5 text-[11px] text-muted-foreground italic">
+          belum ada
+        </p>
+      ) : (
+        <div className="rounded-md border divide-y">
+          {items.map((r, i) => {
+            const phone = (r.phone ?? '').trim();
+            return (
+              <div key={i} className="flex items-center gap-1.5 px-2 py-1.5">
+                <StatusDot status={phone ? allowList[phone] : undefined} hasPhone={!!phone} />
+                <Input
+                  value={r.name}
+                  onChange={(e) => onChange(i, 'name', e.target.value)}
+                  placeholder="Nama"
+                  aria-label="Nama notulen"
+                  className="h-7 flex-1 min-w-0 border-0 bg-transparent px-1 text-xs shadow-none focus-visible:bg-muted/50"
+                />
+                <Input
+                  value={r.phone ?? ''}
+                  onChange={(e) => onChange(i, 'phone', e.target.value)}
+                  placeholder="08xx (opsional)"
+                  inputMode="tel"
+                  aria-label="Nomor HP"
+                  className="h-7 w-32 shrink-0 border-0 bg-transparent px-1 text-xs shadow-none focus-visible:bg-muted/50"
+                />
+                {showLinks && <LinkActions slug={r.slug} name={r.name} phone={phone} />}
+                {canTest && onTest && phone && (
+                  <IconBtn
+                    label={`Kirim link ke ${r.name || phone} via WhatsApp API`}
+                    onClick={() => onTest(phone, r.name, r.slug)}
+                    disabled={testingPhone !== null}
+                  >
+                    {testingPhone === phone
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Send className="w-3.5 h-3.5" />}
+                  </IconBtn>
+                )}
+                <IconBtn label={`Hapus ${r.name || 'baris ini'}`} onClick={() => onRemove(i)} danger>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </IconBtn>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
 
-/**
- * The notulen's permanent bookmark. This is the delivery path that needs no
- * WhatsApp — copy it once and send it to them however you like.
- */
-function PermanentLink({ slug, name }: { slug?: string; name: string }) {
-  const [copied, setCopied] = useState(false);
+/** Icon-only button, always visible, always labelled. */
+function IconBtn({
+  label, onClick, children, disabled = false, danger = false,
+}: {
+  label: string; onClick: () => void; children: React.ReactNode; disabled?: boolean; danger?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      title={label}
+      aria-label={label}
+      className={`shrink-0 rounded p-1 text-muted-foreground disabled:opacity-40 ${
+        danger ? 'hover:bg-destructive/10 hover:text-destructive' : 'hover:bg-muted hover:text-foreground'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
 
+/**
+ * Meta allow-list state as a dot rather than a sentence — the explanation moves
+ * into the tooltip, which is where it belongs for a status that is usually fine.
+ */
+function StatusDot({ status, hasPhone }: { status?: string; hasPhone: boolean }) {
+  const spec = !hasPhone
+    ? { c: 'bg-muted-foreground/30', t: 'Tanpa nomor HP — hanya pakai link permanen, tidak dikirimi WhatsApp' }
+    : status === 'registered'
+      ? { c: 'bg-emerald-500', t: 'Terdaftar di daftar penerima Meta — WhatsApp bisa terkirim' }
+      : status === 'not-registered'
+        ? { c: 'bg-amber-500', t: 'BELUM terdaftar di Meta — WhatsApp tidak akan terkirim (131030). Tambahkan di developers.facebook.com → WhatsApp → API Setup → Manage phone number list. Link permanen tetap jalan.' }
+        : { c: 'bg-muted-foreground/30', t: 'Status Meta belum dicek' };
+  return (
+    <span
+      className={`shrink-0 h-2 w-2 rounded-full ${spec.c}`}
+      title={spec.t}
+      aria-label={spec.t}
+      role="img"
+    />
+  );
+}
+
+/**
+ * Copy + wa.me for the notulen's permanent bookmark.
+ *
+ * The slug itself is no longer printed — reading it has no value, only sending it
+ * does, so it lives in the tooltips and keeps the row to one line.
+ */
+function LinkActions({ slug, name, phone }: { slug?: string; name: string; phone: string }) {
+  const [copied, setCopied] = useState(false);
   if (!slug) {
-    return (
-      <p className="text-xs text-muted-foreground italic px-1">
-        Link permanen dibuat setelah disimpan.
-      </p>
-    );
+    return <span className="shrink-0 text-[11px] text-muted-foreground italic px-1">simpan dulu</span>;
   }
 
-  const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/notulen/${slug}`;
+  const url = `${SITE_URL}/notulen/${slug}`;
+  const digits = phone.replace(/[\s\-+()]/g, '');
+  const waNumber = digits.startsWith('0') ? `62${digits.slice(1)}` : digits;
+  const waText =
+    `Shalom ${name || 'Notulen'}! \u{1F64F}\n\n` +
+    `Ini link tetap untuk mengirim catatan khotbah. Simpan / bookmark link ini — ` +
+    `dipakai setiap ibadah, tidak berganti:\n${url}\n\n` +
+    `Cara pakai: buka link ini SETELAH khotbah selesai, tulis atau tempel catatan Anda, lalu kirim. ` +
+    `Catatan akan otomatis digabung dan diterbitkan di halaman Kabar.\n\nTuhan Yesus memberkati. \u{1F54A}️`;
 
   async function copy() {
     try {
@@ -397,13 +514,22 @@ function PermanentLink({ slug, name }: { slug?: string; name: string }) {
   }
 
   return (
-    <div className="flex items-center gap-2 px-1">
-      <LinkIcon className="w-3 h-3 shrink-0 text-muted-foreground" />
-      <code className="flex-1 min-w-0 truncate text-xs text-muted-foreground">/notulen/{slug}</code>
-      <Button variant="ghost" size="sm" onClick={copy} className="h-7 px-2 text-xs shrink-0">
+    <>
+      <IconBtn label={`Salin link permanen ${name || ''} (${url})`} onClick={copy}>
         {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Clipboard className="w-3.5 h-3.5" />}
-        <span className="ml-1.5">{copied ? 'Tersalin' : 'Salin link'}</span>
-      </Button>
-    </div>
+      </IconBtn>
+      {waNumber.length >= 10 && (
+        <a
+          href={`https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          title={`Buka WhatsApp Anda dengan pesan siap-kirim untuk ${name || 'notulen'}`}
+          aria-label={`Kirim link ke ${name || 'notulen'} lewat WhatsApp Anda`}
+          className="shrink-0 rounded p-1 text-emerald-700 hover:bg-emerald-50"
+        >
+          <MessageCircle className="w-3.5 h-3.5" />
+        </a>
+      )}
+    </>
   );
 }

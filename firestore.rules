@@ -28,6 +28,9 @@ service cloud.firestore {
     match /note_links/{doc} {
       allow read, write: if false;
     }
+    match /sermon_automation_log/{doc} {
+      allow read, write: if false;
+    }
 
     // Suggestions — public write only (admin reads via Admin SDK)
     match /suggestions/{doc} {

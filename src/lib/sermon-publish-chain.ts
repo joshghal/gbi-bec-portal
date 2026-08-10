@@ -4,6 +4,7 @@ import { runCombineForCapture } from '@/lib/sermon-combine-runner';
 import { createKabarFromCapture } from '@/lib/sermon-kabar';
 import { getNotetakerSettings, serviceLabel } from '@/lib/notetaker';
 import { sendKhotbahStatus } from '@/lib/whatsapp';
+import { logAutomation } from '@/lib/automation-log';
 
 /**
  * The unattended tail of the Sunday pipeline: combine → kabar → publish.
@@ -52,6 +53,10 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
   // The chain needs the engine's final Gemini summary, which only exists once the
   // capture has finalized. Calling early is a caller bug, not a failure.
   if (cap.status !== 'captured') {
+    await logAutomation(db, {
+      captureId, step: 'publish-chain', ok: false,
+      detail: `dipanggil terlalu awal (status=${cap.status})`,
+    });
     return {
       ok: false,
       status: 409,
@@ -66,6 +71,10 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
   // ── Case 1: nothing to publish at all ──────────────────────────────
   if (!manualNotes && !aiSummary) {
     await recordOutcome(ref, 'draft-no-summary', null);
+    await logAutomation(db, {
+      captureId, step: 'publish-chain', ok: false,
+      detail: 'transkrip & catatan dua-duanya kosong — tidak ada yang dibuat',
+    });
     await alertAdmin(db, label, 'Transkrip kosong — tidak ada catatan yang bisa dibuat. Cek engine log.', 'admin/khotbah');
     return { ok: true, outcome: 'draft-no-summary', published: false };
   }
@@ -78,6 +87,10 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
       combineError = combined.error;
       console.error(`[publish-chain] ${captureId}: combine failed —`, combined.error);
     }
+    await logAutomation(db, {
+      captureId, step: 'combine', ok: combined.ok,
+      detail: combined.ok ? `model ${combined.model}, ${combined.summary.length} chars` : combined.error,
+    });
   }
 
   // Re-read: runCombineForCapture wrote the combinedSummary we now branch on.
@@ -97,6 +110,11 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
     const outcome: ChainOutcome = wasPublished ? 'already-published' : 'published';
     await recordOutcome(ref, outcome, result.slug);
 
+    await logAutomation(db, {
+      captureId, step: 'kabar-published', ok: true,
+      detail: wasPublished ? 'sudah terbit sebelumnya' : `terbit: /kabar/${result.slug}`,
+      data: { kabarId: result.id, slug: result.slug },
+    });
     if (!wasPublished) {
       await alertAdmin(db, label, 'Catatan khotbah sudah TERBIT otomatis.', `kabar/${result.slug}`);
     }
@@ -118,6 +136,11 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
   revalidatePath('/sitemap.xml');
 
   await recordOutcome(ref, 'draft-no-notes', result.slug);
+  await logAutomation(db, {
+    captureId, step: 'publish-chain', ok: false,
+    detail: combineError ? `draft saja — combine gagal: ${combineError}` : 'draft saja — catatan notulen tidak masuk',
+    data: { slug: result.slug },
+  });
   await alertAdmin(
     db,
     label,

@@ -9,28 +9,55 @@ combined summary → create a kabar post → publish).
 
 ---
 
+## Original requirements → what shipped
+
+| Asked for | Shipped | Notes |
+| --- | --- | --- |
+| A one-time form for the notulen to upload notes | `/catatan/<token>` — 32-hex token, single use, 12h TTL | Plus `/notulen/<slug>`, a permanent per-person bookmark, added when WhatsApp delivery kept getting blocked |
+| Link sent only *after* transcription is live | HOOK 1 fires on **first audio**, not job start | A scheduled run that finds no live stream must not message anyone |
+| Link delivered over WhatsApp to specified recipients | Meta Cloud API + recipients configured in `/admin/khotbah` | Recipients are names + optional phones; a name alone is enough for a permanent link |
+| Explore openwa | **Rejected** | £10/mo per number for non-contacts, WhatsApp-Web ban risk (2–8 wk typical detection), and needs an always-on QR session with nowhere to live on Vercel + Cloud Run Jobs |
+| Notes submitted ⇒ preaching ended ⇒ stop transcription | Submit writes `manualNotes` **and** `stopRequested=true` | Reuses the engine's existing 15s poll — no new stop mechanism |
+| Combine notes, create post, publish | `publish-chain`: combine → kabar → publish → revalidate | **Only combined notes auto-publish** (see below) |
+
 ## Two ways the notulen gets the form
 
 | | Permanent link (**default**) | One-time WhatsApp link |
 | --- | --- | --- |
 | URL | `/notulen/<slug>` — never changes | `/catatan/<token>` — new each service |
 | Delivery | They bookmark it once | Pushed automatically over WhatsApp |
-| Needs | Nothing | Meta Business account + approved template + a sender number |
-| Status | **Live now** | Blocked — see setup step 1 |
+| Needs | Nothing | Approved template + number on Meta's 5-slot allow-list |
+| Status | **Works today** | Optional convenience layer |
 
 Both feed the identical pipeline; only how the notulen reaches the form differs.
 
-**The permanent link is the one that works today.** The WhatsApp push is an
-optional layer that requires a Meta setup currently blocked by an advertising
-restriction on the church's Business Portfolio. Everything below about templates
-and phone numbers applies *only* to that optional layer — skip setup steps 1-2 if
-you are using permanent links.
+**The permanent link is the one that works without Meta.** A permanent link carries
+no capture ID — each visit re-resolves whichever service is live (or finished within
+the last 18h without notes), which is what lets a fixed bookmark work every Sunday.
+See `findActiveCaptureForNotes()`.
 
-A permanent link carries no capture ID. Each time it is opened the server resolves
-whichever service is live (or finished within the last 18h without notes) — that is
-what lets a fixed bookmark work every Sunday. See `findActiveCaptureForNotes()`.
+The WhatsApp push adds a nudge, nothing more. If Meta breaks, the bookmarks keep
+working and Sunday still publishes.
+
+## Distributing the permanent links
+
+Each notulen's link is sent **once, ever** — it never changes. Two buttons per row
+in `/admin/khotbah` → Pengaturan Notulen:
+
+| Button | Mechanism | Needs |
+| --- | --- | --- |
+| **Kirim via WA** | `wa.me` click-to-chat — opens *your* WhatsApp with the message pre-filled, you tap send | Nothing |
+| **✈** | Cloud API send of the `link_notulen` template — same content, no tap | Approved template + recipient on the allow-list |
+
+Each row also shows whether Meta is allowed to message that number. That status is
+probed with a deliberately nonexistent template name, which **delivers nothing**:
+Meta validates the recipient before resolving the template, so `131030` means not
+allow-listed and `132001` means allow-listed. See `checkRecipientAllowed()`.
 
 ## The flow
+
+> Mermaid diagrams — sequence, publishing decision, failure branches and
+> deployment status — are in [`khotbah-flow.md`](./khotbah-flow.md).
 
 ```
 Sun 17:30 WIB   Cloud Scheduler → Cloud Run Job → live-summary.js
@@ -75,42 +102,38 @@ public site unattended.
 
 ## Go-live checklist
 
-Tick these in order. Everything in the portal is already built and deployed-ready;
-these are configuration steps only.
+Status as of 11 Aug 2026.
 
-- [ ] **1. Permanent token.** business.facebook.com → Business settings → Users →
-      System users → Add (role Admin) → Add assets → *Apps* (Full control) →
-      Add assets → *WhatsApp accounts* → your WABA (Full control) → Generate new
-      token, expiration **Never**, scopes `whatsapp_business_messaging` +
-      `whatsapp_business_management`. Copy immediately — shown once.
-      → **If the WABA isn't in that asset list, stop and use a ~60-day long-lived
-      user token instead**, with a rotation reminder.
-- [ ] **2. Recipients.** Meta → WhatsApp → API Setup → *To* → Manage phone number
-      list. **Max 5, permanent, unremovable.** Add 2 notulen + you. Each gets a
-      WhatsApp code they must read back to you.
-- [ ] **3. Vercel env vars** (Production), then redeploy:
-      `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_TEMPLATE_LANG=id`,
-      `WHATSAPP_API_VERSION=v21.0`,
-      `WHATSAPP_NOTE_TEMPLATE_NAME=catatan_khotbah_link`,
-      `WHATSAPP_STATUS_TEMPLATE_NAME=catatan_khotbah_status`,
-      `INTERNAL_WEBHOOK_SECRET=<openssl rand -hex 32>`.
-- [ ] **4. Prove it.** `/admin/khotbah` → Pengaturan Notulen → the ✈ button next
-      to a number sends Meta's `hello_world`. A failure shows Meta's own error plus
-      the fix. **Do this before writing any templates** — it validates token,
-      phone number ID and recipient list in one call.
-- [ ] **5. Re-test tomorrow.** Same ✈ button, 24h later. Still working ⇒ the token
-      is genuinely permanent. This is the only real proof of step 1.
-- [ ] **6. Templates.** Create `catatan_khotbah_link` (required) and
-      `catatan_khotbah_status` (optional) — see step 2 of the optional setup below.
-- [ ] **7. Engine secret.** Same `INTERNAL_WEBHOOK_SECRET` into Secret Manager and
-      onto the Cloud Run Job, then redeploy the engine image (setup step 4 below).
-- [ ] **8. Firestore rules.** `firebase deploy --only firestore:rules --project baranangsiang-evening-chur`
-- [ ] **9. Notulen.** Add names in `/admin/khotbah`, Save, copy each permanent link
-      and send it to them. **Do this even with WhatsApp working** — it's the
-      fallback that keeps Sunday alive if a send fails.
+**Done**
+- [x] Code written, committed, pushed — branch `feat/khotbah-automation`
+- [x] Permanent System User token — verified `type: SYSTEM_USER`, `expires_at: 0`
+- [x] Vercel Production env: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`,
+      `WHATSAPP_API_VERSION=v25.0`, `WHATSAPP_TEMPLATE_LANG=id`, all three template
+      names, `INTERNAL_WEBHOOK_SECRET`
+- [x] GCP: secret `internal-webhook-secret` created, `secretAccessor` granted to the
+      compute SA, Cloud Run Job carries `INTERNAL_WEBHOOK_SECRET` + `PORTAL_URL`
+- [x] `hello_world` delivered end-to-end from the permanent token
+- [x] Notulen registered with permanent links minted
 
-Steps 1-7 are only for the WhatsApp push. Steps 8-9 alone give a fully working
-pipeline.
+**Blocking a working Sunday**
+- [ ] **Merge + deploy to production.** `/notulen/<slug>` returns **404 on
+      www.gbibec.id** until this happens, so the links are dead. Highest priority.
+- [ ] **Rebuild the engine image.** `cd gbi-bec-youtube-live-sync && ASI1_API_KEY=<key> bash deploy.sh`
+      The Job has the env vars, but the *running image* has no `callPortal` code, so
+      nothing triggers combine-and-publish when a capture finishes.
+- [ ] **Firestore rules.** `firebase deploy --only firestore:rules --project baranangsiang-evening-chur`
+      Do this before links go out — the token *is* the credential.
+
+**Optional — the WhatsApp nudge only**
+- [ ] Create `catatan_khotbah_link` (weekly push) and `link_notulen` (✈ button).
+      `catatan_khotbah_status` for admin alerts is nice-to-have.
+- [ ] Add remaining numbers to Meta's 5-slot allow-list. Each row in
+      `/admin/khotbah` shows its status; unregistered numbers are flagged.
+- [ ] Flip *Kirim link otomatis via WhatsApp* on.
+- [ ] Raise `linkTtlHours` from 2 to 12 — 2h is too tight if a notulen writes up
+      at home.
+
+Nothing in the optional block affects whether Sunday publishes.
 
 ## Setup — permanent links (the working path)
 
@@ -248,6 +271,33 @@ Button → **Call to action → Visit website → Dynamic**:
 
 > The base URL is baked into the approved template; only the token travels at send
 > time as the suffix. That is why tokens are plain hex — no escaping ambiguity.
+
+#### `link_notulen` — required only for the ✈ button
+
+One-time distribution of a notulen's permanent bookmark. Skip it if you hand links
+out with **Kirim via WA** instead.
+
+Body:
+
+```
+Shalom {{1}}! 🙏
+
+Ini link tetap untuk mengirim catatan khotbah. Simpan atau bookmark link ini — dipakai setiap ibadah dan tidak berganti.
+
+Cara pakai: buka link di bawah SETELAH khotbah selesai, tulis atau tempel catatan Anda, lalu kirim. Catatan akan otomatis digabung dengan transkrip dan diterbitkan di halaman Kabar.
+
+Tuhan Yesus memberkati. 🕊️
+```
+
+Sample value: `{{1}}` = `Budi`.
+
+Button → **Call to action → Visit website → Dynamic**:
+- Base URL: `https://www.gbibec.id/notulen/`
+- Button text: `Buka Form Catatan`
+- Sample suffix: `budi-a3f9c2e14b7d9051`
+
+> Note the base URL is `/notulen/`, **not** `/catatan/` — this template carries the
+> permanent slug, not a one-time token.
 
 #### `catatan_khotbah_status` — optional
 

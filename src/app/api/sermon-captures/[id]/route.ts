@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { getAutomationLog } from '@/lib/automation-log';
 
 // GET /api/sermon-captures/[id] — full doc + transcript fetched from GCS
 export async function GET(
@@ -35,7 +36,11 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({ id: doc.id, ...data, transcript });
+    // Durable audit trail — what the automation did, so a failed Sunday can be
+    // reconstructed later without digging through expired platform logs.
+    const automationLog = await getAutomationLog(db, id).catch(() => []);
+
+    return NextResponse.json({ id: doc.id, ...data, transcript, automationLog });
   } catch (err) {
     console.error('Get sermon_capture error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

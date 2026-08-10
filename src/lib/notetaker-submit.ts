@@ -1,4 +1,5 @@
 import type { Firestore } from 'firebase-admin/firestore';
+import { logAutomation } from '@/lib/automation-log';
 
 /**
  * Saving a notulen's notes onto a capture.
@@ -79,6 +80,14 @@ export async function saveNotesToCapture(
   }
 
   await captureRef.update(updates);
+
+  await logAutomation(db, {
+    captureId,
+    step: 'notes-submitted',
+    ok: true,
+    detail: `${notes.length} chars${stillCapturing ? ' — stopRequested dikirim' : ' — capture sudah selesai'}`,
+    source,
+  });
 
   return {
     ok: true,

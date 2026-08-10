@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAuthToken } from '@/lib/firebase-admin';
-import { isWhatsAppConfigured, sendHelloWorld } from '@/lib/whatsapp';
+import { isWhatsAppConfigured, sendHelloWorld, sendNotulenLink } from '@/lib/whatsapp';
 
 /**
  * POST /api/notetaker-settings/test-send  { phone }
@@ -34,11 +34,18 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => ({}));
     const phone = typeof body?.phone === 'string' ? body.phone.trim() : '';
+    const name = typeof body?.name === 'string' ? body.name.trim() : '';
+    const slug = typeof body?.slug === 'string' ? body.slug.trim() : '';
     if (!phone) {
       return NextResponse.json({ error: 'Nomor HP belum diisi.' }, { status: 400 });
     }
 
-    const result = await sendHelloWorld(phone);
+    // With a slug, send the real thing — the notulen's permanent link, same
+    // content as the wa.me button. Without one (no link to send yet), fall back to
+    // hello_world, which still proves token + phone ID + allow-list.
+    const result = slug
+      ? await sendNotulenLink(phone, name, slug)
+      : await sendHelloWorld(phone);
 
     if (result.ok) {
       return NextResponse.json({ success: true, messageId: result.messageId });
@@ -65,8 +72,8 @@ function hintFor(detail: string): string | undefined {
   if (/OAuth|access token|session/i.test(detail)) {
     return 'Token kedaluwarsa atau salah. Token dari layar API Setup hanya berlaku 24 jam — pakai token System User dengan expiration "Never".';
   }
-  if (detail.includes('132000') || /template/i.test(detail)) {
-    return 'Template hello_world tidak ditemukan di WABA ini. Biasanya berarti WHATSAPP_PHONE_NUMBER_ID menunjuk ke nomor/WABA yang berbeda.';
+  if (detail.includes('132001') || detail.includes('132000') || /template/i.test(detail)) {
+    return 'Template belum ada / belum disetujui. Buat template `link_notulen` (Utility, bahasa id) dengan tombol URL dinamis berbasis https://www.gbibec.id/notulen/ — lihat docs/khotbah-automation.md.';
   }
   if (detail.includes('phone_number_id') || detail.includes('(#100)')) {
     return 'WHATSAPP_PHONE_NUMBER_ID kemungkinan berisi nomor teleponnya, bukan Phone number ID-nya.';

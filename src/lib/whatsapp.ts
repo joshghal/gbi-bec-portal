@@ -168,6 +168,40 @@ export async function sendNotetakerLink(
 }
 
 /**
+ * Send a notulen their PERMANENT bookmark link over WhatsApp.
+ *
+ * Mirrors the wa.me message the admin UI pre-fills, but delivered by the API so
+ * it needs no manual tap. The URL cannot sit in the body — Meta requires dynamic
+ * URLs to live in a button — so the approved template carries the base
+ * `https://www.gbibec.id/notulen/` and we supply the slug as the suffix.
+ *
+ * Sent once per notulen, not weekly: the link never changes.
+ *
+ * @param phone Notulen's phone, raw
+ * @param name  Notulen's name → body {{1}}
+ * @param slug  Their permanent slug → URL button suffix
+ */
+export async function sendNotulenLink(
+  phone: string | undefined,
+  name: string,
+  slug: string,
+): Promise<WhatsAppSendResult> {
+  const templateName = process.env.WHATSAPP_LINK_TEMPLATE_NAME || 'link_notulen';
+  return sendTemplate(phone, templateName, [
+    {
+      type: 'body',
+      parameters: [{ type: 'text', text: name.trim() || 'Notulen' }],
+    },
+    {
+      type: 'button',
+      sub_type: 'url',
+      index: '0',
+      parameters: [{ type: 'text', text: slug }],
+    },
+  ]);
+}
+
+/**
  * Tell the admin what the automation did (or couldn't do).
  *
  * Optional by design: if this template never gets approved the main pipeline is
@@ -212,6 +246,49 @@ export async function sendKhotbahStatus(
  */
 export async function sendHelloWorld(phone: string | undefined): Promise<WhatsAppSendResult> {
   return sendTemplate(phone, 'hello_world', [], 'en_US');
+}
+
+/**
+ * A template name that must never exist. Used to probe recipient eligibility.
+ */
+const PROBE_TEMPLATE = '__bec_allowlist_probe__';
+
+export type RecipientCheck =
+  | { status: 'registered' }
+  | { status: 'not-registered' }
+  | { status: 'unknown'; detail: string }
+  | { status: 'unconfigured' };
+
+/**
+ * Determine whether a number is on the test number's allowed-recipient list
+ * WITHOUT delivering anything.
+ *
+ * Meta validates the recipient before it resolves the template, so sending a
+ * deliberately nonexistent template separates the two cases cleanly:
+ *   131030 -> recipient not in the allowed list
+ *   132001 / 132000 -> recipient IS allowed; only the template was missing
+ * Neither outcome delivers a message, which is what makes this safe to run
+ * against real congregants' numbers.
+ *
+ * Verified empirically: one request to three numbers returned 131030 for the
+ * unregistered one and 132001 for the two registered ones.
+ */
+export async function checkRecipientAllowed(phone: string | undefined): Promise<RecipientCheck> {
+  if (!isWhatsAppConfigured()) return { status: 'unconfigured' };
+
+  const res = await sendTemplate(phone, PROBE_TEMPLATE, [], 'en_US');
+
+  // A successful send would mean the probe template somehow exists — treat the
+  // recipient as allowed, since that is what the result proves.
+  if (res.ok) return { status: 'registered' };
+  if ('skipped' in res && res.skipped) return { status: 'unknown', detail: res.reason };
+
+  const detail = res.error;
+  if (detail.includes('131030')) return { status: 'not-registered' };
+  if (detail.includes('132001') || detail.includes('132000') || /template/i.test(detail)) {
+    return { status: 'registered' };
+  }
+  return { status: 'unknown', detail };
 }
 
 /**

@@ -8,6 +8,7 @@ import {
   serviceLabel,
 } from '@/lib/notetaker';
 import { isWhatsAppConfigured, sendNotetakerLink } from '@/lib/whatsapp';
+import { logAutomation } from '@/lib/automation-log';
 import { SITE_URL } from '@/lib/seo';
 
 /**
@@ -111,6 +112,15 @@ export async function POST(
     if (sentCount === 0) {
       console.warn(`[notify-notetaker] ${id}: no message delivered`, results);
     }
+
+    await logAutomation(db, {
+      captureId: id,
+      step: 'notify-notetaker',
+      ok: sentCount > 0,
+      detail: `terkirim ${sentCount}/${results.length}`,
+      source: force ? 'manual-force' : 'engine-hook',
+      data: { token, results },
+    });
 
     return NextResponse.json({
       token,
