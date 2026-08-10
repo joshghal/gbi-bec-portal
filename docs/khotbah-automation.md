@@ -9,6 +9,32 @@ combined summary → create a kabar post → publish).
 
 ---
 
+## Meta IDs (record — hard to rediscover)
+
+| | |
+| --- | --- |
+| App | `3559966887559283` |
+| Phone number ID | `191132940748436` — `+1 555-099-6677` (Meta test number) |
+| Business Portfolio | `214188925063553` |
+| **WABA** | **`165176576686065`** |
+
+Meta exposes **no reverse lookup from phone number to WABA**. Every probe on the
+phone number, plus `/me/businesses` and `/me/assigned_whatsapp_business_accounts`,
+returns empty for an Admin system-user token — it reports `(all)` rather than
+enumerating. The only route that works:
+
+```bash
+# business_id comes from a business_id= query param on any developers.facebook.com URL
+curl -s "https://graph.facebook.com/v25.0/214188925063553/owned_whatsapp_business_accounts?access_token=$T"
+```
+
+Two gotchas learned the hard way:
+- **Free-form text does not deliver from a test number.** Meta returns 200 with a
+  wamid and silently drops it — no `131047`. Templates *do* deliver. So the
+  "open a 24h service window" workaround does not apply; a template is mandatory.
+- **Cloud API cannot report message status.** `sent`/`delivered`/`failed` arrives
+  only via webhook, so without one a non-delivery is invisible.
+
 ## Original requirements → what shipped
 
 | Asked for | Shipped | Notes |
