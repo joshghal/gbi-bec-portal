@@ -6,6 +6,12 @@ const requests = new Map<string, number[]>();
 
 // Rate limits per route prefix: [max requests, window in seconds]
 const RATE_LIMITS: Record<string, [number, number]> = {
+  // NOTE: getLimit() returns the FIRST prefix match, so the longer, more specific
+  // '/api/notetaker-settings' must be listed before '/api/notetaker' — otherwise
+  // the admin settings route inherits the strict public-form limit.
+  '/api/notetaker-settings': [30, 60], // admin-only settings CRUD
+  '/api/notetaker': [20, 60],   // 20 req/min — public token-gated notes form
+  '/api/notulen': [20, 60],     // 20 req/min — public slug-gated notes form
   '/api/chat': [15, 60],        // 15 req/min — AI calls are expensive
   '/api/forms': [30, 60],       // 30 req/min — admin browsing needs headroom
   '/api/updates': [30, 60],     // 30 req/min — public reads + admin writes
@@ -19,6 +25,10 @@ const RATE_LIMITS: Record<string, [number, number]> = {
 // Stricter limits for specific methods (public submission abuse prevention)
 const METHOD_LIMITS: Record<string, Record<string, [number, number]>> = {
   '/api/forms': { POST: [2, 60] }, // 2 POST/min — public form submissions
+  // Notes submission is one-shot per service; a few retries is all a real notulen
+  // ever needs. Guards against someone brute-forcing tokens/slugs via POST.
+  '/api/notetaker': { POST: [5, 60] },
+  '/api/notulen': { POST: [5, 60] },
 };
 const DEFAULT_LIMIT: [number, number] = [60, 60]; // 60 req/min fallback
 

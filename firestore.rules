@@ -18,6 +18,20 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Sermon captures + the single-use notetaker links that gate them. Reached
+    // only through /api/notetaker/[token] and /api/sermon-captures/*, which run
+    // the Admin SDK. A client must never read note_links: the document ID *is*
+    // the credential, so a listable collection would hand out every live link.
+    match /sermon_captures/{doc} {
+      allow read, write: if false;
+    }
+    match /note_links/{doc} {
+      allow read, write: if false;
+    }
+    match /sermon_automation_log/{doc} {
+      allow read, write: if false;
+    }
+
     // Suggestions — public write only (admin reads via Admin SDK)
     match /suggestions/{doc} {
       allow read: if false;

@@ -41,6 +41,12 @@ export async function GET(request: NextRequest) {
         capturedAt: data.capturedAt,
         kabarId: data.kabarId ?? null,
         kabarSlug: data.kabarSlug ?? null,
+        // Notetaker automation state (link sent / notes origin / chain outcome)
+        noteLinkToken: data.noteLinkToken ?? null,
+        noteLinkSentAt: data.noteLinkSentAt ?? null,
+        manualNotesSource: data.manualNotesSource ?? null,
+        publishChainOutcome: data.publishChainOutcome ?? null,
+        publishChainAt: data.publishChainAt ?? null,
       };
     });
     return NextResponse.json(captures);
