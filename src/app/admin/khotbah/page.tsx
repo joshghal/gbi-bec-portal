@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileAudio, ExternalLink, FileText, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check, Columns2 } from 'lucide-react';
+import { Loader2, FileAudio, ExternalLink, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check, Columns2, Link2, Send } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { KhotbahCompare } from '@/components/khotbah-compare';
+import { NotetakerSettings } from '@/components/notetaker-settings';
 
 interface SermonCapture {
   id: string;
@@ -44,6 +45,12 @@ interface SermonCapture {
   capturedAt: string;
   kabarId: string | null;
   kabarSlug: string | null;
+  // Notetaker automation
+  noteLinkToken?: string | null;
+  noteLinkSentAt?: string | null;
+  manualNotesSource?: string | null;
+  publishChainOutcome?: string | null;
+  publishChainAt?: string | null;
 }
 
 const STATUS_BADGE: Record<string, string> = {
@@ -83,6 +90,8 @@ export default function KhotbahPage() {
   // Stop & Summarize confirmation
   const [stopConfirmFor, setStopConfirmFor] = useState<SermonCapture | null>(null);
   const [stopping, setStopping] = useState(false);
+  // Manual (re)send of the notetaker link
+  const [notifying, setNotifying] = useState<string | null>(null);
   // Active sub-tab per capture (catatan detail segmented control)
   const [activeTab, setActiveTab] = useState<Record<string, SubTab>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -279,6 +288,38 @@ export default function KhotbahPage() {
     }
   }
 
+  // Manual escape hatch: the engine normally fires this itself when audio starts.
+  // Used when the automation was off at capture time, the link expired, or it
+  // needs to go to a different notulen. `force=1` always mints a fresh link.
+  async function handleNotifyNotetaker(cap: SermonCapture) {
+    if (!user) return;
+    setNotifying(cap.id);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${cap.id}/notify-notetaker?force=1`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+
+      if (result.skipped) {
+        toast.warning(result.reason ?? 'Link tidak dikirim.');
+      } else if (result.sentCount === 0) {
+        toast.error(
+          `Link dibuat tapi tidak ada pesan yang terkirim (0/${result.total}). Cek konfigurasi WhatsApp.`,
+        );
+      } else {
+        toast.success(`Link notulen terkirim ke ${result.sentCount}/${result.total} nomor.`);
+      }
+      await fetchCaptures();
+    } catch (err) {
+      toastApiError(err, 'Gagal mengirim link notulen.');
+    } finally {
+      setNotifying(null);
+    }
+  }
+
   async function handleStopAndSummarize() {
     if (!user || !stopConfirmFor) return;
     setStopping(true);
@@ -338,8 +379,9 @@ export default function KhotbahPage() {
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Otomatis terisi setiap Minggu — capture dari 5 ibadah live via Gemini 3.1 Live + Gemini 2.5 Pro.
-            Klik tombol <em>→ Buat Draft Kabar</em> untuk membuat draft di halaman Kabar.
+            Otomatis terisi setiap Minggu — capture dari ibadah live via Gemini 3.1 Live + Gemini 2.5 Pro.
+            Kalau otomasi notulen aktif, link formulir dikirim sendiri lewat WhatsApp dan catatan terbit otomatis.
+            Tombol <em>→ Buat Draft Kabar</em> tetap tersedia untuk alur manual.
           </p>
           {hasLiveCapture && (
             <div className="mt-2 flex items-center gap-2 text-xs text-red-600">
@@ -353,6 +395,7 @@ export default function KhotbahPage() {
         </header>
 
         <main className="p-6">
+          <NotetakerSettings />
           {loading ? (
             <div className="flex items-center justify-center py-20 text-muted-foreground">
               <Loader2 className="w-5 h-5 animate-spin mr-2" /> Memuat catatan…
@@ -450,6 +493,11 @@ export default function KhotbahPage() {
                           )}
                           <span>videoId: <code className="font-mono">{cap.videoId}</code></span>
                         </div>
+                        <NoteLinkStrip
+                          cap={cap}
+                          busy={notifying === cap.id}
+                          onSend={() => handleNotifyNotetaker(cap)}
+                        />
                         {/* Catatan detail — segmented control (Manual · AI · Gabungan) */}
                         {(() => {
                         const activeSub: SubTab = activeTab[cap.id] ?? (cap.combinedSummary ? 'combined' : 'ai');
@@ -765,5 +813,69 @@ export default function KhotbahPage() {
         </DialogContent>
       </Dialog>
     </RequirePermission>
+  );
+}
+
+const CHAIN_OUTCOME_COPY: Record<string, { text: string; tone: string }> = {
+  published: { text: 'Catatan terbit otomatis', tone: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  'already-published': { text: 'Sudah terbit', tone: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+  'draft-no-notes': { text: 'Draft dibuat — catatan notulen tidak masuk, perlu ditinjau', tone: 'bg-amber-50 text-amber-800 border-amber-200' },
+  'draft-no-summary': { text: 'Transkrip kosong — tidak ada catatan yang bisa dibuat', tone: 'bg-red-50 text-red-700 border-red-200' },
+};
+
+/**
+ * Status of the notetaker link for one capture, plus the manual (re)send button.
+ * The engine sends the first link on its own; this exists for the cases it can't
+ * cover (automation was off, link expired, wrong recipient).
+ */
+function NoteLinkStrip({
+  cap,
+  busy,
+  onSend,
+}: {
+  cap: SermonCapture;
+  busy: boolean;
+  onSend: () => void;
+}) {
+  const submitted = cap.manualNotesSource === 'notetaker-link' && !!cap.manualNotes;
+  const chain = cap.publishChainOutcome ? CHAIN_OUTCOME_COPY[cap.publishChainOutcome] : null;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2">
+      <Link2 className="w-3.5 h-3.5 shrink-0 text-muted-foreground" />
+      <span className="text-xs font-medium">Link notulen</span>
+
+      {submitted ? (
+        <span className="text-xs rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-emerald-700">
+          catatan sudah masuk
+        </span>
+      ) : cap.noteLinkSentAt ? (
+        <span className="text-xs text-muted-foreground">
+          terkirim {new Date(cap.noteLinkSentAt).toLocaleString('id-ID')}
+        </span>
+      ) : (
+        <span className="text-xs text-muted-foreground italic">belum dikirim</span>
+      )}
+
+      {chain && (
+        <span className={`text-xs rounded-full border px-2 py-0.5 ${chain.tone}`}>{chain.text}</span>
+      )}
+
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={onSend}
+        disabled={busy || submitted}
+        className="ml-auto h-7 px-2 text-xs"
+        title={
+          submitted
+            ? 'Catatan sudah dikirim notulen — link tidak perlu dikirim ulang'
+            : 'Buat link baru dan kirim ulang ke notulen via WhatsApp'
+        }
+      >
+        {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Send className="w-3.5 h-3.5 mr-1.5" />}
+        {cap.noteLinkSentAt ? 'Kirim ulang' : 'Kirim link'}
+      </Button>
+    </div>
   );
 }
