@@ -38,6 +38,7 @@ interface SermonCapture {
   combinedAt?: string | null;
   combinedStale?: boolean;
   stopRequested?: boolean;
+  stopRequestedAt?: string | null;
   snapshotCount: number;
   status: string;
   endReason?: string;
@@ -52,6 +53,16 @@ interface SermonCapture {
   publishChainOutcome?: string | null;
   publishChainAt?: string | null;
 }
+
+/**
+ * How long a stop may legitimately take before we call the engine unresponsive.
+ *
+ * The engine polls stopRequested every 15s, then runs a Gemini 2.5 Pro summary
+ * over the whole transcript and uploads to GCS before flipping to 'captured' —
+ * on a 90-minute sermon that is comfortably over a minute. 3 min avoids crying
+ * wolf while still not spinning forever if the engine died.
+ */
+const STOP_UNRESPONSIVE_MS = 3 * 60 * 1000;
 
 const STATUS_BADGE: Record<string, string> = {
   capturing: 'bg-red-100 text-red-700 animate-pulse',
@@ -68,6 +79,18 @@ const END_REASON_BADGE: Record<string, string> = {
   'manual-stop': 'bg-violet-50 text-violet-700',
   'sigint': 'bg-gray-100 text-gray-700',
 };
+
+/**
+ * A stop signal that the engine has not acted on for too long. Almost always means
+ * the Cloud Run Job died: nothing is polling stopRequested, so the capture would
+ * sit at 'capturing' with a spinner forever.
+ */
+function isStopStale(cap: SermonCapture): boolean {
+  if (!cap.stopRequested || cap.status !== 'capturing') return false;
+  const at = Date.parse(cap.stopRequestedAt ?? '');
+  if (!Number.isFinite(at)) return true; // flag set with no timestamp — treat as stale
+  return Date.now() - at > STOP_UNRESPONSIVE_MS;
+}
 
 export default function KhotbahPage() {
   const { user } = useAuth();
@@ -626,15 +649,21 @@ export default function KhotbahPage() {
                                   size="sm"
                                   variant="destructive"
                                   onClick={() => setStopConfirmFor(cap)}
-                                  disabled={cap.stopRequested}
-                                  title="Stop live capture sekarang lalu generate summary dari transcript yang sudah masuk"
+                                  disabled={cap.stopRequested && !isStopStale(cap)}
+                                  title={
+                                    isStopStale(cap)
+                                      ? 'Engine belum merespons sinyal stop. Kemungkinan job sudah mati — coba kirim ulang, atau pakai Generate Summary setelah status berubah.'
+                                      : 'Stop live capture sekarang lalu generate summary dari transcript yang sudah masuk'
+                                  }
                                 >
-                                  {cap.stopRequested ? (
+                                  {cap.stopRequested && !isStopStale(cap) ? (
                                     <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
                                   ) : (
                                     <Square className="w-3.5 h-3.5 mr-1.5" />
                                   )}
-                                  {cap.stopRequested ? 'Stopping…' : 'Stop & Summarize'}
+                                  {cap.stopRequested
+                                    ? (isStopStale(cap) ? 'Coba stop lagi' : 'Stopping…')
+                                    : 'Stop & Summarize'}
                                 </Button>
                               ) : (
                                 <Button

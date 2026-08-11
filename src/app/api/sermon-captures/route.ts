@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
         status: data.status,
         endReason: data.endReason,
         stopRequested: data.stopRequested ?? false,
+        stopRequestedAt: data.stopRequestedAt ?? null,
         actualDurationMs: data.actualDurationMs,
         capturedAt: data.capturedAt,
         kabarId: data.kabarId ?? null,
