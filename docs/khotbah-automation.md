@@ -28,6 +28,21 @@ enumerating. The only route that works:
 curl -s "https://graph.facebook.com/v25.0/214188925063553/owned_whatsapp_business_accounts?access_token=$T"
 ```
 
+### Console links (IDs pre-filled)
+
+| What | URL |
+| --- | --- |
+| Template status | https://business.facebook.com/wa/manage/message-templates/?business_id=214188925063553&waba_id=165176576686065 |
+| WhatsApp Manager home | https://business.facebook.com/wa/manage/home/?business_id=214188925063553 |
+| Phone numbers / quality rating | https://business.facebook.com/wa/manage/phone-numbers/?business_id=214188925063553&waba_id=165176576686065 |
+| API Setup + 5-slot recipient list | https://developers.facebook.com/apps/3559966887559283/whatsapp-business/wa-dev-console/?business_id=214188925063553 |
+| System users / permanent token | https://business.facebook.com/settings/system-users?business_id=214188925063553 |
+| Ads-restriction appeal | https://business.facebook.com/accountquality |
+
+Fallback if a link bounces: business.facebook.com → gear → Business settings →
+Accounts → WhatsApp Accounts → *Test WhatsApp Business Account* → Manage message
+templates.
+
 Two gotchas learned the hard way:
 - **Free-form text does not deliver from a test number.** Meta returns 200 with a
   wamid and silently drops it — no `131047`. Templates *do* deliver. So the
