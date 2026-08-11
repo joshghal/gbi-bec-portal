@@ -38,7 +38,10 @@ export async function GET(
     }
 
     return NextResponse.json({
-      status: 'ok',
+      // 'submitted' rather than 'ok' once notes exist, so the page stops offering
+      // the form. Server-side saveNotesToCapture also refuses, but showing the
+      // form at all reads as "you can send again".
+      status: capture.hasNotes ? 'submitted' : 'ok',
       name: recipient.name,
       captureId: capture.id,
       service: serviceLabel(capture.serviceNumber, capture.sermonDate),

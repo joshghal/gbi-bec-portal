@@ -218,6 +218,17 @@ export interface ActiveCapture {
   title: string | null;
   /** True while the engine is still transcribing — submitting will stop it. */
   live: boolean;
+  /**
+   * Notes have ALREADY been submitted for this service.
+   *
+   * Tracked rather than filtered out so the page can say "sudah terkirim" instead
+   * of the misleading "belum ada ibadah live", and so the form is not offered a
+   * second time. Critically this can be true while `live` is also true: after a
+   * submit there is a window of up to 15s before the engine notices
+   * `stopRequested` and finalizes — and if the engine dies, that window never
+   * closes.
+   */
+  hasNotes: boolean;
 }
 
 /**
@@ -251,7 +262,6 @@ export async function findActiveCaptureForNotes(db: Firestore): Promise<ActiveCa
   const cutoff = Date.now() - NOTES_GRACE_HOURS * 60 * 60 * 1000;
   const recent = rows.find((r) => {
     if (r.data.status !== 'captured') return false;
-    if ((r.data.manualNotes ?? '').trim()) return false;
     const at = Date.parse(r.data.finalizedAt ?? r.data.capturedAt ?? '');
     return Number.isFinite(at) && at >= cutoff;
   });
@@ -270,6 +280,7 @@ function toActiveCapture(
     serviceNumber: data.serviceNumber ?? null,
     title: data.title ?? null,
     live,
+    hasNotes: Boolean((data.manualNotes ?? '').trim()),
   };
 }
 

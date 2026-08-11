@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AlertCircle, CalendarClock } from 'lucide-react';
+import { AlertCircle, CalendarClock, CheckCircle2 } from 'lucide-react';
 import { getAdminFirestore } from '@/lib/firebase-admin';
 import { findActiveCaptureForNotes, findRecipientBySlug, serviceLabel } from '@/lib/notetaker';
 import { NotetakerForm } from '../../catatan/[token]/notetaker-form';
@@ -50,6 +50,21 @@ export default async function NotulenPage({
           icon={<CalendarClock className="w-6 h-6 text-muted-foreground" />}
           title="Belum ada ibadah live"
           body="Saat ini tidak ada ibadah yang sedang berlangsung. Simpan halaman ini sebagai bookmark — buka lagi setelah khotbah selesai dan formulir catatan akan muncul otomatis di sini."
+        />
+      </Shell>
+    );
+  }
+
+  // Notes already in for this service — never offer the form again, even while the
+  // capture is still 'capturing' (there is a window of up to 15s before the engine
+  // acts on stopRequested, and if it crashed the window never closes).
+  if (capture.hasNotes) {
+    return (
+      <Shell name={recipient.name}>
+        <StatusCard
+          icon={<CheckCircle2 className="w-6 h-6 text-emerald-600" />}
+          title="Catatan sudah terkirim"
+          body={`Catatan untuk ${serviceLabel(capture.serviceNumber, capture.sermonDate)} sudah kami terima dan sedang diproses menjadi catatan khotbah. Tidak perlu mengirim ulang.`}
         />
       </Shell>
     );
