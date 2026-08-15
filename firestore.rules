@@ -31,6 +31,11 @@ service cloud.firestore {
     match /sermon_automation_log/{doc} {
       allow read, write: if false;
     }
+    // Written by the Instagram sync (Admin SDK) to pin one generated poster per
+    // source flyer. Never touched by a client.
+    match /landscape_cache/{doc} {
+      allow read, write: if false;
+    }
 
     // Suggestions — public write only (admin reads via Admin SDK)
     match /suggestions/{doc} {
