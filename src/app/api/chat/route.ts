@@ -1,13 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { generateEmbedding } from '@/lib/embeddings';
 import { searchDocuments } from '@/lib/pinecone';
-import { callChatAI, parseJSONResponse } from '@/lib/ai/chat-handler';
+import { streamChatAI, parseJSONResponse } from '@/lib/ai/chat-handler';
+import { JsonStringFieldStreamer } from '@/lib/ai/stream-json-field';
 import {
   buildSystemPrompt,
   buildUserPrompt,
   formatDocumentsForContext,
 } from '@/lib/ai/chat-prompts';
 import { getAdminFirestore } from '@/lib/firebase-admin';
+
+const encoder = new TextEncoder();
+function sseLine(event: object): Uint8Array {
+  return encoder.encode(`data: ${JSON.stringify(event)}\n\n`);
+}
 
 async function getDisabledForms(): Promise<string[]> {
   try {
@@ -83,101 +89,145 @@ async function getLiveSchedule(): Promise<string> {
   }
 }
 
+/**
+ * Streams the assistant's answer as it's generated.
+ *
+ * The model is instructed to emit one JSON object
+ * (`{response, suggestedQuestions, formTrigger}`), so raw tokens can't just be
+ * forwarded — "{\"respon" isn't renderable. JsonStringFieldStreamer decodes the
+ * "response" field's text incrementally as tokens arrive; everything else
+ * (suggestedQuestions, formTrigger, the chat_misses fallback logic) only needs
+ * the full JSON, so it's parsed once at the end exactly as before streaming
+ * existed — parseJSONResponse and its fallback chain are untouched.
+ *
+ * Wire format (newline-delimited SSE-style, one JSON object per line):
+ *   {"type":"delta","text":"..."}   — new response text, in order
+ *   {"type":"done", response, suggestedQuestions, formTrigger, sources}
+ *   {"type":"error", error}
+ *
+ * `done.response` is the authoritative full text — if the model fell into the
+ * ASI1 `<tool_call>` malformed-output shape (no delta events were ever sent,
+ * since the field never literally appears as `"response":"`), the client falls
+ * back to displaying it there instead of what streamed.
+ */
 export async function POST(request: NextRequest) {
-  try {
-    const { message, history } = await request.json();
+  const { message, history } = await request.json();
 
-    if (!message || typeof message !== 'string') {
-      return NextResponse.json({ error: 'Message is required' }, { status: 400 });
-    }
-
-    // 1. Embed query + fetch form settings + fetch live dates + COOL groups in parallel
-    const [queryEmbedding, disabledForms, liveSchedule, liveCool] = await Promise.all([
-      generateEmbedding(message, 'query'),
-      getDisabledForms(),
-      getLiveSchedule(),
-      getLiveCoolGroups(message),
-    ]);
-
-    // 2. Search Pinecone for relevant documents
-    // topK: how many chunks to retrieve. KB has 36 chunks — 9 covers ~25% which is
-    // the right balance between recall and context noise.
-    const results = await searchDocuments(queryEmbedding, { topK: 9 });
-
-    // 3. Build the prompt — live dates always prepended so they're never missed
-    const vectorContext = formatDocumentsForContext(results);
-    const liveContext = [liveSchedule, liveCool].filter(Boolean).join('\n\n---\n\n');
-    const documentContext = liveContext
-      ? `${liveContext}\n\n---\n\n${vectorContext}`
-      : vectorContext;
-
-    const sources = results.map(r => ({ id: r.id, score: Math.round(r.score * 1000) / 1000 }));
-
-    const userPrompt = buildUserPrompt(message, documentContext, history || []);
-    const systemPrompt = buildSystemPrompt(disabledForms);
-
-    // 4. Call ASI:One Mini
-    const aiResult = await callChatAI({
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
+  if (!message || typeof message !== 'string') {
+    return new Response(JSON.stringify({ error: 'Message is required' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    if (!aiResult.success) {
-      return NextResponse.json(
-        { error: aiResult.error || 'AI request failed' },
-        { status: 502 }
-      );
-    }
-
-    // 5. Parse the JSON response
-    const parsed = parseJSONResponse<{
-      response: string;
-      suggestedQuestions: string[];
-      formTrigger?: string | null;
-    }>(aiResult.content!);
-
-    if (parsed) {
-      // Log unanswered questions (fire-and-forget)
-      if (parsed.response.includes('belum memiliki informasi')) {
-        getAdminFirestore().collection('chat_misses').add({
-          question: message,
-          response: parsed.response,
-          sources,
-          timestamp: new Date(),
-        }).catch(() => {});
-      }
-
-      return NextResponse.json({
-        response: parsed.response,
-        suggestedQuestions: parsed.suggestedQuestions || [],
-        formTrigger: parsed.formTrigger || null,
-        sources,
-      });
-    }
-
-    // Fallback: return raw content if JSON parsing fails
-    const rawContent = aiResult.content ?? '';
-    if (rawContent.includes('belum memiliki informasi')) {
-      getAdminFirestore().collection('chat_misses').add({
-        question: message,
-        response: rawContent,
-        sources,
-        timestamp: new Date(),
-      }).catch(() => {});
-    }
-
-    return NextResponse.json({
-      response: rawContent,
-      suggestedQuestions: [],
-      sources,
-    });
-  } catch (error) {
-    console.error('Chat API error:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
   }
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        // 1. Embed query + fetch form settings + fetch live dates + COOL groups in parallel
+        const [queryEmbedding, disabledForms, liveSchedule, liveCool] = await Promise.all([
+          generateEmbedding(message, 'query'),
+          getDisabledForms(),
+          getLiveSchedule(),
+          getLiveCoolGroups(message),
+        ]);
+
+        // 2. Search Pinecone for relevant documents
+        // topK: how many chunks to retrieve. KB has 36 chunks — 9 covers ~25% which is
+        // the right balance between recall and context noise.
+        const results = await searchDocuments(queryEmbedding, { topK: 9 });
+
+        // 3. Build the prompt — live dates always prepended so they're never missed
+        const vectorContext = formatDocumentsForContext(results);
+        const liveContext = [liveSchedule, liveCool].filter(Boolean).join('\n\n---\n\n');
+        const documentContext = liveContext
+          ? `${liveContext}\n\n---\n\n${vectorContext}`
+          : vectorContext;
+
+        const sources = results.map(r => ({ id: r.id, score: Math.round(r.score * 1000) / 1000 }));
+
+        const userPrompt = buildUserPrompt(message, documentContext, history || []);
+        const systemPrompt = buildSystemPrompt(disabledForms);
+
+        // 4. Call ASI:One Mini, streaming the "response" field text live
+        const fieldStreamer = new JsonStringFieldStreamer('response');
+        const aiResult = await streamChatAI(
+          {
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+          },
+          (delta) => {
+            const text = fieldStreamer.push(delta);
+            if (text) controller.enqueue(sseLine({ type: 'delta', text }));
+          },
+        );
+
+        if (!aiResult.success) {
+          controller.enqueue(sseLine({ type: 'error', error: aiResult.error || 'AI request failed' }));
+          controller.close();
+          return;
+        }
+
+        // 5. Parse the full JSON response — same parsing/fallback chain as before streaming
+        const parsed = parseJSONResponse<{
+          response: string;
+          suggestedQuestions: string[];
+          formTrigger?: string | null;
+        }>(aiResult.content!);
+
+        const finalResponse = parsed?.response ?? aiResult.content ?? '';
+        const suggestedQuestions = parsed?.suggestedQuestions ?? [];
+        const formTrigger = parsed?.formTrigger ?? null;
+
+        // Log unanswered questions (fire-and-forget)
+        if (finalResponse.includes('belum memiliki informasi')) {
+          // Last 4 turns BEFORE this question — `history` is the client's prior
+          // conversation, not including the current message. A miss like "jadi
+          // bagaimana yaa" is meaningless in isolation; this is what lets an
+          // admin reviewing /admin/pertanyaan-tak-terjawab see what it was
+          // actually a follow-up to.
+          const recentContext = Array.isArray(history)
+            ? history.slice(-4).map((m: { role: string; content: string }) => ({
+                role: m.role,
+                content: m.content,
+              }))
+            : [];
+
+          getAdminFirestore().collection('chat_misses').add({
+            question: message,
+            response: finalResponse,
+            sources,
+            context: recentContext,
+            timestamp: new Date(),
+          }).catch(() => {});
+        }
+
+        controller.enqueue(sseLine({
+          type: 'done',
+          response: finalResponse,
+          suggestedQuestions,
+          formTrigger,
+          sources,
+        }));
+        controller.close();
+      } catch (error) {
+        console.error('Chat API error:', error);
+        controller.enqueue(sseLine({
+          type: 'error',
+          error: error instanceof Error ? error.message : 'Internal server error',
+        }));
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      'Connection': 'keep-alive',
+      'X-Accel-Buffering': 'no', // disable nginx buffering, if ever fronted by one
+    },
+  });
 }

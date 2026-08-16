@@ -6,6 +6,8 @@ export interface ChatMessage {
   sources?: { id: string; score: number }[];
   timestamp: number;
   isError?: boolean;
+  /** True while this message's content is still arriving from the stream. */
+  isStreaming?: boolean;
   // Form-specific fields
   formCards?: { type: string; title: string; description: string; icon: string }[];
   formOptions?: string[];

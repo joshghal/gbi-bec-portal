@@ -113,6 +113,13 @@ export function ChatMessage({ message, formSummaryEditable, onSuggestionClick, o
               >
                 {message.content}
               </ReactMarkdown>
+              {/* Blinking cursor while text is still streaming in. A separate
+                  element rather than appending a char to content — appending
+                  would land inside whatever markdown block just closed (e.g.
+                  after a list item), not visually "at the end". */}
+              {message.isStreaming && (
+                <span className="inline-block w-[2px] h-[1em] -mb-[2px] bg-foreground/60 animate-pulse" />
+              )}
             </div>
           )}
         </div>

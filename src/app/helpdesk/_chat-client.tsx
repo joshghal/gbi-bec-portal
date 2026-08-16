@@ -89,6 +89,10 @@ export default function ChatClient() {
   const [messages, setMessages] = useState<ChatMessageType[]>([WELCOME_MESSAGE]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // True once the assistant's message bubble has been inserted (first delta
+  // received) — swaps the "Sedang mengetik..." indicator for the growing
+  // bubble + blinking cursor, rather than showing both at once.
+  const [isStreamingResponse, setIsStreamingResponse] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const shouldAutoScroll = useRef(true);
@@ -180,7 +184,12 @@ export default function ChatClient() {
     }]);
     setInput('');
     setIsLoading(true);
+    setIsStreamingResponse(false);
     shouldAutoScroll.current = true;
+
+    const assistantId = `assistant-${Date.now()}-${Math.random()}`;
+    let inserted = false; // true once the growing bubble exists in `messages`
+    let streamedText = '';
 
     try {
       const history = messages
@@ -192,25 +201,86 @@ export default function ChatClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text.trim(), history }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Request failed');
+      if (!response.ok || !response.body) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
 
-      setMessages(prev => [...prev, {
-        id: `assistant-${Date.now()}`, role: 'assistant', content: data.response,
-        suggestedQuestions: data.formTrigger ? undefined : data.suggestedQuestions,
-        sources: data.sources, timestamp: Date.now(),
-      }]);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let lineBuffer = '';
+      let done = false;
 
-      if (data.formTrigger && !form.isActive) {
-        setTimeout(() => form.selectForm(data.formTrigger, true), 500);
+      while (!done) {
+        const { done: readerDone, value } = await reader.read();
+        if (readerDone) break;
+
+        lineBuffer += decoder.decode(value, { stream: true });
+        const lines = lineBuffer.split('\n\n');
+        lineBuffer = lines.pop() ?? ''; // keep the trailing partial event
+
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+          if (!line.startsWith('data:')) continue;
+          let event: { type: string; [k: string]: unknown };
+          try {
+            event = JSON.parse(line.slice(5).trim());
+          } catch {
+            continue; // a single malformed line must not break the whole reply
+          }
+
+          if (event.type === 'delta') {
+            streamedText += event.text as string;
+            if (!inserted) {
+              inserted = true;
+              setIsStreamingResponse(true);
+              setMessages(prev => [...prev, {
+                id: assistantId, role: 'assistant', content: streamedText,
+                isStreaming: true, timestamp: Date.now(),
+              }]);
+            } else {
+              const text = streamedText;
+              setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: text } : m));
+            }
+          } else if (event.type === 'done') {
+            // Authoritative final text — covers the fallback case where the
+            // model never emitted a matchable "response" field live (e.g. the
+            // ASI1 malformed <tool_call> shape), so no deltas ever arrived.
+            const finalText = (event.response as string) ?? streamedText;
+            const formTrigger = event.formTrigger as string | null;
+            if (inserted) {
+              setMessages(prev => prev.map(m => m.id === assistantId ? {
+                ...m, content: finalText, isStreaming: false,
+                suggestedQuestions: formTrigger ? undefined : (event.suggestedQuestions as string[]),
+                sources: event.sources as { id: string; score: number }[],
+              } : m));
+            } else {
+              setMessages(prev => [...prev, {
+                id: assistantId, role: 'assistant', content: finalText, timestamp: Date.now(),
+                suggestedQuestions: formTrigger ? undefined : (event.suggestedQuestions as string[]),
+                sources: event.sources as { id: string; score: number }[],
+              }]);
+            }
+            if (formTrigger && !form.isActive) {
+              setTimeout(() => form.selectForm(formTrigger, true), 500);
+            }
+            done = true;
+          } else if (event.type === 'error') {
+            throw new Error((event.error as string) || 'AI request failed');
+          }
+        }
       }
     } catch {
+      // Remove a partially-streamed bubble rather than leaving a truncated
+      // answer on screen next to the error message.
+      if (inserted) setMessages(prev => prev.filter(m => m.id !== assistantId));
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`, role: 'assistant', timestamp: Date.now(), isError: true,
         content: 'Maaf, terjadi kesalahan. Silahkan coba lagi atau hubungi Call Centre GBI BEC di [WhatsApp 0878-2342-0950](https://wa.me/6287823420950).',
       }]);
     } finally {
       setIsLoading(false);
+      setIsStreamingResponse(false);
       inputRef.current?.focus();
     }
   }, [isLoading, messages, detectFormIntent, form]);
@@ -324,7 +394,9 @@ export default function ChatClient() {
             />
             </div>
           ))}
-          {(isLoading || form.isSubmitting) && (
+          {/* Hidden once text starts streaming in — the growing bubble +
+              blinking cursor becomes the progress indicator at that point. */}
+          {((isLoading && !isStreamingResponse) || form.isSubmitting) && (
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>{form.isSubmitting ? 'Mengirim formulir...' : 'Sedang mengetik...'}</span>

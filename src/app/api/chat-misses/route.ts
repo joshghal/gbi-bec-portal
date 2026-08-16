@@ -18,6 +18,10 @@ export async function GET(request: NextRequest) {
       question: doc.data().question || '',
       response: doc.data().response || '',
       sources: doc.data().sources || [],
+      // Absent on entries logged before this field existed — the UI treats
+      // that identically to "no prior messages", which is a safe reading
+      // either way (nothing to show an admin in both cases).
+      context: doc.data().context || [],
       timestamp: doc.data().timestamp?.toDate?.()?.toISOString() || new Date().toISOString(),
     }));
 
