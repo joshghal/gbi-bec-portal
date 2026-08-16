@@ -108,11 +108,13 @@ function SidebarContent({
   signOut,
   email,
   hasPermission,
+  onNavigate,
 }: {
   pathname: string;
   signOut: () => void;
   email: string | null;
   hasPermission: (perm: string) => boolean;
+  onNavigate?: () => void;
 }) {
   const [search, setSearch] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
@@ -180,7 +182,7 @@ function SidebarContent({
                   <Link
                     key={href}
                     href={href}
-                    onClick={() => setSearch('')}
+                    onClick={() => { setSearch(''); onNavigate?.(); }}
                     className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
                       active
                         ? 'bg-accent text-accent-foreground font-medium'
@@ -208,6 +210,7 @@ function SidebarContent({
                       <Link
                         key={href}
                         href={href}
+                        onClick={onNavigate}
                         className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${
                           active
                             ? 'bg-accent text-accent-foreground font-medium'
@@ -230,13 +233,14 @@ function SidebarContent({
       <div className="px-2 py-3 border-t space-y-1">
         <Link
           href="/helpdesk"
+          onClick={onNavigate}
           className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Kembali ke Chat
         </Link>
         <button
-          onClick={signOut}
+          onClick={() => { signOut(); onNavigate?.(); }}
           className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-accent/50 hover:text-foreground transition-colors w-full text-left"
         >
           <LogOut className="w-4 h-4" />
@@ -341,14 +345,13 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               <Menu className="w-5 h-5" />
             </SheetTrigger>
             <SheetContent side="left" className="w-[260px] p-0" showCloseButton={false}>
-              <div onClick={() => setMobileOpen(false)}>
-                <SidebarContent
-                  pathname={pathname}
-                  signOut={signOut}
-                  email={user.email}
-                  hasPermission={hasPermission}
-                />
-              </div>
+              <SidebarContent
+                pathname={pathname}
+                signOut={signOut}
+                email={user.email}
+                hasPermission={hasPermission}
+                onNavigate={() => setMobileOpen(false)}
+              />
             </SheetContent>
           </Sheet>
           <p className="font-semibold text-sm">GBI BEC Admin</p>
