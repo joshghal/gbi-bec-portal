@@ -211,7 +211,13 @@ export default function AboutIntro() {
           className="relative w-full h-full"
           style={{ opacity: 0 }}
         >
-          <div ref={collageRef} className="absolute inset-0">
+          {/* max-w caps how far the collage's clamp()-sized images (fixed px
+              ceilings) can spread apart — without it, on very wide effective
+              viewports (large monitors, or a browser zoomed out below ~75%)
+              the top/left percentage positions keep growing while the image
+              sizes don't, scattering the collage into disconnected pieces
+              with large gaps. */}
+          <div ref={collageRef} className="absolute inset-0 max-w-[1600px] mx-auto">
             {IMAGES.map((image, i) => {
               const range = 70 * image.depth;
               return (
