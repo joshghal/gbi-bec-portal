@@ -52,6 +52,7 @@ interface SermonCapture {
   manualNotesSource?: string | null;
   publishChainOutcome?: string | null;
   publishChainAt?: string | null;
+  cloudRunExecutionName?: string | null;
 }
 
 /**
@@ -70,7 +71,10 @@ const STATUS_BADGE: Record<string, string> = {
   failed: 'bg-red-100 text-red-700',
 };
 
-type SubTab = 'manual' | 'ai' | 'combined';
+type SubTab = 'manual' | 'ai' | 'combined' | 'logs';
+
+interface LogLine { timestamp: string; text: string; }
+interface LogsState { lines: LogLine[]; loading: boolean; error?: string; }
 
 const END_REASON_BADGE: Record<string, string> = {
   'stream-ended': 'bg-blue-50 text-blue-700',
@@ -119,6 +123,9 @@ export default function KhotbahPage() {
   const [activeTab, setActiveTab] = useState<Record<string, SubTab>>({});
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [compareMode, setCompareMode] = useState<Record<string, boolean>>({});
+  // On-demand Cloud Run execution log snapshot per capture (Item 4 —
+  // fetched once when the "Log Engine" tab is opened, not live-tailed).
+  const [logsData, setLogsData] = useState<Record<string, LogsState>>({});
 
   const fetchCaptures = useCallback(async () => {
     if (!user) return;
@@ -240,6 +247,24 @@ export default function KhotbahPage() {
       toastApiError(err, 'Gagal regenerate ringkasan.');
     } finally {
       setRegenerating(null);
+    }
+  }
+
+  async function handleFetchLogs(cap: SermonCapture, force = false) {
+    if (!user) return;
+    if (!force && logsData[cap.id] && !logsData[cap.id].error) return; // already loaded — this is a snapshot, not a live tail
+    setLogsData((prev) => ({ ...prev, [cap.id]: { lines: prev[cap.id]?.lines ?? [], loading: true } }));
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${cap.id}/logs`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+      setLogsData((prev) => ({ ...prev, [cap.id]: { lines: result.lines, loading: false } }));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Gagal memuat log';
+      setLogsData((prev) => ({ ...prev, [cap.id]: { lines: [], loading: false, error: message } }));
     }
   }
 
@@ -539,12 +564,16 @@ export default function KhotbahPage() {
                                   { key: 'manual' as const, label: 'Catatan Manual', Icon: PenLine, dot: !!cap.manualNotes },
                                   { key: 'ai' as const, label: 'Ringkasan AI', Icon: Sparkles, dot: !!(cap.finalSummary || cap.latestSummary) },
                                   { key: 'combined' as const, label: 'Catatan Gabungan', Icon: Combine, dot: !!cap.combinedSummary },
+                                  { key: 'logs' as const, label: 'Log Engine', Icon: ScrollText, dot: false },
                                 ]).map(({ key, label, Icon, dot }) => {
                                   const on = activeSub === key;
                                   return (
                                     <button
                                       key={key}
-                                      onClick={() => setActiveTab((prev) => ({ ...prev, [cap.id]: key }))}
+                                      onClick={() => {
+                                        setActiveTab((prev) => ({ ...prev, [cap.id]: key }));
+                                        if (key === 'logs') void handleFetchLogs(cap);
+                                      }}
                                       className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${on ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
                                     >
                                       <Icon className="w-3.5 h-3.5" />
@@ -754,6 +783,61 @@ export default function KhotbahPage() {
                             )}
                           </div>
                           )}
+
+                          {/* Cloud Run execution log — on-demand snapshot, not a live tail.
+                              Item 4: last ~30 min of the job execution that produced this
+                              capture, so an incident is diagnosable from the admin panel
+                              without gcloud CLI access. */}
+                          {activeSub === 'logs' && (() => {
+                            const logs = logsData[cap.id];
+                            return (
+                            <div>
+                              <div className="flex items-center justify-between mb-1.5 gap-2">
+                                <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
+                                  <ScrollText className="w-3 h-3" /> Log Cloud Run (30 menit terakhir eksekusi ini)
+                                </div>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => handleFetchLogs(cap, true)}
+                                  disabled={logs?.loading}
+                                  title="Snapshot sekali ambil — bukan live tail. Klik untuk ambil ulang."
+                                >
+                                  {logs?.loading ? (
+                                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                  ) : (
+                                    <ScrollText className="w-3.5 h-3.5 mr-1.5" />
+                                  )}
+                                  Ambil Ulang
+                                </Button>
+                              </div>
+                              {logs?.error ? (
+                                <div className="text-xs text-destructive bg-destructive/5 border border-destructive/20 rounded p-3">
+                                  {logs.error}
+                                </div>
+                              ) : logs?.loading && logs.lines.length === 0 ? (
+                                <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
+                                  — mengambil log... —
+                                </div>
+                              ) : logs && logs.lines.length > 0 ? (
+                                <div className="text-xs font-mono bg-card rounded border p-3 max-h-96 overflow-y-auto space-y-0.5">
+                                  {logs.lines.map((l, i) => (
+                                    <div key={i} className="whitespace-pre-wrap break-all">
+                                      <span className="text-muted-foreground/60">
+                                        {l.timestamp ? new Date(l.timestamp).toLocaleTimeString('id-ID') : ''}
+                                      </span>{' '}
+                                      {l.text}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-xs text-muted-foreground italic bg-card rounded border p-3">
+                                  — tidak ada baris log untuk eksekusi ini di rentang 30 menit. —
+                                </div>
+                              )}
+                            </div>
+                            );
+                          })()}
                           </>
                           )}
                         </div>
