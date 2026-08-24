@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileAudio, ExternalLink, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check, Columns2, Link2, Send } from 'lucide-react';
+import { Loader2, FileAudio, ExternalLink, ArrowRight, Trash2, CheckCircle2, AlertTriangle, ChevronDown, ChevronRight, Sparkles, ScrollText, PenLine, Combine, Square, Clipboard, Check, Columns2, Link2, Send, RotateCw } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { RequirePermission } from '@/components/require-permission';
 import { Button } from '@/components/ui/button';
@@ -117,6 +117,9 @@ export default function KhotbahPage() {
   // Stop & Summarize confirmation
   const [stopConfirmFor, setStopConfirmFor] = useState<SermonCapture | null>(null);
   const [stopping, setStopping] = useState(false);
+  // Manual re-run (Item 3) — spends real Cloud Run + Gemini cost, so confirm first
+  const [rerunConfirmFor, setRerunConfirmFor] = useState<SermonCapture | null>(null);
+  const [rerunning, setRerunning] = useState(false);
   // Manual (re)send of the notetaker link
   const [notifying, setNotifying] = useState<string | null>(null);
   // Active sub-tab per capture (catatan detail segmented control)
@@ -390,6 +393,39 @@ export default function KhotbahPage() {
     }
   }
 
+  // Item 3, render-time gate: cheap timestamp check only — no API call. The
+  // server route re-enforces both this window AND the real YouTube-status
+  // check before actually spending a Cloud Run execution; this is purely to
+  // decide whether the button should render as clickable at all.
+  const MAX_RERUN_WINDOW_MS = 3 * 60 * 60 * 1000; // 3h
+  function canRerun(cap: SermonCapture): boolean {
+    if (cap.status === 'capturing') return false;
+    const startedAt = cap.capturedAt;
+    if (!startedAt) return false;
+    const startedMs = Date.parse(startedAt);
+    return Number.isFinite(startedMs) && Date.now() - startedMs <= MAX_RERUN_WINDOW_MS;
+  }
+
+  async function handleRerun() {
+    if (!user || !rerunConfirmFor) return;
+    setRerunning(true);
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch(`/api/sermon-captures/${rerunConfirmFor.id}/rerun`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result?.error ?? `HTTP ${res.status}`);
+      toast.success('Re-run dipicu — capture baru akan mulai dalam beberapa detik.');
+      setRerunConfirmFor(null);
+    } catch (err) {
+      toastApiError(err, 'Gagal memicu re-run.');
+    } finally {
+      setRerunning(false);
+    }
+  }
+
   async function handleDelete() {
     if (!deleteId || !user) return;
     setDeleting(true);
@@ -519,6 +555,17 @@ export default function KhotbahPage() {
                               <ArrowRight className="w-3.5 h-3.5 mr-1.5" />
                             )}
                             Buat Draft Kabar
+                          </Button>
+                        )}
+                        {canRerun(cap) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setRerunConfirmFor(cap)}
+                            title="Coba tangkap ulang siaran ini dari awal — hanya berguna selagi siaran masih live"
+                          >
+                            <RotateCw className="w-3.5 h-3.5 mr-1.5" />
+                            Re-run
                           </Button>
                         )}
                         <Button
@@ -901,6 +948,34 @@ export default function KhotbahPage() {
               {stopping && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               <Square className="w-4 h-4 mr-1.5" />
               Stop & Summarize
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={rerunConfirmFor !== null} onOpenChange={(open) => { if (!open) setRerunConfirmFor(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Re-run Capture?</DialogTitle>
+            <DialogDescription>
+              Ini akan memicu eksekusi Cloud Run baru yang langsung menangkap ulang{' '}
+              <strong>{rerunConfirmFor?.title}</strong> dari video yang sama — hanya berguna kalau siarannya
+              masih live sekarang. Kalau siaran sudah selesai, server akan menolak aksi ini (tidak akan mendapat
+              konten lebih banyak dari re-capture ulang).
+              <br /><br />
+              Ini memakan biaya Cloud Run + Gemini baru dan akan menimpa transcript/summary capture ini.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogBody />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRerunConfirmFor(null)} disabled={rerunning}>Batal</Button>
+            <Button onClick={handleRerun} disabled={rerunning}>
+              {rerunning ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+              ) : (
+                <RotateCw className="w-4 h-4 mr-1.5" />
+              )}
+              Re-run
             </Button>
           </DialogFooter>
         </DialogContent>
