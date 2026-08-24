@@ -15,7 +15,8 @@ import { getServiceAccountCredentials } from './service-account';
 
 const PROJECT_ID = 'baranangsiang-evening-chur';
 const JOB_NAME = 'gbi-bec-youtube-live-sync';
-const LOOKBACK_MS = 30 * 60 * 1000;
+const WINDOW_MS = 30 * 60 * 1000;
+const CLOCK_SKEW_BUFFER_MS = 2 * 60 * 1000;
 
 let cachedAuth: GoogleAuth | null = null;
 
@@ -50,11 +51,21 @@ function redact(text: string): string {
 }
 
 /**
- * Fetch the last ~30 minutes of Cloud Logging entries for one Cloud Run Job
- * execution. `executionName` is the value already recorded on the capture doc
- * as `cloudRunExecutionName` (e.g. "gbi-bec-youtube-live-sync-pmglh").
+ * Fetch ~30 minutes of Cloud Logging entries for one Cloud Run Job execution,
+ * starting from when THAT EXECUTION began — not from "now". `executionName` is
+ * the value recorded on the capture doc as `cloudRunExecutionName` (e.g.
+ * "gbi-bec-youtube-live-sync-pmglh"); `executionStartedAt` is the capture doc's
+ * own `capturedAt` (set at job registration, i.e. execution start).
+ *
+ * Anchoring to "now" instead of the execution's own start was the original
+ * (wrong) design — it only ever returned results for an incident viewed within
+ * 30 minutes of it happening, which is the uncommon case; incident review
+ * normally happens well after the fact. Caught via direct testing against a
+ * day-old execution: the same query with no timestamp filter returns entries
+ * fine, with the "last 30 min of now" filter it silently returns zero even
+ * though the logs exist.
  */
-export async function fetchExecutionLogs(executionName: string): Promise<LogFetchResult> {
+export async function fetchExecutionLogs(executionName: string, executionStartedAt: string): Promise<LogFetchResult> {
   if (!executionName) {
     return { ok: false, lines: [], error: 'No cloudRunExecutionName on this capture (older captures predate this field).' };
   }
@@ -63,11 +74,16 @@ export async function fetchExecutionLogs(executionName: string): Promise<LogFetc
     const auth = getAuthClient();
     const client = await auth.getClient();
 
+    const anchorMs = Date.parse(executionStartedAt);
+    const windowStart = new Date((Number.isFinite(anchorMs) ? anchorMs : Date.now()) - CLOCK_SKEW_BUFFER_MS).toISOString();
+    const windowEnd = new Date((Number.isFinite(anchorMs) ? anchorMs : Date.now()) + WINDOW_MS).toISOString();
+
     const filter = [
       `resource.type="cloud_run_job"`,
       `resource.labels.job_name="${JOB_NAME}"`,
       `labels."run.googleapis.com/execution_name"="${executionName}"`,
-      `timestamp>="${new Date(Date.now() - LOOKBACK_MS).toISOString()}"`,
+      `timestamp>="${windowStart}"`,
+      `timestamp<="${windowEnd}"`,
     ].join(' AND ');
 
     const res = await client.request<{

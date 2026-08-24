@@ -22,15 +22,19 @@ export async function GET(
     const snap = await db.collection('sermon_captures').doc(id).get();
     if (!snap.exists) return NextResponse.json({ error: 'Not found' }, { status: 404 });
 
-    const executionName = snap.data()?.cloudRunExecutionName as string | null | undefined;
+    const data = snap.data();
+    const executionName = data?.cloudRunExecutionName as string | null | undefined;
     if (!executionName) {
       return NextResponse.json(
         { error: 'Capture ini tidak punya cloudRunExecutionName (dibuat sebelum fitur ini ada).' },
         { status: 404 },
       );
     }
+    // Anchor the log window to when the execution actually started, not to
+    // "now" — see fetchExecutionLogs' doc comment for why that distinction matters.
+    const executionStartedAt = (data?.capturedAt ?? data?.createdAt) as string | undefined;
 
-    const result = await fetchExecutionLogs(executionName);
+    const result = await fetchExecutionLogs(executionName, executionStartedAt ?? new Date().toISOString());
     if (!result.ok) {
       return NextResponse.json({ error: result.error ?? 'Log fetch failed' }, { status: 502 });
     }
