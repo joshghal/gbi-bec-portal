@@ -52,7 +52,14 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
 
   // The chain needs the engine's final Gemini summary, which only exists once the
   // capture has finalized. Calling early is a caller bug, not a failure.
-  if (cap.status !== 'captured') {
+  //
+  // 'failed' is also accepted — the engine's fatal-error path (see markFatal in
+  // live-summary.ts) calls this same route when a capture never gets far enough
+  // to produce a transcript at all (e.g. every yt-dlp manifest attempt failing).
+  // manualNotes and aiSummary are both empty in that case, so it falls straight
+  // into Case 1 below ("nothing to publish") — the exact right outcome: record
+  // it, alert the admin, no false "draft" pretending there's content.
+  if (cap.status !== 'captured' && cap.status !== 'failed') {
     await logAutomation(db, {
       captureId, step: 'publish-chain', ok: false,
       detail: `dipanggil terlalu awal (status=${cap.status})`,
@@ -60,7 +67,7 @@ export async function runPublishChain(db: Firestore, captureId: string): Promise
     return {
       ok: false,
       status: 409,
-      error: `Capture belum selesai (status: ${cap.status}). Chain hanya jalan setelah status 'captured'.`,
+      error: `Capture belum selesai (status: ${cap.status}). Chain hanya jalan setelah status 'captured' atau 'failed'.`,
     };
   }
 

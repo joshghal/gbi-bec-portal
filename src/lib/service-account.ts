@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
+import { Storage } from '@google-cloud/storage';
 
 export interface ServiceAccountCredentials {
   type: string;
@@ -43,4 +44,19 @@ export function getServiceAccountCredentials(): ServiceAccountCredentials | null
   }
 
   return null;
+}
+
+let _storage: Storage | null = null;
+
+// Bare `new Storage()` relies on Application Default Credentials — which on
+// Vercel finds nothing (no metadata server, no GOOGLE_APPLICATION_CREDENTIALS
+// file) and throws the moment a call is actually made. firebase-admin already
+// avoids this via getServiceAccountCredentials(); GCS calls need the same.
+export function getStorageClient(): Storage {
+  if (_storage) return _storage;
+  const creds = getServiceAccountCredentials();
+  _storage = creds
+    ? new Storage({ projectId: creds.project_id, credentials: creds })
+    : new Storage();
+  return _storage;
 }

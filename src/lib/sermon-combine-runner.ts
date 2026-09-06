@@ -1,6 +1,6 @@
-import { Storage } from '@google-cloud/storage';
 import type { Firestore } from 'firebase-admin/firestore';
 import { combineSermonNotes } from '@/lib/ai/combine-sermon';
+import { getStorageClient } from '@/lib/service-account';
 
 /**
  * Load a capture, run the manual+AI combine, and persist the result.
@@ -78,7 +78,7 @@ export async function runCombineForCapture(
       if (match) {
         const [, bucket, path] = match;
         const combinedPath = path.replace(/transcript\.txt$/, 'combined_summary.md');
-        await new Storage().bucket(bucket).file(combinedPath).save(combined.summary, {
+        await getStorageClient().bucket(bucket).file(combinedPath).save(combined.summary, {
           contentType: 'text/markdown; charset=utf-8',
         });
       }

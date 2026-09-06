@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Storage } from '@google-cloud/storage';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
+import { getStorageClient } from '@/lib/service-account';
 import { logAdminAction } from '@/lib/admin-logger';
 
 // House-style prompt — kept in sync with gbi-bec-youtube-live-sync/src/live-summary.ts SUMMARY_SYSTEM.
@@ -77,7 +77,7 @@ export async function POST(
       return NextResponse.json({ error: `Bad GCS URI: ${transcriptUri}` }, { status: 400 });
     }
     const [, bucket, path] = match;
-    const storage = new Storage();
+    const storage = getStorageClient();
     const [buf] = await storage.bucket(bucket).file(path).download();
     const transcript = buf.toString('utf-8');
     if (transcript.length < 100) {

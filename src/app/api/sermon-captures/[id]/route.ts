@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdminFirestore, verifyAuthToken } from '@/lib/firebase-admin';
 import { getAutomationLog } from '@/lib/automation-log';
+import { getStorageClient } from '@/lib/service-account';
 
 // GET /api/sermon-captures/[id] — full doc + transcript fetched from GCS
 export async function GET(
@@ -22,8 +23,7 @@ export async function GET(
     let transcript: string | null = null;
     if (wantTranscript && data.gcsPaths?.transcript) {
       try {
-        const { Storage } = await import('@google-cloud/storage');
-        const storage = new Storage();
+        const storage = getStorageClient();
         const gcsUri: string = data.gcsPaths.transcript;
         const match = gcsUri.match(/^gs:\/\/([^/]+)\/(.+)$/);
         if (match) {
